@@ -51,6 +51,7 @@ namespace Meebey.SmartIrc4net
         private bool             _SupportNonRfc  = false;
         private bool             _SupportNonRfcLocked = false;
         private StringCollection _Motd;
+        private bool             _MotdReceived = false;
         private Array            _ReplyCodes     = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels = new StringCollection();
         private Hashtable        _Channels       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
@@ -790,12 +791,6 @@ namespace Meebey.SmartIrc4net
                 OnErrorMessage(this, new IrcEventArgs(ircdata));
             }
 
-            if ((OnMotd != null) &&
-                (ircdata.Type == ReceiveType.Motd)) {
-                _Motd.Add(ircdata.Message);
-                OnMotd(this, new MotdEventArgs(ircdata, ircdata.Message));
-            }
-
             // special IRC messages
             code = ircdata.RawMessageArray[0];
             switch (code) {
@@ -869,6 +864,12 @@ namespace Meebey.SmartIrc4net
                     break;
                     case ReplyCode.ChannelModeIs:
                         _Event_RPL_CHANNELMODEIS(ircdata);
+                    break;
+                    case ReplyCode.Motd:
+                        _Event_RPL_MOTD(ircdata);
+                    break;
+                    case ReplyCode.EndOfMotd:
+                        _Event_RPL_ENDOFMOTD(ircdata);
                     break;
                     case ReplyCode.ErrorNicknameInUse:
                         _Event_ERR_NICKNAMEINUSE(ircdata);
@@ -1754,7 +1755,23 @@ namespace Meebey.SmartIrc4net
                 OnWho(this, new WhoEventArgs(ircdata, channel, nick, ident, host, realname, away, op, voice, ircop, server, hopcount));
             }
         }
-
+        
+        private void _Event_RPL_MOTD(IrcMessageData ircdata)
+        {
+            if (!_MotdReceived) {
+                _Motd.Add(ircdata.Message);
+            }
+            
+            if (OnMotd != null) {
+                OnMotd(this, new MotdEventArgs(ircdata, ircdata.Message));
+            }
+        }
+        
+        private void _Event_RPL_ENDOFMOTD(IrcMessageData ircdata)
+        {
+            _MotdReceived = true;
+        }
+        
         private void _Event_ERR_NICKNAMEINUSE(IrcMessageData ircdata)
         {
 #if LOG4NET
