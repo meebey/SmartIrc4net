@@ -33,6 +33,20 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class IrcCommands: IrcConnection
     {
+#if LOG4NET
+        public IrcCommands()
+        {
+            Logger.Main.Debug("IrcCommands created");
+        }
+#endif
+        
+#if LOG4NET
+        ~IrcCommands()
+        {
+            Logger.Main.Debug("IrcCommands destroyed");
+        }
+#endif
+    
         // API commands
         public void SendMessage(SendType type, string destination, string message, Priority priority)
         {

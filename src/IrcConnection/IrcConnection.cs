@@ -342,7 +342,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
         ~IrcConnection()
         {
-            Logger.Main.Debug("IrcClient destroyed");
+            Logger.Main.Debug("IrcConnection destroyed");
             log4net.LogManager.Shutdown();
         }
 #endif
