@@ -60,6 +60,26 @@ namespace Meebey.SmartIrc4net
             SendMessage(type, destination, message, Priority.Medium);
         }
 
+        public void SendReply(IrcMessageData data, string message, Priority priority)
+        {
+            switch (data.Type) {
+                case ReceiveType.ChannelMessage:
+                    SendMessage(SendType.Message, data.Channel, data.Message);
+                break;
+                case ReceiveType.QueryMessage:
+                    SendMessage(SendType.Message, data.Nick, data.Message);
+                break;
+                case ReceiveType.QueryNotice:
+                    SendMessage(SendType.Notice, data.Nick, data.Message);
+                break;
+            }
+        }
+
+        public void SendReply(IrcMessageData data, string message)
+        {
+            SendReply(data, message, Priority.Medium);
+        }
+        
         public void Op(string channel, string nickname, Priority priority)
         {
             WriteLine(Rfc2812.Mode(channel, "+o "+nickname), priority);
@@ -128,6 +148,17 @@ namespace Meebey.SmartIrc4net
         public void Unban(string channel, string hostmask)
         {
             WriteLine(Rfc2812.Mode(channel, "-b "+hostmask));
+        }
+        
+        // non-RFC commands
+        public void Halfop(string channel, string nickname, Priority priority)
+        {
+            WriteLine(Rfc2812.Mode(channel, "+h "+nickname), priority);
+        }
+
+        public void Dehalfop(string channel, string nickname)
+        {
+            WriteLine(Rfc2812.Mode(channel, "-h "+nickname));
         }
 
         // RFC commands

@@ -325,7 +325,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="port">Portnumber to connect to</pararm>
         /// <exception cref="CouldNotConnectException">The connection failed</exceptio>
         /// <exception cref="AlreadyConnectedException">If there is already an active connection</exceptio>
-        public void Connect(string[] addresslist, int port)
+        public virtual void Connect(string[] addresslist, int port)
         {
             if (_IsConnected) {
                 throw new AlreadyConnectedException("Already connected to: "+Address+":"+Port);

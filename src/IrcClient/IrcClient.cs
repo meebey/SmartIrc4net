@@ -49,6 +49,7 @@ namespace Meebey.SmartIrc4net
         private bool             _PassiveChannelSyncing = false;
         private bool             _AutoRejoin     = false;
         private bool             _SupportNonRfc  = false;
+        private bool             _SupportNonRfcLocked = false;
         private Array            _ReplyCodes     = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels = new StringCollection();
         private Hashtable        _Channels       = Hashtable.Synchronized(new Hashtable());
@@ -74,6 +75,7 @@ namespace Meebey.SmartIrc4net
         public event PingEventHandler           OnPing;
         public event IrcEventHandler            OnRawMessage;
         public event ErrorEventHandler          OnError;
+        public event IrcEventHandler            OnErrorMessage;
         public event JoinEventHandler           OnJoin;
         public event NamesEventHandler          OnNames;
         public event PartEventHandler           OnPart;
@@ -99,7 +101,7 @@ namespace Meebey.SmartIrc4net
         public event ActionEventHandler         OnChannelAction;
         public event IrcEventHandler            OnChannelNotice;
         public event IrcEventHandler            OnChannelActiveSynced;
-//        public event IrcEventHandler            OnChannelPassiveSynced;
+        public event IrcEventHandler            OnChannelPassiveSynced;
         public event IrcEventHandler            OnQueryMessage;
         public event ActionEventHandler         OnQueryAction;
         public event IrcEventHandler            OnQueryNotice;
@@ -196,6 +198,10 @@ namespace Meebey.SmartIrc4net
             }
             set {
 #if LOG4NET
+                if (_SupportNonRfcLocked) {
+                    return;
+                }
+                
                 if (value == true) {
                     Logger.ChannelSyncing.Info("SupportNonRfc enabled");
                 } else {
@@ -303,6 +309,15 @@ namespace Meebey.SmartIrc4net
         }
 #endif
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public override void Connect(string[] addresslist, int port)
+        {
+            _SupportNonRfcLocked = true;
+            base.Connect(addresslist, port);
+        }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -771,6 +786,11 @@ namespace Meebey.SmartIrc4net
                 OnRawMessage(this, new IrcEventArgs(ircdata));
             }
 
+            if ((OnErrorMessage != null) &&
+                ((int)ircdata.ReplyCode >= 400 && (int)ircdata.ReplyCode <= 599)) {
+                OnErrorMessage(this, new IrcEventArgs(ircdata));
+            }
+            
             // special IRC messages
             code = ircdata.RawMessageArray[0];
             switch (code) {
@@ -918,7 +938,11 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.ChannelSyncing.Debug("joining channel: "+channelname);
 #endif
-                    channel = new Channel(channelname);
+                    if (SupportNonRfc) {
+                        channel = new NonRfcChannel(channelname);
+                    } else {
+                        channel = new Channel(channelname);
+                    }
                     _Channels.Add(channelname.ToLower(), channel);
                     // request channel mode
                     RfcMode(channelname);
@@ -945,7 +969,12 @@ namespace Meebey.SmartIrc4net
                     _IrcUsers.Add(who.ToLower(), ircuser);
                 }
 
-                ChannelUser channeluser = new ChannelUser(channelname, ircuser);
+                ChannelUser channeluser;
+                if (SupportNonRfc) {
+                    channeluser = new NonRfcChannelUser(channelname, ircuser);
+                } else {
+                    channeluser = new ChannelUser(channelname, ircuser);
+                }
                 channel.UnsafeUsers.Add(who.ToLower(), channeluser);
             }
 
@@ -1165,6 +1194,11 @@ namespace Meebey.SmartIrc4net
                         if (channeluser.IsOp) {
                             channel.UnsafeOps.Remove(oldnickname.ToLower());
                             channel.UnsafeOps.Add(newnickname.ToLower(), channeluser);
+                        }
+                        if (SupportNonRfc && ((NonRfcChannelUser)channeluser).IsHalfop) {
+                            NonRfcChannel nchannel = (NonRfcChannel)channel;
+                            nchannel.UnsafeHalfops.Remove(oldnickname.ToLower());
+                            nchannel.UnsafeHalfops.Add(newnickname.ToLower(), channeluser);
                         }
                         if (channeluser.IsVoice) {
                             channel.UnsafeVoices.Remove(oldnickname.ToLower());
@@ -1556,7 +1590,7 @@ namespace Meebey.SmartIrc4net
                             Logger.ChannelSyncing.Debug("added op: "+nickname+" to: "+channelname);
 #endif
                         }
-                        if (halfop && SupportNonRfc)  {
+                        if (SupportNonRfc && halfop)  {
                             ((NonRfcChannel)channel).UnsafeHalfops.Add(nickname.ToLower(), channeluser);
 #if LOG4NET
                             Logger.ChannelSyncing.Debug("added halfop: "+nickname+" to: "+channelname);

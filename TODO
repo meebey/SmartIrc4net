@@ -6,9 +6,10 @@
  * $Date$
  */
 
+X halfop commands in IrcCommands
 - ipv6 support?
 - add IrcConnection.HostAddress (which IP is used for the client)
-- add OnErrorMessage event for ERR_* replycodes
+X add OnErrorMessage event for ERR_* replycodes
 - add OnSocketTimeout event
 - Disconnect(quitmessage)
 - DCC chat, file send/receive
