@@ -74,6 +74,11 @@ public class Test
         System.Console.WriteLine("Error: "+e.ErrorMessage);
     }
     
+    public static void OnRawMessage(object sender, IrcEventArgs e)
+    {
+        System.Console.WriteLine("Received: "+e.Data.RawMessage);
+    }
+    
     public static void Main(string[] args)
     {
         System.Threading.Thread.CurrentThread.Name = "Main";
@@ -82,6 +87,7 @@ public class Test
         irc.ActiveChannelSyncing = true;
         irc.OnQueryMessage += new IrcEventHandler(OnQueryMessage);
         irc.OnError += new ErrorEventHandler(OnError);
+        irc.OnRawMessage += new IrcEventHandler(OnRawMessage);
 
         string[] serverlist;
         serverlist = new string[] {"irc.fu-berlin.de"};
@@ -101,11 +107,20 @@ public class Test
                 irc.SendMessage(SendType.Action, channel, "thinks this is cool "+i.ToString());
                 irc.SendMessage(SendType.Notice, channel, "SmartIrc4net rocks "+i.ToString());
             }
+            
+            new System.Threading.Thread(new System.Threading.ThreadStart(ReadCommand)).Start();
             irc.Listen();
             irc.Disconnect();
         } catch (ConnectionException) {
         } catch (Exception e) {
             System.Console.WriteLine("Error occurred! Reason: "+e.Message);
+        }
+    }
+    
+    public static void ReadCommand()
+    {
+        while (true) {
+            irc.WriteLine(System.Console.ReadLine());
         }
     }
 }
