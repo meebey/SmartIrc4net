@@ -8,7 +8,7 @@ all: release
 debug: TARGET_PATH=bin/mono/debug
 debug: *.cs
 	mkdir -p $(TARGET_PATH)
-	cp ../../$(TARGET_PATH/$(SMARTIRC_DLL) $(TARGET_PATH)/$(SMARTIRC_DLL)
+	cp ../../$(TARGET_PATH)/$(SMARTIRC_DLL) $(TARGET_PATH)/$(SMARTIRC_DLL)
 	$(CSC) /debug /r:$(TARGET_PATH)/$(SMARTIRC_DLL) /out:$(TARGET_PATH)/$(TARGET) $^
 
 release: TARGET_PATH=bin/mono/release
