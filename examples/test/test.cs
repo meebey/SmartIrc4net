@@ -162,7 +162,7 @@ public class Test
             // disconnect manually
             irc.Disconnect();
         } catch (ConnectionException) {
-            // this exception is handled becaused Disconnect() can throw a not
+            // this exception is handled because Disconnect() can throw a not
             // connected exception
             Exit();
         } catch (Exception e) {
