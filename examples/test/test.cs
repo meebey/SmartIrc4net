@@ -83,6 +83,11 @@ public class Test
         string channel = "#smartirc";
         try {
             irc.Connect(serverlist, port);
+        } catch (ConnectionException e) {
+            System.Console.WriteLine("couldn't connect! Reason: "+e.Message);
+        }
+        
+        try {
             irc.Login("SmartIRC", "SmartIrc4net Test Bot");
             irc.RfcJoin(channel);
             for (int i = 0; i < 3; i++) {
@@ -92,8 +97,9 @@ public class Test
             }
             irc.Listen();
             irc.Disconnect();
-        } catch (ConnectionException e) {
-            System.Console.WriteLine("couldn't connect! Reason: "+e.Message);
+        } catch (ConnectionException) {
+        } catch (Exception e) {
+            System.Console.WriteLine("Error occurred! Reason: "+e.Message);
         }
     }
 }

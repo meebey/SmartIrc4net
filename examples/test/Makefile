@@ -1,21 +1,22 @@
 
 CSC=mcs
-LOG4NET_DLL=log4net.dll
 SMARTIRC_DLL=Meebey.SmartIrc4net.dll
-LIB="bin/mono/debug/$(LOG4NET_DLL),bin/mono/debug/$(SMARTIRC_DLL)"
 TARGET=test.exe
 
-all: debug release
+all: release
 
 debug: *.cs
-	cp ../../bin/$(LOG4NET_DLL) bin/mono/debug/$(LOG4NET_DLL)
-	cp ../../bin/mono/debug/$(SMARTIRC_DLL) bin/mono/debug/$(SMARTIRC_DLL)
-	$(CSC) /debug /r:$(LIB) /out:bin/mono/debug/$(TARGET) $^
+	TARGET_PATH=bin/mono/debug
+	mkdir -p $(TARGET_PATH)
+	cp ../../$(TARGET_PATH/$(SMARTIRC_DLL) $(TARGET_PATH)/$(SMARTIRC_DLL)
+	$(CSC) /debug /r:$(TARGET_PATH)/$(SMARTIRC_DLL) /out:$(TARGET_PATH)/$(TARGET) $^
 
 release: *.cs
-	cp ../../bin/$(LOG4NET_DLL) bin/mono/release/$(LOG4NET_DLL)
-	cp ../../bin/mono/release/$(SMARTIRC_DLL) bin/mono/release/$(SMARTIRC_DLL)
-	$(CSC) /r:$(LIB) /out:bin/mono/release/$(TARGET) $^
+	TARGET_PATH=bin/mono/release
+	mkdir -p $(TARGET_PATH)
+	cp ../../$(TARGET_PATH)/$(SMARTIRC_DLL) $(TARGET_PATH)/$(SMARTIRC_DLL)
+	$(CSC) /r:$(TARGET_PATH)/$(SMARTIRC_DLL) /out:$(TARGET_PATH)/$(TARGET) $^
 
 clean:
-	-rm -f bin/mono/debug/test.exe
+	-rm -f bin/mono/debug/$(TARGET)
+	-rm -f bin/mono/release/$(TARGET)
