@@ -40,6 +40,7 @@ changes:
   data is used for channel sync no extra commands are send to the IRC server.
 
 new:
+- parts of SmartIrc4net have now XML documentation tags
 - added *EventArgs for the events
 - added exception handling for Connect() Reconnect() Disconnect()
 - added VisualStudio project files (thanks to prencher for creating them)
