@@ -50,7 +50,7 @@ public class Benchmark
 	{
 	   IrcClient irc = new IrcClient();
 	   irc.OnRawMessage += new IrcEventHandler(IrcClientListCallback);
-	   irc.Connect("irc.eu.freenode.org", 6667);
+	   irc.Connect("irc.freenet.de", 6667);
 	   irc.Login("SmartIRC", "Benchmark Bot");
 	   irc.RfcList("#C#");
 	   irc.Listen();
@@ -68,7 +68,7 @@ public class Benchmark
 	{
 	   IrcConnection irc = new IrcConnection();
 	   irc.OnReadLine += new ReadLineEventHandler(IrcConnectionListCallback);
-	   irc.Connect("irc.eu.freenode.org", 6667);
+	   irc.Connect("irc.freenet.de", 6667);
 	   irc.WriteLine(Rfc2812.Nick("SmartIRC"), Priority.Critical);
 	   irc.WriteLine(Rfc2812.User("SmartIRC", 0, "Benchmark Bot"), Priority.Critical);
 	   irc.WriteLine(Rfc2812.List("#C#"));
@@ -78,7 +78,7 @@ public class Benchmark
 	public static void IrcConnectionListCallback(object sender, ReadLineEventArgs e)
 	{
 	   string[] linear = e.Line.Split(new char[] {' '});
-	   if (linear.Length >= 5 && linear[1] == "366") {
+	   if (linear.Length >= 5 && linear[1] == "322") {
 	       Console.WriteLine("On the IRC channel #php are "+linear[4]+" users");
 	       ((IrcConnection)sender).Disconnect();
 	   }
