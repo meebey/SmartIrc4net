@@ -44,7 +44,7 @@ namespace Meebey.SmartIrc4net
         {
         }
         
-        public SmartIrc4netException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected SmartIrc4netException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -64,7 +64,7 @@ namespace Meebey.SmartIrc4net
         {
         }
         
-        public ConnectionException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ConnectionException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -84,7 +84,7 @@ namespace Meebey.SmartIrc4net
         {
         }
 
-        public CouldNotConnectException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected CouldNotConnectException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -104,7 +104,7 @@ namespace Meebey.SmartIrc4net
         {
         }
         
-        public NotConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected NotConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -124,7 +124,7 @@ namespace Meebey.SmartIrc4net
         {
         }
         
-        public AlreadyConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected AlreadyConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 }

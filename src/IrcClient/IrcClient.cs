@@ -1124,7 +1124,7 @@ namespace Meebey.SmartIrc4net
                             if (add) {
                                 if (ChannelSyncing) {
                                     // update the op list
-                                    channel.Ops.Add(temp.ToLower(), GetIrcUser(temp));
+                                    channel.UnsafeOps.Add(temp.ToLower(), GetIrcUser(temp));
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
 #endif
@@ -1142,7 +1142,7 @@ namespace Meebey.SmartIrc4net
                             if (remove) {
                                 if (ChannelSyncing) {
                                     // update the op list
-                                    channel.Ops.Remove(temp.ToLower());
+                                    channel.UnsafeOps.Remove(temp.ToLower());
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("removed op: "+temp+" from: "+ircdata.Channel);
 #endif
@@ -1163,7 +1163,7 @@ namespace Meebey.SmartIrc4net
                             if (add) {
                                 if (ChannelSyncing) {
                                     // update the voice list
-                                    channel.Voices.Add(temp.ToLower(), GetIrcUser(temp));
+                                    channel.UnsafeVoices.Add(temp.ToLower(), GetIrcUser(temp));
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
 #endif
@@ -1180,7 +1180,7 @@ namespace Meebey.SmartIrc4net
                             if (remove) {
                                 if (ChannelSyncing) {
                                     // update the voice list
-                                    channel.Voices.Remove(temp.ToLower());
+                                    channel.UnsafeVoices.Remove(temp.ToLower());
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("removed voice: "+temp+" from: "+ircdata.Channel);
 #endif
