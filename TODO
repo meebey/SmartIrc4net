@@ -6,6 +6,7 @@
  * $Date$
  */
 
+- add IrcNetwork property, which is guessed by default or passed with Connect()
 - write PingThread which pings every 60 sec the server and waits 300 seconds before it triggers IsConnectionError
 - Documentation
 - passive channel sync
