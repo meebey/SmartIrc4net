@@ -1,8 +1,8 @@
 /**
- * $Id: Logger.cs,v 1.2 2003/11/16 18:59:30 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: Logger.cs,v 1.3 2003/11/27 23:27:24 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/16 18:59:30 $
+ * $Date: 2003/11/27 23:27:24 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,11 +23,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
 using System.IO;
 using System.Collections;
 
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
     public class Logger
     {
@@ -39,7 +38,13 @@ namespace SmartIRC
 
         public static void Init()
         {
-            log4net.Config.DOMConfigurator.ConfigureAndWatch(new FileInfo("SmartIRC-sharp_log.config"));
+            FileInfo fi = new FileInfo("SmartIrc4net_log.config");
+            if (fi.Exists) {
+                log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
+            } else {
+                log4net.Config.BasicConfigurator.Configure();
+            }
+
             _LoggerList[Category.Main]           = log4net.LogManager.GetLogger("MAIN");
             _LoggerList[Category.Socket]         = log4net.LogManager.GetLogger("SOCKET");
             _LoggerList[Category.Queue]          = log4net.LogManager.GetLogger("QUEUE");
