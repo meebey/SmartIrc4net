@@ -1478,7 +1478,7 @@ namespace Meebey.SmartIrc4net
             string inviter = ircdata.Nick;
 
             if (OnInvite != null) {
-                OnInvite(this, new InviteEventArgs(ircdata, inviter, channel));
+                OnInvite(this, new InviteEventArgs(ircdata, channel, inviter));
             }
         }
 
