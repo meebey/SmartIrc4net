@@ -1,8 +1,8 @@
 /**
- * $Id: IrcUser.cs,v 1.3 2003/12/14 12:44:11 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: IrcUser.cs,v 1.4 2003/12/28 14:43:05 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/12/14 12:44:11 $
+ * $Date: 2003/12/28 14:43:05 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -29,19 +29,36 @@ namespace Meebey.SmartIrc4net
 {
     public class IrcUser
     {
-        private string  _Nick     = null;
-        private string  _Ident    = null;
-        private string  _Host     = null;
-        private string  _Realname = null;
-        private bool    _IrcOp    = false;
-        private bool    _Away     = false;
-        private string  _Server   = null;
-        private int     _HopCount = -1;
+        private IrcClient _IrcClient;
+        private string    _Nick     = null;
+        private string    _Ident    = null;
+        private string    _Host     = null;
+        private string    _Realname = null;
+        private bool      _IrcOp    = false;
+        private bool      _Away     = false;
+        private string    _Server   = null;
+        private int       _HopCount = -1;
+
+        public IrcUser(string nickname, IrcClient ircclient)
+        {
+            _IrcClient = ircclient;
+            _Nick      = nickname;
+        }
+
+        ~IrcUser()
+        {
+#if LOG4NET
+            Logger.ChannelSyncing.Debug("IrcUser ("+Nick+") destroyed");
+#endif
+        }
 
         public string Nick
         {
             get {
                 return _Nick;
+            }
+            set {
+                _Nick = value;
             }
         }
 
@@ -50,12 +67,18 @@ namespace Meebey.SmartIrc4net
             get {
                 return _Ident;
             }
+            set {
+                _Ident = value;
+            }
         }
 
         public string Host
         {
             get {
                 return _Host;
+            }
+            set {
+                _Host = value;
             }
         }
 
@@ -64,12 +87,18 @@ namespace Meebey.SmartIrc4net
             get {
                 return _Realname;
             }
+            set {
+                _Realname = value;
+            }
         }
 
         public bool IrcOp
         {
             get {
                 return _IrcOp;
+            }
+            set {
+                _IrcOp = value;
             }
         }
 
@@ -78,12 +107,18 @@ namespace Meebey.SmartIrc4net
             get {
                 return _Away;
             }
+            set {
+                _Away = value;
+            }
         }
 
         public string Server
         {
             get {
                 return _Server;
+            }
+            set {
+                _Server = value;
             }
         }
 
@@ -92,12 +127,25 @@ namespace Meebey.SmartIrc4net
             get {
                 return _HopCount;
             }
+            set {
+                _HopCount = value;
+            }
         }
 
         public StringCollection JoinedChannels
         {
             get {
-                return new StringCollection();
+                Channel channel;
+                StringCollection channels = _IrcClient.GetChannels();
+                StringCollection joinedchannels = new StringCollection();
+                foreach (string channelname in channels) {
+                    channel = _IrcClient.GetChannel(channelname);
+                    if (channel.Users.ContainsKey(_Nick.ToLower())) {
+                        joinedchannels.Add(channelname);
+                    }
+                }
+                
+                return joinedchannels;
             }
         }
     }
