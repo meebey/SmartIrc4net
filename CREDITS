@@ -1,0 +1,27 @@
+/**
+ * $Id: CREDITS,v 1.1 2003/11/16 16:58:42 meebey Exp $
+ * $Revision: 1.1 $
+ * $Author: meebey $
+ * $Date: 2003/11/16 16:58:42 $
+ */
+
+This is the creditslist for SmartIRC#
+
+The fields are:
+(N) name
+(E) email
+(W) web-address
+(P) PGP key ID and fingerprint
+(D) description
+(S) snail-mail address
+---------------------------
+
+N: Mirco 'meebey' Bauer
+E: mail@meebey.net
+E: meebey@php.net
+W: www.meebey.net
+P: 5051C9B9 / EF69 07A4 51AD 689E CF0C  767F CD9C 4C1A 5051 C9B9
+D: Project Maintainer
+S: Kroonhorst 42
+S: 22549 Hamburg
+S: Germany

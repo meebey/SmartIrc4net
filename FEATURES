@@ -1,0 +1,61 @@
+/**
+ * $Id: FEATURES,v 1.1 2003/11/16 16:58:42 meebey Exp $
+ * $Revision: 1.1 $
+ * $Author: meebey $
+ * $Date: 2003/11/16 16:58:42 $
+ */
+
+Full featurelist of SmartIRC#
+-------------------------------------
+
+- every received IRC message is parsed into an ircdata object
+  (it contains following info: from, nick, ident, host, channel, message, type, rawmessage)
+- actionhandler for the API
+  on different types of messages (channel/notice/query/kick/join..) callbacks can be registered
+- messagehandler for the API
+  class based messagehandling, using IRC reply codes
+- time events
+  callbacks to methods in intervals
+- send/receive floodprotection
+- detects and changes nickname on nickname collisions
+- autoreconnect, if connection is lost
+- autoretry for connecting to IRC servers
+- debugging/logging system with log levels (using log4net)
+- compatible with the MS and MONO .NET Framework
+- sendbuffer with a queue that has 3 priority levels (high, medium, low) plus a bypass level (critical)
+- channel syncing (tracking of users/modes/topic etc in objects)
+- user syncing (tracking the user in channels, nick/ident/host/realname/server/hopcount in objects)
+- when channel syncing is acticated the following functions are available:
+  isJoined
+  isOpped
+  isVoiced
+  isBanned
+- on reconnect all joined channels will be rejoined, also when keys are used
+- own CTCP version reply can be set
+- IRC commands:
+  pass
+  op
+  deop
+  voice
+  devoice
+  ban
+  unban
+  join
+  part
+  action
+  message
+  notice
+  query
+  ctcp
+  mode
+  topic
+  nick
+  invite
+  list
+  names
+  kick
+  who
+  whois
+  whowas
+  quit
+  
