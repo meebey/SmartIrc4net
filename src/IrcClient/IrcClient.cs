@@ -936,7 +936,10 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.ChannelSyncing.Debug(who+" parts channel: "+channel);
 #endif
-                    GetChannel(channel).UnsafeUsers.Remove(who.ToLower());
+                    Channel chan = GetChannel(channel);
+                    chan.UnsafeUsers.Remove(who.ToLower());
+                    chan.UnsafeOps.Remove(who.ToLower());
+                    chan.UnsafeVoices.Remove(who.ToLower());
                     _RemoveIrcUser(who);
                 }
             }
@@ -961,7 +964,10 @@ namespace Meebey.SmartIrc4net
                 if (IsMe(victim)) {
                     _Channels.Remove(channel.ToLower());
                 } else {
-                    GetChannel(channel).UnsafeUsers.Remove(victim.ToLower());
+                    Channel chan = GetChannel(channel);
+                    chan.UnsafeUsers.Remove(victim.ToLower());
+                    chan.UnsafeOps.Remove(victim.ToLower());
+                    chan.UnsafeVoices.Remove(victim.ToLower());
                     _RemoveIrcUser(who);
                 }
             }
@@ -980,7 +986,10 @@ namespace Meebey.SmartIrc4net
             
             if (ActiveChannelSyncing) {
                 foreach (string channel in GetIrcUser(who).JoinedChannels) {
-                    GetChannel(channel).UnsafeUsers.Remove(who.ToLower());
+                    Channel chan = GetChannel(channel);
+                    chan.UnsafeUsers.Remove(who.ToLower());
+                    chan.UnsafeOps.Remove(who.ToLower());
+                    chan.UnsafeVoices.Remove(who.ToLower());
                 }
                 _RemoveIrcUser(who);
             }
@@ -1115,6 +1124,14 @@ namespace Meebey.SmartIrc4net
                         // remove first to avoid duplication, Foo -> foo
                         channel.UnsafeUsers.Remove(oldnickname.ToLower());
                         channel.UnsafeUsers.Add(newnickname.ToLower(), channeluser);
+                        if (channeluser.IsOp) {
+                            channel.UnsafeOps.Remove(oldnickname.ToLower());
+                            channel.UnsafeOps.Add(newnickname.ToLower(), channeluser);
+                        }
+                        if (channeluser.IsVoice) {
+                            channel.UnsafeVoices.Remove(oldnickname.ToLower());
+                            channel.UnsafeVoices.Add(newnickname.ToLower(), channeluser);
+                        }
                     }
                 }
             }
