@@ -1,0 +1,78 @@
+/**
+ * $Id: CHANGELOG 108 2004-11-07 21:04:42Z meebey $
+ * $URL: svn+ssh://svn.qnetp.net/svn/smartirc/SmartIrc4net/trunk/CHANGELOG $
+ * $Rev: 108 $
+ * $Author: meebey $
+ * $Date: 2004-11-07 22:04:42 +0100 (Sun, 07 Nov 2004) $
+ */
+
+API Change (0.2.0 -> 0.3.0) Documentation 
+-----------------------------------------
+This file is only relevent for you if you wrote an IRC application that is
+SmartIrc4net 0.2.0 based! If you didn't use SmartIrc4net yet, you can safely
+ignore this file and just continue on hacking a great IRC applicatiom ;)
+
+The API naming between SmartIrc4net 0.2.0 and 0.3.0 changed alot, mostly
+because of .NET library standards.
+
+Here are the changes:
+- All RFC commands in IrcCommands are now prefixed with "Rfc"
+
+  If you used the Join() method, then you need to change your calls to
+  RfcJoin(). The reason is for this change is that the most commands are plain
+  RFC wrapper methods. This way you can easily distinguish between API
+  commands/feature and plain RFC commands. Another reason was conflicts or
+  confusing names like Admin(), Version() or Ison().
+
+  Message() got renamed to SendMessage() which makes more clear what that
+  method actually does.
+
+- All delegates now uses .NET standards conform signatures
+
+  If you used JoinEventHandler which was:
+  JoinEventHandler(string channel, string who, Data ircdata)
+
+  it's now:
+  JoinEventHandler(object sender, JoinEventArgs e);
+
+  This way the .NET library standards suggest, because those JoinEventArgs
+  which extends IrcEventArgs which extends EventArgs can be easily changed at
+  any time later for additional data.
+  The "sender argument is type IrcClient, the irc client object that triggered
+  the event, very useful for multiple irc connection)
+  IrcEventArgs always contain the property "Data"
+  (type IrcMessageData, formerly known as type Data)
+
+  This means you have to change all your event method signatures, e.g.:
+
+  If you had an event method for OnJoin it was like this:
+  MyOnJoinMethod(string channel, string who, Data ircdata) {
+    System.Console.WriteLine(who+" joined on "+channel+"!");
+  }
+
+  you need to change that to:
+  MyOnJoinMethod(object sender, JoinEventArgs e) {
+    System.Console.WriteLine(e.Who+" joined on "+e.Channel+"!");
+  }
+
+  you still have the whole parsed IRC message in e.Data!
+
+- Connect() Disconnect() Reconnect() don't return bool anymore
+
+  They are use now proper exception handling, so catch them!
+  There is ConnectionException which work for all 3 methods, and also more
+  specific exception types like:
+  CouldNotConnectException
+  AlreadyConnectedException
+  NotConnectionException
+  
+  There is also a very general exception type which will catch ANY exception
+  that SmartIrc4net will throw! It's called:
+  SmartIrc4netException
+
+- ChannelSync property is renamed to ActiveChannelSync
+  (read more about in the CHANGELOG)
+
+- Any method that will send a message can throw an exception!
+  If the IRC library is not connected and you try to send any message, then
+  a NotConnectedException will be thrown!

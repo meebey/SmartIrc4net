@@ -13,14 +13,14 @@ SmartIrc4net is a C# class for communication with IRC networks, which
 conforms to the RFC 2812 (IRC Protocol).
 It's orignally a port of SmartIRC (written in PHP),
 but it's much more now (I will backport it to PHP some day).
-It's an API that handles all IRC protocol messages and is designed for
-creating IRC bots, chats and show irc related info on webpages.
+SmartIrc4net an API that handles all IRC protocol messages and is designed for
+creating IRC bots or even GUI clients.
 
 Please report bugs to:
 http://sourceforge.net/tracker/?group_id=114302&atid=667874
 
 Project Homepage:
-http://sourceforge.net/projects/smartirc4net
+http://smartirc4net.sf.net
 
 files included in SmartIrc4net
 --------------------------
