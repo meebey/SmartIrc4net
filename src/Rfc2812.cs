@@ -1,8 +1,8 @@
 /**
- * $Id: Rfc2812.cs,v 1.2 2003/11/21 23:41:08 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: Rfc2812.cs,v 1.3 2003/11/27 23:29:16 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/21 23:41:08 $
+ * $Date: 2003/11/27 23:29:16 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,9 +23,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
-
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
     public class Rfc2812
     {
