@@ -18,11 +18,11 @@ release-stamp: *.cs */*.cs
 	$(CSC) /target:library /out:../bin/mono/release/$(TARGET) $^
 	touch release-stamp
 
-sign: sign-stamp
-sign-stamp: *.cs */*.cs
+release-signed: release-signed-stamp
+release-signed-stamp: *.cs */*.cs
 	$(CSC) /target:library /define:DELAY_SIGN /out:../bin/mono/release/$(TARGET) $^
 	$(CSS) -R ../bin/mono/release/$(TARGET) ../SmartIrc4net.snk
-	touch sign-stamp
+	touch release-signed-stamp
 
 install: relase
 	$(GACUTIL) -i ../bin/mono/release/$(SMARTIRC_DLL) -f -package SmartIrc4net
@@ -32,6 +32,6 @@ clean:
 	-rm -f ../bin/mono/release/$(TARGET)
 	-rm -f debug-stamp
 	-rm -f release-stamp
-	-rm -f sign-stamp
+	-rm -f release-signed-stamp
 
-.PHONY: all debug release sign install clean
+.PHONY: all debug release release-signed install clean
