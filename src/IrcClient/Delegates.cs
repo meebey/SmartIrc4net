@@ -26,7 +26,6 @@
 
 namespace Meebey.SmartIrc4net
 {
-    // delegates for IrcClient
     public delegate void IrcEventHandler(object sender, IrcEventArgs e);
     public delegate void ActionEventHandler(object sender, ActionEventArgs e);
     public delegate void ErrorEventHandler(object sender, ErrorEventArgs e);
@@ -47,8 +46,4 @@ namespace Meebey.SmartIrc4net
     public delegate void NickChangeEventHandler(object sender, NickChangeEventArgs e);
     public delegate void QuitEventHandler(object sender, QuitEventArgs e);
     public delegate void WhoEventHandler(object sender, WhoEventArgs e);
-    
-    // delegates for IrcConnection
-    public delegate void ReadLineEventHandler(object sender, ReadLineEventArgs e);
-    public delegate void WriteLineEventHandler(object sender, WriteLineEventArgs e);
 }

@@ -32,20 +32,40 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
-    public class IrcEventArgs : EventArgs
+    public class ReadLineEventArgs : EventArgs
     {
-        private readonly IrcMessageData _Data;
+        private string _Line;
         
-        public IrcMessageData Data
+        public string Line
         {
             get {
-                return _Data;
+                return _Line;
             }
         }
-         
-        internal IrcEventArgs(IrcMessageData data)
+
+        internal ReadLineEventArgs(string line)
         {
-            _Data = data;
+            _Line = line;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public class WriteLineEventArgs : EventArgs
+    {
+        private string _Line;
+        
+        public string Line
+        {
+            get {
+                return _Line;
+            }
+        }
+
+        internal WriteLineEventArgs(string line)
+        {
+            _Line = line;
         }
     }
 }
