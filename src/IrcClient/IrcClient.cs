@@ -50,7 +50,7 @@ namespace Meebey.SmartIrc4net
         private bool             _AutoRejoin     = false;
         private bool             _SupportNonRfc  = false;
         private bool             _SupportNonRfcLocked = false;
-        private StringCollection _Motd;
+        private StringCollection _Motd = new StringCollection();
         private bool             _MotdReceived = false;
         private Array            _ReplyCodes     = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels = new StringCollection();
@@ -1659,6 +1659,9 @@ namespace Meebey.SmartIrc4net
                 OnNames(this, new NamesEventArgs(ircdata, channelname, userlist));
             }
             
+#if LOG4NET
+            Logger.ChannelSyncing.Debug("passive synced: "+channelname);
+#endif
             if (OnChannelPassiveSynced != null) {
                 OnChannelPassiveSynced(this, new IrcEventArgs(ircdata));
             }
@@ -1786,6 +1789,9 @@ namespace Meebey.SmartIrc4net
         
         private void _Event_RPL_ENDOFBANLIST(IrcMessageData ircdata)
         {
+#if LOG4NET
+            Logger.ChannelSyncing.Debug("active synced: "+ircdata.Channel);
+#endif
             if (OnChannelActiveSynced != null) {
                 OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
             }
