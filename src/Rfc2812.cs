@@ -1,8 +1,8 @@
 /**
- * $Id: Rfc2812.cs,v 1.1 2003/11/16 16:58:42 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: Rfc2812.cs,v 1.2 2003/11/21 23:41:08 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:42 $
+ * $Date: 2003/11/21 23:41:08 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -48,10 +48,110 @@ namespace SmartIRC
         {
             return "USER "+username+" "+usermode.ToString()+" * :"+realname;
         }
-        
+
+        public static string Privmsg(string destination, string message)
+        {
+            return "PRIVMSG "+destination+" :"+message;
+        }
+
+        public static string Notice(string destination, string message)
+        {
+            return "NOTICE "+destination+" :"+message;
+        }
+
         public static string Join(string channel)
         {
             return "JOIN "+channel;
+        }
+
+        public static string Part(string channel)
+        {
+            return "PART "+channel;
+        }
+
+        public static string Part(string channel, string reason)
+        {
+            return "PART "+channel+" :"+reason;
+        }
+
+        public static string Kick(string channel, string nickname)
+        {
+            return "KICK "+channel+" "+nickname;
+        }
+
+        public static string Kick(string channel, string nickname, string reason)
+        {
+            return "KICK "+channel+" "+nickname+" :"+reason;
+        }
+
+        public static string List()
+        {
+            return "LIST";
+        }
+
+        public static string List(string channel)
+        {
+            return "LIST "+channel;
+        }
+
+        public static string Names()
+        {
+            return "NAMES";
+        }
+
+        public static string Names(string channel)
+        {
+            return "NAMES "+channel;
+        }
+
+        public static string Topic(string channel)
+        {
+            return "TOPIC "+channel;
+        }
+
+        public static string Topic(string channel, string newtopic)
+        {
+            return "TOPIC "+channel+" :"+newtopic;
+        }
+
+        public static string Mode(string target)
+        {
+            return "MODE "+target;
+        }
+
+        public static string Mode(string target, string newmode)
+        {
+            return "MODE "+target+" "+newmode;
+        }
+
+        public static string Invite(string nickname, string channel)
+        {
+            return "INVITE "+nickname+" "+channel;
+        }
+
+        public static string Who(string target)
+        {
+            return "WHO "+target;
+        }
+
+        public static string Whois(string target)
+        {
+            return "WHOIS "+target;
+        }
+
+        public static string Whowas(string target)
+        {
+            return "WHOWAS "+target;
+        }
+
+        public static string Quit()
+        {
+            return "QUIT";
+        }
+
+        public static string Quit(string reason)
+        {
+            return "QUIT :"+reason;
         }
     }
 }
