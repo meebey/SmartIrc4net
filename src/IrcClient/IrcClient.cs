@@ -1395,12 +1395,12 @@ namespace Meebey.SmartIrc4net
                         _RemoveIrcUser(who);
 #if LOG4NET
                     } else {
-                        Logger.ChannelSyncing.Warn("received quit message from a user without beeing in any channel?!? ignored");
+                        Logger.ChannelSyncing.Error("user.JoinedChannels (for: '"+who+"') returned null in _Event_QUIT! Ignoring...");
 #endif
                     }
 #if LOG4NET
                 } else {
-                    Logger.ChannelSyncing.Warn("received quit message from a non-existent user?!? ignored");
+                    Logger.ChannelSyncing.Error("GetIrcUser("+who+") returned null in _Event_QUIT! Ignoring...");
 #endif
                 }
             }
@@ -1812,13 +1812,13 @@ namespace Meebey.SmartIrc4net
                 ChannelUser channeluser = GetChannelUser(channel, nick);
 #if LOG4NET
                 if (ircuser == null) {
-                    Logger.ChannelSyncing.Error("GetIrcUser(nick) returned null in _Event_WHOREPLY! Ignoring...");
+                    Logger.ChannelSyncing.Error("GetIrcUser("+nick+") returned null in _Event_WHOREPLY! Ignoring...");
                 }
 #endif
 
 #if LOG4NET
                 if (channeluser == null) {
-                    Logger.ChannelSyncing.Error("GetChannelUser(nick) returned null in _Event_WHOREPLY! Ignoring...");
+                    Logger.ChannelSyncing.Error("GetChannelUser("+nick+") returned null in _Event_WHOREPLY! Ignoring...");
                 }
 #endif
 
