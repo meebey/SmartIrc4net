@@ -1,8 +1,8 @@
 /**
- * $Id: test.cs,v 1.2 2003/11/27 23:32:21 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: test.cs,v 1.3 2003/12/28 14:45:40 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:32:21 $
+ * $Date: 2003/12/28 14:45:40 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -24,22 +24,71 @@
  */
 
 using System;
+using System.Collections;
 using Meebey.SmartIrc4net;
+using Meebey.SmartIrc4net.Delegates;
 
-public class main
+public class Test
 {
+    public static IrcClient irc = new IrcClient();
+
+    public static void OnQueryMessage(Data ircdata)
+    {
+        switch (ircdata.MessageEx[0]) {
+            case "dump_channel":
+                string requested_channel = ircdata.MessageEx[1];
+                Channel channel = irc.GetChannel(requested_channel);
+                irc.Message(SendType.Message, ircdata.Nick, "<channel '"+requested_channel+"'>");
+
+                irc.Message(SendType.Message, ircdata.Nick, "Name: '"+channel.Name+"'");
+                irc.Message(SendType.Message, ircdata.Nick, "Topic: '"+channel.Topic+"'");
+                irc.Message(SendType.Message, ircdata.Nick, "Mode: '"+channel.Mode+"'");
+                irc.Message(SendType.Message, ircdata.Nick, "Key: '"+channel.Key+"'");
+                irc.Message(SendType.Message, ircdata.Nick, "UserLimit: '"+channel.UserLimit+"'");
+
+                string nickname_list = "";
+                nickname_list += "Users: ";
+                IDictionaryEnumerator it = channel.Users.GetEnumerator();
+                while(it.MoveNext()) {
+                    string      key         = (string)it.Key;
+                    ChannelUser channeluser = (ChannelUser)it.Value;
+                    nickname_list += key+" => "+channeluser.Nick+", ";
+                }
+                irc.Message(SendType.Message, ircdata.Nick, nickname_list);
+
+                irc.Message(SendType.Message, ircdata.Nick, "</channel>");
+            break;
+            case "join":
+                irc.Join(ircdata.MessageEx[1]);
+            break;
+            case "part":
+                irc.Part(ircdata.MessageEx[1]);
+            break;
+            case "gc":
+                GC.Collect();
+            break;
+        }
+    }
+
     public static void Main(string[] args)
     {
-        IrcClient irc = new IrcClient();
-        irc.AutoReconnect = true;
-        if(irc.Connect("localhost", 6667) == true) {
+//        irc.SendDelay = 200;
+        irc.AutoRetry = true;
+        irc.ChannelSyncing = true;
+        irc.OnQueryMessage += new MessageEventHandler(OnQueryMessage);
+
+        string[] serverlist = {"irc.fu-berlin.de", "localhost"};
+        int    port   = 6667;
+        if(irc.Connect(serverlist, port) == true) {
             irc.Login("SmartIRC", "Mirco Bauer");
             irc.Join("#test");
+            /*
             for(int i = 0; i < 32; i++) {
                 irc.Message(SendType.Message, "#test", "test message "+i.ToString());
                 irc.Message(SendType.Action, "#test", " thinks this is cool "+i.ToString());
                 irc.Message(SendType.Notice, "#test", "you all suck "+i.ToString());
             }
+            */
             irc.Listen();
             irc.Disconnect();
         } else {
