@@ -1,8 +1,8 @@
 /**
- * $Id: Consts.cs,v 1.6 2003/12/28 14:07:01 meebey Exp $
- * $Revision: 1.6 $
+ * $Id: Consts.cs,v 1.7 2003/12/29 18:05:57 meebey Exp $
+ * $Revision: 1.7 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:07:01 $
+ * $Date: 2003/12/29 18:05:57 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -98,6 +98,7 @@ namespace Meebey.SmartIrc4net
 
     public enum ReplyCode: int
     {
+        NULL =                     000,
         RPL_WELCOME =              001,
         RPL_YOURHOST =             002,
         RPL_CREATED =              003,
