@@ -1,8 +1,8 @@
 /**
- * $Id: Data.cs,v 1.4 2004/07/15 20:51:03 meebey Exp $
- * $Revision: 1.4 $
+ * $Id: Data.cs,v 1.5 2004/07/31 22:56:22 meebey Exp $
+ * $Revision: 1.5 $
  * $Author: meebey $
- * $Date: 2004/07/15 20:51:03 $
+ * $Date: 2004/07/31 22:56:22 $
  *
  * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -27,16 +27,17 @@ namespace Meebey.SmartIrc4net
 {
     public class Data
     {
-        public IrcClient    Irc;
-        public string       From;
-        public string       Nick;
-        public string       Ident;
-        public string       Host;
-        public string       Channel;
-        public string       Message;
-        public string[]     MessageEx;
-        public ReceiveType  Type;
-        public string       RawMessage;
-        public string[]     RawMessageEx;
+        public IrcClient   Irc;
+        public string      From;
+        public string      Nick;
+        public string      Ident;
+        public string      Host;
+        public string      Channel;
+        public string      Message;
+        public string[]    MessageEx;
+        public ReceiveType Type;
+        public ReplyCode   ReplyCode;
+        public string      RawMessage;
+        public string[]    RawMessageEx;
     }
 }

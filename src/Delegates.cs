@@ -1,8 +1,8 @@
 /**
- * $Id: Delegates.cs,v 1.6 2004/07/15 20:51:03 meebey Exp $
- * $Revision: 1.6 $
+ * $Id: Delegates.cs,v 1.7 2004/07/31 22:56:22 meebey Exp $
+ * $Revision: 1.7 $
  * $Author: meebey $
- * $Date: 2004/07/15 20:51:03 $
+ * $Date: 2004/07/31 22:56:22 $
  *
  * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -34,6 +34,7 @@ namespace Meebey.SmartIrc4net.Delegates
     public delegate void PingEventHandler(string data);
     public delegate void KickEventHandler(string channel, string victim, string who, string reason, Data ircdata);
     public delegate void JoinEventHandler(string channel, string who, Data ircdata);
+    public delegate void NamReplyEventHandler(string channel, string[] userlist, Data ircdata);
     public delegate void PartEventHandler(string channel, string who, string partmessage, Data ircdata);
     public delegate void InviteEventHandler(string inviter, string channel, Data ircdata);
     public delegate void OpEventHandler(string channel, string who, string whom, Data ircdata);
