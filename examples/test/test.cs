@@ -69,6 +69,11 @@ public class Test
         }
     }
 
+    public static void OnError(object sender, ErrorEventArgs e)
+    {
+        System.Console.WriteLine("Error: "+e.ErrorMessage);
+    }
+    
     public static void Main(string[] args)
     {
         System.Threading.Thread.CurrentThread.Name = "Main";
@@ -76,6 +81,7 @@ public class Test
         irc.AutoRetry = true;
         irc.ActiveChannelSyncing = true;
         irc.OnQueryMessage += new IrcEventHandler(OnQueryMessage);
+        irc.OnError += new ErrorEventHandler(OnError);
 
         string[] serverlist;
         serverlist = new string[] {"irc.fu-berlin.de"};
