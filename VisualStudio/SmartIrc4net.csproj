@@ -146,6 +146,18 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "IrcClient\NonRfcChannel.cs"
+                    Link = "..\src\IrcClient\NonRfcChannel.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "IrcClient\NonRfcChannelUser.cs"
+                    Link = "..\src\IrcClient\NonRfcChannelUser.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "IrcCommands\IrcCommands.cs"
                     Link = "..\src\IrcCommands\IrcCommands.cs"
                     SubType = "Code"
