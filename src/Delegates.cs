@@ -1,8 +1,8 @@
 /**
- * $Id: Delegates.cs,v 1.3 2003/12/28 14:09:39 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: Delegates.cs,v 1.4 2003/12/29 18:06:29 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:09:39 $
+ * $Date: 2003/12/29 18:06:29 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -47,6 +47,6 @@ namespace Meebey.SmartIrc4net.Delegates
     public delegate void MessageEventHandler(Data ircdata);
 
     // for IrcConnection
-    public delegate void ReadLineEventHandler(string data);
-    public delegate void WriteLineEventHandler(string data);
+    public delegate void ReadLineEventHandler(string rawline);
+    public delegate void WriteLineEventHandler(string rawline);
 }
