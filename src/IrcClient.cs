@@ -1,8 +1,8 @@
 /**
- * $Id: IrcClient.cs,v 1.1 2003/11/16 16:58:42 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: IrcClient.cs,v 1.2 2003/11/20 23:10:56 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:42 $
+ * $Date: 2003/11/20 23:10:56 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -29,6 +29,7 @@ using System.Text;
 namespace SmartIRC
 {
     public delegate void PingEventHandler(string data);
+    public delegate void RegisteredEventHandler();
 
     public class IrcClient
     {
@@ -45,8 +46,10 @@ namespace SmartIRC
         private bool            _AutoRetry;
         private bool            _AutoReconnect;
         private bool            _AutoRejoin;
+        private bool            _Registered = false;
 
-        public event PingEventHandler   OnPing;
+        public event PingEventHandler       OnPing;
+        public event RegisteredEventHandler OnRegistered;
 
         public IrcCommands Commands
         {
@@ -117,6 +120,13 @@ namespace SmartIRC
             }
         }
 
+        public bool Registered
+        {
+            get {
+                return _Registered;
+            }
+        }
+
         public IrcClient()
         {
             _Commands = new IrcCommands(_Connection);
@@ -132,12 +142,12 @@ namespace SmartIRC
             log4net.LogManager.Shutdown();
         }
 
-        public void Connect(string address, int port)
+        public bool Connect(string address, int port)
         {
             _Address = address;
             _Port = port;
 
-            _Connection.Connect(_Address, _Port);
+            return _Connection.Connect(_Address, _Port);
         }
 
         public void Login(string nick, string realname, int usermode, string username, string password)
@@ -296,6 +306,12 @@ namespace SmartIRC
         private void _HandleEvents(string messagecode, Data ircdata)
         {
             switch(messagecode) {
+                case "001":
+                    _rpl_welcome(ircdata);
+                    if (OnRegistered != null) {
+                        OnRegistered();
+                    }
+                break;
                 case "PING":
                     _rpl_ping(ircdata);
                     if (OnPing != null) {
@@ -307,6 +323,14 @@ namespace SmartIRC
         }
 
 // <internal messagehandler>
+
+        private void _rpl_welcome(Data ircdata)
+        {
+            _Registered = true;
+            Logger.Connection.Info("logged in");
+            // updating our nickname, that we got (maybe cutted...)
+            _Nick = ircdata.rawmessageex[2];
+        }
 
         private void _rpl_ping(Data ircdata)
         {
