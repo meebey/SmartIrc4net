@@ -47,12 +47,12 @@ namespace Meebey.SmartIrc4net
             _IrcUser = ircuser;
         }
 
+#if LOG4NET
         ~ChannelUser()
         {
-#if LOG4NET
             Logger.ChannelSyncing.Debug("ChannelUser ("+Channel+":"+IrcUser.Nick+") destroyed");
-#endif
         }
+#endif
 
         /// <summary>
         /// 

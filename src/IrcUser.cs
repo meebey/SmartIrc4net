@@ -49,12 +49,12 @@ namespace Meebey.SmartIrc4net
             _Nick      = nickname;
         }
 
+#if LOG4NET
         ~IrcUser()
         {
-#if LOG4NET
             Logger.ChannelSyncing.Debug("IrcUser ("+Nick+") destroyed");
-#endif
         }
+#endif
 
         public string Nick
         {

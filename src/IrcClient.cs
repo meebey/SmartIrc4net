@@ -226,13 +226,13 @@ namespace Meebey.SmartIrc4net
             OnReadLine        += new ReadLineEventHandler(_Worker);
         }
 
+#if LOG4NET
         ~IrcClient()
         {
-#if LOG4NET
             Logger.Main.Debug("IrcClient destroyed");
             log4net.LogManager.Shutdown();
-#endif
         }
+#endif
 
         /// <summary>
         /// 

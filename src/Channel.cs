@@ -56,12 +56,12 @@ namespace Meebey.SmartIrc4net
             _Name = name;
         }
 
+#if LOG4NET
         ~Channel()
         {
-#if LOG4NET
             Logger.ChannelSyncing.Debug("Channel ("+Name+") destroyed");
-#endif
         }
+#endif
 
         /// <summary>
         /// 
