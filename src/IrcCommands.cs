@@ -1,8 +1,8 @@
 /**
- * $Id: IrcCommands.cs,v 1.3 2003/11/27 23:25:18 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: IrcCommands.cs,v 1.4 2003/12/28 14:11:59 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:25:18 $
+ * $Date: 2003/12/28 14:11:59 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -255,7 +255,7 @@ namespace Meebey.SmartIrc4net
 
         public void Ban(string channel)
         {
-            WriteLine(Rfc2812.Mode(channel, "b"));
+            WriteLine(Rfc2812.Mode(channel, "+b"));
         }
 
         public void Ban(string channel, string hostmask, Priority priority)
