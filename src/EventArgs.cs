@@ -38,6 +38,9 @@ namespace Meebey.SmartIrc4net
     {
         private readonly IrcMessageData _Data;
         
+        /// <summary>
+        /// 
+        /// </summary>
         public IrcMessageData Data
         {
             get {

@@ -31,7 +31,7 @@ using System.Collections.Specialized;
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
-    ///
+    /// This class manages the user information
     /// </summary>
     public class IrcUser
     {
@@ -58,6 +58,9 @@ namespace Meebey.SmartIrc4net
         }
 #endif
 
+        /// <summary>
+        /// Gets or sets the nickname of the user.
+        /// </summary>
         public string Nick
         {
             get {
@@ -68,6 +71,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets or sets an Ident daemon which is still used by some IRC networks for authentication. 
+        /// </summary>
         public string Ident
         {
             get {
@@ -78,6 +84,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets or sets the hostname of the local machine. 
+        /// </summary>
         public string Host
         {
             get {
@@ -88,6 +97,12 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets or sets the supposed real name.
+        /// </summary>
+        /// <remarks>
+        /// System username is set by default 
+        /// </remarks>
         public string Realname
         {
             get {
@@ -98,6 +113,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets or sets user server operator status
+        /// </summary>
         public bool IsIrcOp
         {
             get {
@@ -108,6 +126,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets or sets user away status
+        /// </summary>
         public bool IsAway
         {
             get {
@@ -118,6 +139,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Server the user is connected too
+        /// </summary>
         public string Server
         {
             get {
@@ -128,6 +152,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Note: Meebey? Count of half ops
+        /// </summary>
         public int HopCount
         {
             get {
@@ -138,6 +165,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets the list of channels a user has joined
+        /// </summary>
         public string[] JoinedChannels
         {
             get {

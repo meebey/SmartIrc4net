@@ -110,7 +110,7 @@ public class Benchmark
             e.Data.Irc.Disconnect();
         }
     }
-    	
+    
     public static void IrcConnectionList()
     {
         IrcConnection irc = new IrcConnection();

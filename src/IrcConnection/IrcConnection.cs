@@ -495,7 +495,11 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info("disconnected");
 #endif
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="blocking"></param>
         public void Listen(bool blocking)
         {
             if (blocking) {
@@ -509,21 +513,36 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Listen()
         {
             Listen(true);
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="blocking"></param>
         public void ListenOnce(bool blocking)
         {
             ReadLine(blocking);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void ListenOnce()
         {
             ListenOnce(true);
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="blocking"></param>
+        /// <returns></returns>
         public string ReadLine(bool blocking)
         {
             string data = "";
@@ -558,6 +577,11 @@ namespace Meebey.SmartIrc4net
             return data;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="priority"></param>
         public void WriteLine(string data, Priority priority)
         {
             if (priority == Priority.Critical) {
@@ -571,6 +595,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
         public void WriteLine(string data)
         {
             WriteLine(data, Priority.Medium);
@@ -605,9 +633,7 @@ namespace Meebey.SmartIrc4net
         private void _NextAddress()
         {
             _CurrentAddress++;
-            if (_CurrentAddress < _AddressList.Length) {
-                // nothing
-            } else {
+            if (_CurrentAddress >= _AddressList.Length) {
                 _CurrentAddress = 0;
             }
 #if LOG4NET
@@ -660,6 +686,9 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
         private class ReadThread
         {
             private IrcConnection  _Connection;
@@ -673,11 +702,18 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="connection"></param>
             public ReadThread(IrcConnection connection)
             {
                 _Connection = connection;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public void Start()
             {
                 _Thread = new Thread(new ThreadStart(_Worker));
@@ -686,6 +722,9 @@ namespace Meebey.SmartIrc4net
                 _Thread.Start();
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public void Stop()
             {
                 _Thread.Abort();
@@ -726,6 +765,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private class WriteThread
         {
             private IrcConnection  _Connection;
@@ -743,11 +785,18 @@ namespace Meebey.SmartIrc4net
             private int            _BelowMediumThresholdCount = 1;
             private int            _BurstCount = 0;
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="connection"></param>
             public WriteThread(IrcConnection connection)
             {
                 _Connection = connection;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public void Start()
             {
                 _Thread = new Thread(new ThreadStart(_Worker));
@@ -756,6 +805,9 @@ namespace Meebey.SmartIrc4net
                 _Thread.Start();
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public void Stop()
             {
                 _Thread.Abort();
