@@ -1,8 +1,8 @@
 /**
- * $Id: IrcUser.cs,v 1.1 2003/11/16 16:58:42 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: IrcUser.cs,v 1.2 2003/11/27 23:25:56 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:42 $
+ * $Date: 2003/11/27 23:25:56 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,13 +23,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
 using System.Collections;
 
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
     public class IrcUser: User
     {
-        public SortedList joinedchannels;
+        public SortedList JoinedChannels;
     }
 }

@@ -1,8 +1,8 @@
 /**
- * $Id: User.cs,v 1.1 2003/11/16 16:58:44 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: User.cs,v 1.2 2003/11/27 23:29:30 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:44 $
+ * $Date: 2003/11/27 23:29:30 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,20 +23,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
-
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
     public abstract class User
     {
-        public string    nick;
-        public string    ident;
-        public string    host;
-        public string    realname;
-        public bool      ircop;
-        public bool      away;
-        public string    server;
-        public int       hopcount;
+        public string    Nick;
+        public string    Ident;
+        public string    Host;
+        public string    Realname;
+        public bool      Ircop;
+        public bool      Away;
+        public string    Server;
+        public int       Hopcount;
     }
 }
 
