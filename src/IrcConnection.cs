@@ -1,8 +1,8 @@
 /**
- * $Id: IrcConnection.cs,v 1.3 2003/11/20 23:08:26 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: IrcConnection.cs,v 1.4 2003/11/21 23:37:25 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/11/20 23:08:26 $
+ * $Date: 2003/11/21 23:37:25 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -30,15 +30,10 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Threading;
+using SmartIRC.Delegates;
 
 namespace SmartIRC
 {
-    public delegate void ReadLineEventHandler(string data);
-    public delegate void WriteLineEventHandler(string data);
-    public delegate void ConnectEventHandler();
-    public delegate void ConnectingEventHandler();
-    public delegate void DisconnectEventHandler();
-
     public class Connection
     {
         private IrcTcpClient        _TcpClient = new IrcTcpClient();
@@ -55,9 +50,9 @@ namespace SmartIRC
 
         public event ReadLineEventHandler   OnReadLine;
         public event WriteLineEventHandler  OnWriteLine;
-        public event ConnectingEventHandler OnConnecting;
-        public event ConnectEventHandler    OnConnect;
-        public event DisconnectEventHandler OnDisconnect;
+        public event SimpleEventHandler     OnConnecting;
+        public event SimpleEventHandler     OnConnect;
+        public event SimpleEventHandler     OnDisconnect;
 
         public bool Connected
         {
@@ -285,16 +280,16 @@ namespace SmartIRC
                 if ((_CheckHighBuffer() == true) &&
                     (_CheckMediumBuffer() == true) &&
                     (_CheckLowBuffer() == true)) {
+                    // everything is sent, resetting all counters
                     _HighSentCount = 0;
                     _MediumSentCount = 0;
                     _LowSentCount = 0;
+                    _BurstCount = 0;
                 }
 
                 if (_BurstCount < 3) {
                     _BurstCount++;
-                    _CheckBuffer();
-                } else {
-                    _BurstCount = 0;
+                    //_CheckBuffer();
                 }
             }
 
