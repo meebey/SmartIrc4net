@@ -3,7 +3,7 @@
     <Execute entry="Test" type="None" />
   </StartMode>
   <Entries>
-    <Entry filename="./Test.prjx" />
+    <Entry filename="./test.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
