@@ -6,7 +6,7 @@
  * $Date$
  */
 
-v0.3.5 (SVN r178)
+v0.3.5 (SVN r181)
 ------
 fixes:
 - fixed bug in channel sync that caused duplicate exception
