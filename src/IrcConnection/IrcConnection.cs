@@ -60,6 +60,8 @@ namespace Meebey.SmartIrc4net
         //private Encoding        _Encoding = Encoding.ASCII;
         //private Encoding        _Encoding = Encoding.GetEncoding(1252);
         //private Encoding        _Encoding = Encoding.UTF8;
+        private int             _SocketReceiveTimeout  = 600;
+        private int             _SocketSendTimeout = 600;
 
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
@@ -244,6 +246,7 @@ namespace Meebey.SmartIrc4net
 
         /// <summary>
         /// Encoding which is used for reading and writing to the socket
+        /// Default: ISO-8859-1
         /// </summary>
         public Encoding Encoding
         {
@@ -255,6 +258,34 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Timeout in seconds for receiving data from the socket
+        /// Default: 600
+        /// </summary>
+        public int SocketReceiveTimeout
+        {
+            get {
+                return _SocketReceiveTimeout;
+            }
+            set {
+                _SocketReceiveTimeout = value*1000;
+            }
+        }
+        
+        /// <summary>
+        /// Timeout in seconds for sending data to the socket
+        /// Default: 600
+        /// </summary>
+        public int SocketSendTimeout
+        {
+            get {
+                return _SocketSendTimeout;
+            }
+            set {
+                _SocketSendTimeout = value*1000;
+            }
+        }
+        
         /// <summary>
         /// Initializes the message queues, read and write thread
         /// </summary>
@@ -313,8 +344,8 @@ namespace Meebey.SmartIrc4net
                 _TcpClient = new IrcTcpClient();
                 _TcpClient.NoDelay = true;
                 // set timeout to 6 minutes, after this the connection will be aborted
-                _TcpClient.ReceiveTimeout = 360000;
-                _TcpClient.SendTimeout = 360000;
+                _TcpClient.ReceiveTimeout = _SocketReceiveTimeout;
+                _TcpClient.SendTimeout = _SocketSendTimeout;
                 _TcpClient.Connect(ip, port);
                 if (OnConnected != null) {
                     OnConnected(this, EventArgs.Empty);
