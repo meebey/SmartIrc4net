@@ -6,15 +6,56 @@
  * $Date$
  */
 
-v0.3.0
+v0.3.0 (SVN r106)
 -------
 fixes:
+- fine tuned the "#ifdef LOG4NET" statements (thanks to prencher for noticing this
+  log4net is fully optional! (only required for debugging the library)
+- fixed bug, the class changed the Op and Voice list of a copy *boing*
+  (FxCop pointed me to it)
+- added check for "~" userflag on nameslist (thanks to Giacomo Di Ciocco)
+  this broke the library on IRC networks using that userflag on channels
+- fixed channel sync bug, when the connection is re-established
+  (Closes sf.net bug #1043536)
+- fixed rejoining channels when using Reconnect()
+- added sanity checks in _Event_WHOREPLY()
+  this will prevent exceptions when the IRC server voilates the RFC    
+  (like some psybnc version do)
 
 changes:
+- making SmartIrc4net CLS and .NET standards conform
+  changed all delegates to use EventArgs
+- made a few constructors "internal"
+- directory struture changed
+  the structure now represents the API layers
+  (IrcConnection, IrcCommands and IrcClient)
+- regex optimizations (thanks to prencher for the hints)
+- renamed all ReplyCodes to conform to .NET standards
+  (e.g. ReyplCode.RPL_Welcome -> ReplyCode.Welcome)
+- renamed IrcConnection.Version to IrcConnection.VersionNumber
+- renamed ChannelSync to ActiveChannelSync
+  later I will introduce PassiveChannelSync, this means only the received
+  data is used for channel sync no extra commands are send to the IRC server.
 
 new:
+- added *EventArgs for the events
+- added exception handling for Connect() Reconnect() Disconnect()
+- added VisualStudio project files (thanks to prencher for creating them)
+- added constructors to the exception classes (.NET standards)
+- added log calls for queue, when data could not be sent and is requeued
+- added missing overloads for RFC commands
+  (Join, Part, Kick, List, Names)
+- added more RFC commands, now all RFC 2812 commands are implemented!
+  (Oper, Motd, Luser, Version, Stats, Service, Squit, Links, Time, Connect,
+   Trace, Admin, Info, Servlist, Squery, Whois, Whowas, Kill, Ping, Pong,
+   Away, Rehash, Die, Restart, Summon, Users, Wallops, Userhost, Ison)
+- WriteLine() will throw an NotConnectedException now when it's used without
+  having a connection to an IRC server
+- added timeout values for the tcp socket (6 minutes), and activated nodelay flag
+- prefixed all IrcCommands that are actually plain RFC commands with "Rfc"
+  e.g. Join() is now called RfcJoin()
 
-v0.2.0
+v0.2.0 (SVN r84)
 -------
 fixes:
 
