@@ -84,7 +84,6 @@ public class Test
     {
         System.Threading.Thread.CurrentThread.Name = "Main";
         irc.SendDelay = 200;
-        irc.AutoRetry = true;
         irc.ActiveChannelSyncing = true;
         irc.OnQueryMessage += new IrcEventHandler(OnQueryMessage);
         irc.OnError += new ErrorEventHandler(OnError);
