@@ -1,8 +1,8 @@
 /**
- * $Id: IrcUser.cs,v 1.2 2003/11/27 23:25:56 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: IrcUser.cs,v 1.3 2003/12/14 12:44:11 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:25:56 $
+ * $Date: 2003/12/14 12:44:11 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,12 +23,82 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System.Collections;
+using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
-    public class IrcUser: User
+    public class IrcUser
     {
-        public SortedList JoinedChannels;
+        private string  _Nick     = null;
+        private string  _Ident    = null;
+        private string  _Host     = null;
+        private string  _Realname = null;
+        private bool    _IrcOp    = false;
+        private bool    _Away     = false;
+        private string  _Server   = null;
+        private int     _HopCount = -1;
+
+        public string Nick
+        {
+            get {
+                return _Nick;
+            }
+        }
+
+        public string Ident
+        {
+            get {
+                return _Ident;
+            }
+        }
+
+        public string Host
+        {
+            get {
+                return _Host;
+            }
+        }
+
+        public string Realname
+        {
+            get {
+                return _Realname;
+            }
+        }
+
+        public bool IrcOp
+        {
+            get {
+                return _IrcOp;
+            }
+        }
+
+        public bool Away
+        {
+            get {
+                return _Away;
+            }
+        }
+
+        public string Server
+        {
+            get {
+                return _Server;
+            }
+        }
+
+        public int HopCount
+        {
+            get {
+                return _HopCount;
+            }
+        }
+
+        public StringCollection JoinedChannels
+        {
+            get {
+                return new StringCollection();
+            }
+        }
     }
 }
