@@ -30,9 +30,11 @@ using System.Collections;
 using System.Threading;
 using System.Reflection;
 using Meebey.SmartIrc4net.Delegates;
-
 namespace Meebey.SmartIrc4net
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class IrcConnection
     {
         private string          _Version;
@@ -183,7 +185,9 @@ namespace Meebey.SmartIrc4net
 
         public IrcConnection()
         {
+#if LOG4NET        
             Logger.Init();
+#endif
             _SendBuffer[Priority.High]        = Queue.Synchronized(new Queue());
             _SendBuffer[Priority.AboveMedium] = Queue.Synchronized(new Queue());
             _SendBuffer[Priority.Medium]      = Queue.Synchronized(new Queue());
@@ -323,36 +327,54 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public void Listen()
+        public void Listen(bool blocking)
         {
-            while(Connected == true) {
-                ReadLine();
-                if (ConnectionError == true) {
-                    if (AutoReconnect == true) {
-                        Reconnect();
-                    } else {
-                        Disconnect();
+            if (blocking) {
+                while(Connected == true) {
+                    ReadLine(true);
+                    if (ConnectionError == true) {
+                        if (AutoReconnect == true) {
+                            Reconnect();
+                        } else {
+                            Disconnect();
+                        }
                     }
                 }
+            } else {
+                ReadLine(false);
             }
+        }
+
+        public void Listen()
+        {
+            Listen(true);
+        }
+        
+        public void ListenOnce(bool blocking)
+        {
+            ReadLine(blocking);
         }
 
         public void ListenOnce()
         {
-            ReadLine();
+            ListenOnce(true);
         }
-
-        public string ReadLine()
+        
+        public string ReadLine(bool blocking)
         {
             string data = "";
-
-            // block till the queue has data
-            while ((Connected == true) &&
-                   (_ReadThread.Queue.Count == 0)) {
-                Thread.Sleep(10);
+            bool received = false;
+            
+            if (blocking) {
+                // block till the queue has data
+                while ((Connected == true) &&
+                    (_ReadThread.Queue.Count == 0)) {
+                    Thread.Sleep(10);
+                }
             }
 
-            if (Connected == true) {
+            if ((Connected == true) &&
+                (_ReadThread.Queue.Count > 0)) {
                 data = (string)(_ReadThread.Queue.Dequeue());
             }
 

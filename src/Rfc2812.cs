@@ -25,6 +25,9 @@
 
 namespace Meebey.SmartIrc4net
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class Rfc2812
     {
         public static string Pong(string data)

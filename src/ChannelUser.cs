@@ -27,13 +27,21 @@ using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class ChannelUser
     {
         private string    _Channel;
         private IrcUser   _IrcUser = null;
-        private bool      _Op      = false;
-        private bool      _Voice   = false;
+        private bool      _IsOp      = false;
+        private bool      _IsVoice   = false;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"> </param>
+        /// <param name="ircuser"> </param>
         public ChannelUser(string channel, IrcUser ircuser)
         {
             _Channel = channel;
@@ -47,6 +55,10 @@ namespace Meebey.SmartIrc4net
 #endif
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Channel
         {
             get {
@@ -54,26 +66,60 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public bool Op
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool IsIrcOp
         {
             get {
-                return _Op;
-            }
-            set {
-                _Op = value;
+                return _IrcUser.IsIrcOp;
             }
         }
 
-        public bool Voice
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool IsOp
         {
             get {
-                return _Voice;
+                return _IsOp;
             }
             set {
-                _Voice = value;
+                _IsOp = value;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool IsVoice
+        {
+            get {
+                return _IsVoice;
+            }
+            set {
+                _IsVoice = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool IsAway
+        {
+            get {
+                return _IrcUser.IsAway;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public IrcUser IrcUser
         {
             get {
@@ -81,6 +127,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Nick
         {
             get {
@@ -88,6 +138,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Ident
         {
             get {
@@ -95,6 +149,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Host
         {
             get {
@@ -102,6 +160,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Realname
         {
             get {
@@ -109,20 +171,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public bool IrcOp
-        {
-            get {
-                return _IrcUser.IrcOp;
-            }
-        }
-
-        public bool Away
-        {
-            get {
-                return _IrcUser.Away;
-            }
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Server
         {
             get {
@@ -130,6 +182,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public int HopCount
         {
             get {
@@ -137,6 +193,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string[] JoinedChannels
         {
             get {

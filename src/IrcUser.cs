@@ -27,6 +27,9 @@ using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class IrcUser
     {
         private IrcClient _IrcClient;
@@ -34,8 +37,8 @@ namespace Meebey.SmartIrc4net
         private string    _Ident    = null;
         private string    _Host     = null;
         private string    _Realname = null;
-        private bool      _IrcOp    = false;
-        private bool      _Away     = false;
+        private bool      _IsIrcOp  = false;
+        private bool      _IsAway   = false;
         private string    _Server   = null;
         private int       _HopCount = -1;
 
@@ -92,23 +95,23 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public bool IrcOp
+        public bool IsIrcOp
         {
             get {
-                return _IrcOp;
+                return _IsIrcOp;
             }
             set {
-                _IrcOp = value;
+                _IsIrcOp = value;
             }
         }
 
-        public bool Away
+        public bool IsAway
         {
             get {
-                return _Away;
+                return _IsAway;
             }
             set {
-                _Away = value;
+                _IsAway = value;
             }
         }
 

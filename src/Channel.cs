@@ -28,6 +28,9 @@ using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Channel
     {
         private string           _Name;
@@ -42,7 +45,11 @@ namespace Meebey.SmartIrc4net
         private int              _SynctimeStart;
         private int              _SynctimeStop;
         private int              _Synctime;
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"> </param>
         public Channel(string name)
         {
             _Name = name;
@@ -55,6 +62,10 @@ namespace Meebey.SmartIrc4net
 #endif
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Name
         {
             get {
@@ -62,6 +73,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Key
         {
             get {
@@ -72,6 +87,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public Hashtable Users
         {
             get {
@@ -79,7 +98,11 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public Hashtable UnsafeUsers
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeUsers
         {
             get {
                 return _Users;
@@ -89,6 +112,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public Hashtable Ops
         {
             get {
@@ -96,7 +123,11 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public Hashtable UnsafeOps
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeOps
         {
             get {
                 return _Ops;
@@ -106,6 +137,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public Hashtable Voices
         {
             get {
@@ -113,7 +148,11 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public Hashtable UnsafeVoices
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeVoices
         {
             get {
                 return _Voices;
@@ -123,6 +162,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public StringCollection Bans
         {
             get {
@@ -133,6 +176,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Topic
         {
             get {
@@ -143,6 +190,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public int UserLimit
         {
             get {
@@ -153,6 +204,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public string Mode
         {
             get {
@@ -163,6 +218,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public int SynctimeStart
         {
             get {
@@ -173,6 +232,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public int SynctimeStop
         {
             get {
@@ -183,6 +246,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public int Synctime
         {
             get {

@@ -29,7 +29,10 @@ using System.Collections;
 namespace Meebey.SmartIrc4net
 {
 #if LOG4NET
-    public class Logger
+    /// <summary>
+    ///
+    /// </summary>
+    internal class Logger
     {
         private static SortedList _LoggerList = new SortedList();
         private static bool       _Init = false;

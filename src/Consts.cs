@@ -25,6 +25,9 @@
 
 namespace Meebey.SmartIrc4net
 {
+    /// <summary>
+    ///
+    /// </summary>
     public enum Priority
     {
         Low,
@@ -35,6 +38,9 @@ namespace Meebey.SmartIrc4net
         Critical,
     }
 
+    /// <summary>
+    ///
+    /// </summary>
     public enum Category
     {
         Main,
@@ -53,6 +59,9 @@ namespace Meebey.SmartIrc4net
         DCC
     }
 
+    /// <summary>
+    ///
+    /// </summary>
     public enum SendType
     {
         Message,
@@ -62,6 +71,9 @@ namespace Meebey.SmartIrc4net
         CtcpRequest
     }
 
+    /// <summary>
+    ///
+    /// </summary>
     public enum ReceiveType
     {
         Info,
@@ -97,6 +109,9 @@ namespace Meebey.SmartIrc4net
         Unknown
     }
 
+    /// <summary>
+    ///
+    /// </summary>
     public enum ReplyCode: int
     {
         NULL =                     000,
