@@ -1,8 +1,8 @@
 /**
- * $Id: test.cs,v 1.1 2003/11/16 16:58:44 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: test.cs,v 1.2 2003/11/27 23:32:21 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:44 $
+ * $Date: 2003/11/27 23:32:21 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -24,17 +24,26 @@
  */
 
 using System;
-using SmartIRC;
+using Meebey.SmartIrc4net;
 
 public class main
 {
     public static void Main(string[] args)
     {
         IrcClient irc = new IrcClient();
-        irc.Connect("localhost", 6667);
-        irc.Login("SmartIRC", "Mirco Bauer");
-        irc.Commands.Join("#test");
-        irc.Listen();
-        irc.Disconnect();
+        irc.AutoReconnect = true;
+        if(irc.Connect("localhost", 6667) == true) {
+            irc.Login("SmartIRC", "Mirco Bauer");
+            irc.Join("#test");
+            for(int i = 0; i < 32; i++) {
+                irc.Message(SendType.Message, "#test", "test message "+i.ToString());
+                irc.Message(SendType.Action, "#test", " thinks this is cool "+i.ToString());
+                irc.Message(SendType.Notice, "#test", "you all suck "+i.ToString());
+            }
+            irc.Listen();
+            irc.Disconnect();
+        } else {
+            System.Console.WriteLine("couldn't connect!");
+        }
     }
 }
