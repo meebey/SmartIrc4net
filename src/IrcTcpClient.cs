@@ -1,8 +1,9 @@
 /**
- * $Id: IrcTcpClient.cs,v 1.2 2003/11/27 23:25:34 meebey Exp $
- * $Revision: 1.2 $
- * $Author: meebey $
- * $Date: 2003/11/27 23:25:34 $
+ * $Id$
+ * $URL$
+ * $Rev$
+ * $Author$
+ * $Date$
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 

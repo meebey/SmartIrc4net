@@ -1,8 +1,9 @@
 /**
- * $Id: Data.cs,v 1.5 2004/07/31 22:56:22 meebey Exp $
- * $Revision: 1.5 $
- * $Author: meebey $
- * $Date: 2004/07/31 22:56:22 $
+ * $Id$
+ * $URL$
+ * $Rev$
+ * $Author$
+ * $Date$
  *
  * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
