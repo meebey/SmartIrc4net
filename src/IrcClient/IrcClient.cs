@@ -295,6 +295,17 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
+        /// <value> </value>
+        public StringCollection Motd
+        {
+            get {
+                return _Motd;
+            }
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public IrcClient()
         {
 #if LOG4NET
@@ -781,16 +792,11 @@ namespace Meebey.SmartIrc4net
 
         private void _HandleEvents(IrcMessageData ircdata)
         {
-            string code;
             if (OnRawMessage != null) {
                 OnRawMessage(this, new IrcEventArgs(ircdata));
             }
 
-            if ((OnErrorMessage != null) &&
-                (ircdata.Type == ReceiveType.ErrorMessage)) {
-                OnErrorMessage(this, new IrcEventArgs(ircdata));
-            }
-
+            string code;
             // special IRC messages
             code = ircdata.RawMessageArray[0];
             switch (code) {
@@ -836,17 +842,8 @@ namespace Meebey.SmartIrc4net
                 break;
             }
 
-             bool validreplycode = false;
-             ReplyCode replycode = ReplyCode.Null;
-             try {
-                replycode  = (ReplyCode)int.Parse(code);
-                validreplycode = true;
-             } catch (FormatException) {
-                // nothing, if it's not a number then just skip it
-             }
-
-             if (validreplycode) {
-                switch (replycode) {
+            if (ircdata.ReplyCode != ReplyCode.Null) {
+                switch (ircdata.ReplyCode) {
                     case ReplyCode.Welcome:
                         _Event_RPL_WELCOME(ircdata);
                     break;
@@ -865,6 +862,12 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.ChannelModeIs:
                         _Event_RPL_CHANNELMODEIS(ircdata);
                     break;
+                    case ReplyCode.BanList:
+                        _Event_RPL_BANLIST(ircdata);
+                    break;
+                    case ReplyCode.EndOfBanList:
+                        _Event_RPL_ENDOFBANLIST(ircdata);
+                    break;
                     case ReplyCode.Motd:
                         _Event_RPL_MOTD(ircdata);
                     break;
@@ -875,7 +878,11 @@ namespace Meebey.SmartIrc4net
                         _Event_ERR_NICKNAMEINUSE(ircdata);
                     break;
                 }
-             }
+            }
+            
+            if (ircdata.Type == ReceiveType.ErrorMessage) {
+                _Event_ERR(ircdata);
+            }
         }
 
         private bool _RemoveIrcUser(string nickname)
@@ -1652,8 +1659,8 @@ namespace Meebey.SmartIrc4net
                 OnNames(this, new NamesEventArgs(ircdata, channelname, userlist));
             }
             
-            if (OnChannelActiveSynced != null) {
-                OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
+            if (OnChannelPassiveSynced != null) {
+                OnChannelPassiveSynced(this, new IrcEventArgs(ircdata));
             }
         }
 
@@ -1770,6 +1777,25 @@ namespace Meebey.SmartIrc4net
         private void _Event_RPL_ENDOFMOTD(IrcMessageData ircdata)
         {
             _MotdReceived = true;
+        }
+        
+        // TODO, need to sync with the banlist!
+        private void _Event_RPL_BANLIST(IrcMessageData ircdata)
+        {
+        }
+        
+        private void _Event_RPL_ENDOFBANLIST(IrcMessageData ircdata)
+        {
+            if (OnChannelActiveSynced != null) {
+                OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
+            }
+        }
+        
+        private void _Event_ERR(IrcMessageData ircdata)
+        {
+            if (OnErrorMessage != null) {
+                OnErrorMessage(this, new IrcEventArgs(ircdata));
+            }
         }
         
         private void _Event_ERR_NICKNAMEINUSE(IrcMessageData ircdata)
