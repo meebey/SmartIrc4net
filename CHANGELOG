@@ -12,10 +12,11 @@ fixes:
 - fixed bug in channel sync that caused duplicate exception
   (Closes sf.net bug #1064190)
 - fixed tracking of ops and voices list on join
-  (thanks to Le Ka, closes sf.net bug #1075942)
+  (thanks to Clément Bourgeois, closes sf.net bug #1075942)
 - fixed bug that the initial channel mode is not synced (on join). 
 - fixed a crash bug in the channel sync code
   when a user was voiced/opped/banned 2 times, an ArgumentException was thrown
+  (thanks to Clément Bourgeois for spotting this)
 - fixed handling of a stalled connection
   IOException was not catched in the write thread, and in the read thread
   the IsConnectionError was not set
