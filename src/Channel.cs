@@ -1,8 +1,8 @@
 /**
- * $Id: Channel.cs,v 1.2 2003/11/27 23:16:31 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: Channel.cs,v 1.3 2003/12/14 12:37:48 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:16:31 $
+ * $Date: 2003/12/14 12:37:48 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -24,22 +24,23 @@
  */
 
 using System.Collections;
+using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
     public class Channel
     {
-        public string        Name;
-        public string        Key;
-        public SortedList    Users;
-        public SortedList    Ops;
-        public SortedList    Voices;
-        public SortedList    Bans;
-        public string        Topic;
-        public int           UserLimit = 0;
-        public string        Mode;
-        public int           SynctimeStart;
-        public int           SynctimeStop;
-        public int           Synctime;
+        public string           Name;
+        public string           Key;
+        public StringDictionary Users = new StringDictionary();
+        public SortedList       Ops;
+        public SortedList       Voices;
+        public SortedList       Bans;
+        public string           Topic;
+        public int              UserLimit = 0;
+        public string           Mode;
+        public int              SynctimeStart;
+        public int              SynctimeStop;
+        public int              Synctime;
     }
 }
