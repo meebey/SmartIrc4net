@@ -6,6 +6,7 @@
  * $Date$
  */
 
+- Documentation
 X halfop commands in IrcCommands
 - ipv6 support?
 - add IrcConnection.HostAddress (which IP is used for the client)
@@ -14,10 +15,9 @@ X add OnErrorMessage event for ERR_* replycodes
 - Disconnect(quitmessage)
 - DCC chat, file send/receive
 - add server properties to IrcConnection (required for smart mode changes etc)
-- Documentation
 - passive channel sync
-- Change string[] IrcUser.JoinedChannels to Channel[]?
-- Use async sockets?
 - Exception Error Handling (argument checking)
 - Create Debian Package
 X connection timeout detection (socket based?)
+- Change string[] IrcUser.JoinedChannels to Channel[]?
+- Use async sockets?

@@ -53,13 +53,13 @@ public class Test
                 
                 // here we send messages
                 irc.SendMessage(SendType.Message, e.Data.Nick, "<channel '"+requested_channel+"'>");
-
+                
                 irc.SendMessage(SendType.Message, e.Data.Nick, "Name: '"+channel.Name+"'");
                 irc.SendMessage(SendType.Message, e.Data.Nick, "Topic: '"+channel.Topic+"'");
                 irc.SendMessage(SendType.Message, e.Data.Nick, "Mode: '"+channel.Mode+"'");
                 irc.SendMessage(SendType.Message, e.Data.Nick, "Key: '"+channel.Key+"'");
                 irc.SendMessage(SendType.Message, e.Data.Nick, "UserLimit: '"+channel.UserLimit+"'");
-
+                
                 // here we go through all users of the channel and show their
                 // hashtable key and nickname 
                 string nickname_list = "";
@@ -68,7 +68,14 @@ public class Test
                 while(it.MoveNext()) {
                     string      key         = (string)it.Key;
                     ChannelUser channeluser = (ChannelUser)it.Value;
-                    nickname_list += key+" => "+channeluser.Nick+", ";
+                    nickname_list += "(";
+                    if (channeluser.IsOp) {
+                        nickname_list += "@";
+                    }
+                    if (channeluser.IsVoice) {
+                        nickname_list += "+";
+                    }
+                    nickname_list += ")"+key+" => "+channeluser.Nick+", ";
                 }
                 irc.SendMessage(SendType.Message, e.Data.Nick, nickname_list);
 

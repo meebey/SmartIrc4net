@@ -10,9 +10,9 @@ API Change (0.2.0 -> 0.3.0) Documentation
 -----------------------------------------
 This file is only relevent for you if you wrote an IRC application that is
 SmartIrc4net 0.2.0 based! If you didn't use SmartIrc4net yet, you can safely
-ignore this file and just continue on hacking a great IRC applicatiom ;)
+ignore this file and just continue on hacking a great IRC application ;)
 
-The API naming between SmartIrc4net 0.2.0 and 0.3.0 changed alot, mostly
+The API naming between SmartIrc4net 0.2.0 and 0.3.0 changed a lot, mostly
 because of .NET library standards.
 
 Here are the changes:
@@ -38,8 +38,8 @@ Here are the changes:
   This way the .NET library standards suggest, because those JoinEventArgs
   which extends IrcEventArgs which extends EventArgs can be easily changed at
   any time later for additional data.
-  The "sender argument is type IrcClient, the irc client object that triggered
-  the event, very useful for multiple irc connection)
+  The "sender" argument is type IrcClient, the irc client object that triggered
+  the event (very useful for multiple irc connections).
   IrcEventArgs always contain the property "Data"
   (type IrcMessageData, formerly known as type Data)
 
@@ -59,7 +59,7 @@ Here are the changes:
 
 - Connect() Disconnect() Reconnect() don't return bool anymore
 
-  They are use now proper exception handling, so catch them!
+  They use now proper exception handling, so catch them!
   There is ConnectionException which work for all 3 methods, and also more
   specific exception types like:
   CouldNotConnectException

@@ -895,6 +895,236 @@ namespace Meebey.SmartIrc4net
             } 
         }
 
+        private void _InterpretChannelMode(IrcMessageData ircdata, string mode, string parameter)
+        {
+            string[] parameters = parameter.Split(new char[] {' '});
+            bool add       = false;
+            bool remove    = false;
+            int modelength = mode.Length;
+            string temp;
+            Channel channel = null;
+            if (ActiveChannelSyncing) {
+                channel = GetChannel(ircdata.Channel);
+            }
+            IEnumerator parametersEnumerator = parameters.GetEnumerator();
+            // bring the enumerator to the 1. element
+            parametersEnumerator.MoveNext();
+            for (int i = 0; i < modelength; i++) {
+                switch(mode[i]) {
+                    case '-':
+                        add = false;
+                        remove = true;
+                    break;
+                    case '+':
+                        add = true;
+                        remove = false;
+                    break;
+                    case 'o':
+                        temp = (string)parametersEnumerator.Current;
+                        parametersEnumerator.MoveNext();
+                        if (add) {
+                            if (ActiveChannelSyncing) {
+                                // update the op list
+                                channel.UnsafeOps.Add(temp.ToLower(), GetIrcUser(temp));
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
+#endif
+                                
+                                // update the user op status
+                                GetChannelUser(ircdata.Channel, temp).IsOp = true;
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("set op status: "+temp+" for: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnOp != null) {
+                                OnOp(this, new OpEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing) {
+                                // update the op list
+                                channel.UnsafeOps.Remove(temp.ToLower());
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed op: "+temp+" from: "+ircdata.Channel);
+#endif
+                                // update the user op status
+                                GetChannelUser(ircdata.Channel, temp).IsOp = false;
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("unset op status: "+temp+" for: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnDeop != null) {
+                                OnDeop(this, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                    break;
+                    case 'h':
+                        if (SupportNonRfc) {
+                            temp = (string)parametersEnumerator.Current;
+                            parametersEnumerator.MoveNext();
+                            if (add) {
+                                if (ActiveChannelSyncing) {
+                                    // update the halfop list
+                                    ((NonRfcChannel)channel).UnsafeHalfops.Add(temp.ToLower(), GetIrcUser(temp));
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
+#endif
+                                    
+                                    // update the user halfop status
+                                    ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = true;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("set halfop status: "+temp+" for: "+ircdata.Channel);
+#endif
+                                }
+                                if (OnHalfop != null) {
+                                    OnHalfop(this, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                }
+                            }
+                            if (remove) {
+                                if (ActiveChannelSyncing) {
+                                    // update the halfop list
+                                    ((NonRfcChannel)channel).UnsafeHalfops.Remove(temp.ToLower());
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removed halfop: "+temp+" from: "+ircdata.Channel);
+#endif
+                                    // update the user halfop status
+                                    ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = false;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("unset halfop status: "+temp+" for: "+ircdata.Channel);
+#endif
+                                }
+                                if (OnDehalfop != null) {
+                                    OnDehalfop(this, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                }
+                            }
+                        }
+                    break;
+                    case 'v':
+                        temp = (string)parametersEnumerator.Current;
+                        parametersEnumerator.MoveNext();
+                        if (add) {
+                            if (ActiveChannelSyncing) {
+                                // update the voice list
+                                channel.UnsafeVoices.Add(temp.ToLower(), GetIrcUser(temp));
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
+#endif
+                                // update the user voice status
+                                GetChannelUser(ircdata.Channel, temp).IsVoice = true;
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("set voice status: "+temp+" for: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnVoice != null) {
+                                OnVoice(this, new VoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing) {
+                                // update the voice list
+                                channel.UnsafeVoices.Remove(temp.ToLower());
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed voice: "+temp+" from: "+ircdata.Channel);
+#endif
+                                // update the user voice status
+                                GetChannelUser(ircdata.Channel, temp).IsVoice = false;
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("unset voice status: "+temp+" for: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnDevoice != null) {
+                                OnDevoice(this, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                    break;
+                    case 'b':
+                        temp = (string)parametersEnumerator.Current;
+                        parametersEnumerator.MoveNext();
+                        if (add) {
+                            if (ActiveChannelSyncing) {
+                                channel.Bans.Add(temp);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("added ban: "+temp+" to: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnBan != null) {
+                               OnBan(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing) {
+                                channel.Bans.Remove(temp);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed ban: "+temp+" from: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnUnban != null) {
+                                OnUnban(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                    break;
+                    case 'l':
+                        temp = (string)parametersEnumerator.Current;
+                        parametersEnumerator.MoveNext();
+                        if (add) {
+                            if (ActiveChannelSyncing) {
+                                channel.UserLimit = int.Parse(temp);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("stored user limit for: "+ircdata.Channel);
+#endif
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing) {
+                                channel.UserLimit = 0;
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed user limit for: "+ircdata.Channel);
+#endif
+                            }
+                        }
+                    break;
+                        case 'k':
+                            temp = (string)parametersEnumerator.Current;
+                            parametersEnumerator.MoveNext();
+                            if (add) {
+                                if (ActiveChannelSyncing) {
+                                    channel.Key = temp;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("stored channel key for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                            if (remove) {
+                                if (ActiveChannelSyncing) {
+                                    channel.Key = "";
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removed channel key for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                        break;
+                        default:
+                            if (add) {
+                                if (ActiveChannelSyncing) {
+                                    channel.Mode += mode[i];
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("added channel mode ("+mode[i]+") for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                            if (remove) {
+                                if (ActiveChannelSyncing) {
+                                    channel.Mode = channel.Mode.Replace(mode[i], new char());
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removed channel mode ("+mode[i]+") for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                        break;
+                    }
+                }
+        }
+        
         // <internal messagehandler>
 
         private void _Event_PING(IrcMessageData ircdata)
@@ -1003,10 +1233,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.ChannelSyncing.Debug(who+" parts channel: "+channel);
 #endif
-                    Channel chan = GetChannel(channel);
-                    chan.UnsafeUsers.Remove(who.ToLower());
-                    chan.UnsafeOps.Remove(who.ToLower());
-                    chan.UnsafeVoices.Remove(who.ToLower());
+                    _RemoveChannelUser(channel, who);
                     _RemoveIrcUser(who);
                 }
             }
@@ -1019,28 +1246,25 @@ namespace Meebey.SmartIrc4net
         private void _Event_KICK(IrcMessageData ircdata)
         {
             string channel = ircdata.Channel;
-            string victim = ircdata.RawMessageArray[3];
             string who = ircdata.Nick;
+            string whom = ircdata.RawMessageArray[3];
             string reason = ircdata.Message;
 
-            if (IsMe(victim)) {
+            if (IsMe(whom)) {
                 _JoinedChannels.Remove(channel);
             }
 
             if (ActiveChannelSyncing) {
-                if (IsMe(victim)) {
+                if (IsMe(whom)) {
                     _Channels.Remove(channel.ToLower());
                 } else {
-                    Channel chan = GetChannel(channel);
-                    chan.UnsafeUsers.Remove(victim.ToLower());
-                    chan.UnsafeOps.Remove(victim.ToLower());
-                    chan.UnsafeVoices.Remove(victim.ToLower());
-                    _RemoveIrcUser(who);
+                    _RemoveChannelUser(channel, whom);
+                    _RemoveIrcUser(whom);
                 }
             }
 
             if (OnKick != null) {
-                OnKick(this, new KickEventArgs(ircdata, channel, victim, who, reason));
+                OnKick(this, new KickEventArgs(ircdata, channel, who, whom, reason));
             }
         }
 
@@ -1053,10 +1277,7 @@ namespace Meebey.SmartIrc4net
             
             if (ActiveChannelSyncing) {
                 foreach (string channel in GetIrcUser(who).JoinedChannels) {
-                    Channel chan = GetChannel(channel);
-                    chan.UnsafeUsers.Remove(who.ToLower());
-                    chan.UnsafeOps.Remove(who.ToLower());
-                    chan.UnsafeVoices.Remove(who.ToLower());
+                    _RemoveChannelUser(channel, who);
                 }
                 _RemoveIrcUser(who);
             }
@@ -1226,240 +1447,14 @@ namespace Meebey.SmartIrc4net
         private void _Event_MODE(IrcMessageData ircdata)
         {
             if (IsMe(ircdata.RawMessageArray[2])) {
-                // my mode changed
+                // my user mode changed
                 _Usermode = ircdata.RawMessageArray[3].Substring(1);
             } else {
-                string   mode = ircdata.RawMessageArray[3];
-                string   parameter = String.Join(" ", ircdata.RawMessageArray, 4, ircdata.RawMessageArray.Length-4);
-                string[] parameters = parameter.Split(new char[] {' '});
-
-                bool add       = false;
-                bool remove    = false;
-                int modelength = mode.Length;
-                string temp;
-                Channel channel = null;
-                if (ActiveChannelSyncing) {
-                    channel = GetChannel(ircdata.Channel);
-                }
-                IEnumerator parametersEnumerator = parameters.GetEnumerator();
-                // bring the enumerator to the 1. element
-                parametersEnumerator.MoveNext();
-                for (int i = 0; i < modelength; i++) {
-                    switch(mode[i]) {
-                        case '-':
-                            add = false;
-                            remove = true;
-                        break;
-                        case '+':
-                            add = true;
-                            remove = false;
-                        break;
-                        case 'o':
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            if (add) {
-                                if (ActiveChannelSyncing) {
-                                    // update the op list
-                                    channel.UnsafeOps.Add(temp.ToLower(), GetIrcUser(temp));
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
-#endif
-                                    
-                                    // update the user op status
-                                    GetChannelUser(ircdata.Channel, temp).IsOp = true;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("set op status: "+temp+" for: "+ircdata.Channel);
-#endif
-                                }
-                                if (OnOp != null) {
-                                    OnOp(this, new OpEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing) {
-                                    // update the op list
-                                    channel.UnsafeOps.Remove(temp.ToLower());
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed op: "+temp+" from: "+ircdata.Channel);
-#endif
-                                    // update the user op status
-                                    GetChannelUser(ircdata.Channel, temp).IsOp = false;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("unset op status: "+temp+" for: "+ircdata.Channel);
-#endif
-                                }
-                                if (OnDeop != null) {
-                                    OnDeop(this, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
-                            }
-                        break;
-                        case 'h':
-                            if (SupportNonRfc) {
-                                temp = (string)parametersEnumerator.Current;
-                                parametersEnumerator.MoveNext();
-                                if (add) {
-                                    if (ActiveChannelSyncing) {
-                                        // update the halfop list
-                                        ((NonRfcChannel)channel).UnsafeHalfops.Add(temp.ToLower(), GetIrcUser(temp));
-#if LOG4NET
-                                        Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
-#endif
-                                        
-                                        // update the user halfop status
-                                        ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = true;
-#if LOG4NET
-                                        Logger.ChannelSyncing.Debug("set halfop status: "+temp+" for: "+ircdata.Channel);
-#endif
-                                    }
-                                    if (OnHalfop != null) {
-                                        OnHalfop(this, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                    }
-                                }
-                                if (remove) {
-                                    if (ActiveChannelSyncing) {
-                                        // update the halfop list
-                                        ((NonRfcChannel)channel).UnsafeHalfops.Remove(temp.ToLower());
-#if LOG4NET
-                                        Logger.ChannelSyncing.Debug("removed halfop: "+temp+" from: "+ircdata.Channel);
-#endif
-                                        // update the user halfop status
-                                        ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = false;
-#if LOG4NET
-                                        Logger.ChannelSyncing.Debug("unset halfop status: "+temp+" for: "+ircdata.Channel);
-#endif
-                                    }
-                                    if (OnDehalfop != null) {
-                                        OnDehalfop(this, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                    }
-                                }
-                            }
-                        break;
-                        case 'v':
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            if (add) {
-                                if (ActiveChannelSyncing) {
-                                    // update the voice list
-                                    channel.UnsafeVoices.Add(temp.ToLower(), GetIrcUser(temp));
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
-#endif
-                                    // update the user voice status
-                                    GetChannelUser(ircdata.Channel, temp).IsVoice = true;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("set voice status: "+temp+" for: "+ircdata.Channel);
-#endif
-                                }
-                                if (OnVoice != null) {
-                                    OnVoice(this, new VoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing) {
-                                    // update the voice list
-                                    channel.UnsafeVoices.Remove(temp.ToLower());
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed voice: "+temp+" from: "+ircdata.Channel);
-#endif
-                                    // update the user voice status
-                                    GetChannelUser(ircdata.Channel, temp).IsVoice = false;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("unset voice status: "+temp+" for: "+ircdata.Channel);
-#endif
-                                }
-                                if (OnDevoice != null) {
-                                    OnDevoice(this, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
-                            }
-                        break;
-                        case 'b':
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            if (add) {
-                                if (ActiveChannelSyncing) {
-                                    channel.Bans.Add(temp);
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added ban: "+temp+" to: "+ircdata.Channel);
-#endif
-                                }
-                                if (OnBan != null) {
-                                    OnBan(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing) {
-                                    channel.Bans.Remove(temp);
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed ban: "+temp+" from: "+ircdata.Channel);
-#endif
-                                }
-                                if (OnUnban != null) {
-                                    OnUnban(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
-                            }
-                        break;
-                        case 'l':
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            if (add) {
-                                if (ActiveChannelSyncing) {
-                                    channel.UserLimit = int.Parse(temp);
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("stored user limit for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing) {
-                                    channel.UserLimit = 0;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed user limit for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                        break;
-                        case 'k':
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            if (add) {
-                                if (ActiveChannelSyncing) {
-                                    channel.Key = temp;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("stored channel key for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing) {
-                                    channel.Key = "";
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed channel key for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                        break;
-                        default:
-                            if (add) {
-                                if (ActiveChannelSyncing) {
-                                    channel.Mode += mode[i];
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added channel mode ("+mode[i]+") for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing) {
-                                    channel.Mode = channel.Mode.Replace(mode[i], new char());
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed channel mode ("+mode[i]+") for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                        break;
-                    }
-                }
+                // channel mode changed
+                string mode = ircdata.RawMessageArray[3];
+                string parameter = String.Join(" ", ircdata.RawMessageArray, 4, ircdata.RawMessageArray.Length-4);
+                _InterpretChannelMode(ircdata, mode, parameter);
             }
-
             
             if ((ircdata.Type == ReceiveType.UserModeChange) &&
                 (OnUserModeChange != null)) {
@@ -1476,6 +1471,16 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        private void _Event_RPL_CHANNELMODEIS(IrcMessageData ircdata)
+        {
+            if (ActiveChannelSyncing &&
+                IsJoined(ircdata.Channel)) {
+                string mode = ircdata.RawMessageArray[4];
+                string parameter = String.Join(" ", ircdata.RawMessageArray, 5, ircdata.RawMessageArray.Length-5);
+                _InterpretChannelMode(ircdata, mode, parameter);
+            }
+        }
+        
         private void _Event_RPL_WELCOME(IrcMessageData ircdata)
         {
             // updating our nickname, that we got (maybe cutted...)
@@ -1717,14 +1722,6 @@ namespace Meebey.SmartIrc4net
             
             if (OnWho != null) {
                 OnWho(this, new WhoEventArgs(ircdata, channel, nick, ident, host, realname, away, op, voice, ircop, server, hopcount));
-            }
-        }
-
-        private void _Event_RPL_CHANNELMODEIS(IrcMessageData ircdata)
-        {
-            if (ActiveChannelSyncing &&
-                IsJoined(ircdata.Channel)) {
-                GetChannel(ircdata.Channel).Mode = ircdata.RawMessageArray[4];
             }
         }
 
