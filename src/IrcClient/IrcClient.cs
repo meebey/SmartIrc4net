@@ -50,6 +50,7 @@ namespace Meebey.SmartIrc4net
         private bool             _AutoRejoin     = false;
         private bool             _SupportNonRfc  = false;
         private bool             _SupportNonRfcLocked = false;
+        private StringCollection _Motd;
         private Array            _ReplyCodes     = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels = new StringCollection();
         private Hashtable        _Channels       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
@@ -91,6 +92,7 @@ namespace Meebey.SmartIrc4net
         public event VoiceEventHandler          OnVoice;
         public event DevoiceEventHandler        OnDevoice;
         public event WhoEventHandler            OnWho;
+        public event MotdEventHandler           OnMotd;
         public event TopicEventHandler          OnTopic;
         public event TopicChangeEventHandler    OnTopicChange;
         public event NickChangeEventHandler     OnNickChange;
@@ -787,7 +789,13 @@ namespace Meebey.SmartIrc4net
                 (ircdata.Type == ReceiveType.ErrorMessage)) {
                 OnErrorMessage(this, new IrcEventArgs(ircdata));
             }
-            
+
+            if ((OnMotd != null) &&
+                (ircdata.Type == ReceiveType.Motd)) {
+                _Motd.Add(ircdata.Message);
+                OnMotd(this, new MotdEventArgs(ircdata, ircdata.Message));
+            }
+
             // special IRC messages
             code = ircdata.RawMessageArray[0];
             switch (code) {

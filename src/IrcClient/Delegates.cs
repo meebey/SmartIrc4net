@@ -50,4 +50,5 @@ namespace Meebey.SmartIrc4net
     public delegate void NickChangeEventHandler(object sender, NickChangeEventArgs e);
     public delegate void QuitEventHandler(object sender, QuitEventArgs e);
     public delegate void WhoEventHandler(object sender, WhoEventArgs e);
+    public delegate void MotdEventHandler(object sender, MotdEventArgs e);
 }
