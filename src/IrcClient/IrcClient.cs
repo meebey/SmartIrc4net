@@ -49,6 +49,7 @@ namespace Meebey.SmartIrc4net
         private bool             _PassiveChannelSyncing = false;
         private bool             _AutoRejoin         = false;
         private StringCollection _AutoRejoinChannels = new StringCollection();
+        private bool             _AutoRejoinOnKick = false;
         private bool             _AutoRelogin    = false;
         private bool             _SupportNonRfc  = false;
         private bool             _SupportNonRfcLocked = false;
@@ -189,6 +190,27 @@ namespace Meebey.SmartIrc4net
                 }
 #endif
                 _AutoRejoin = value;
+            }
+        }
+        
+        /// <summary>
+        /// Enables/disables auto rejoining of channels when kicked
+        /// </summary>
+        /// <value> </value>
+        public bool AutoRejoinOnKick
+        {
+            get {
+                return _AutoRejoinOnKick;
+            }
+            set {
+#if LOG4NET
+                if (value == true) {
+                    Logger.ChannelSyncing.Info("AutoRejoinOnKick enabled");
+                } else {
+                    Logger.ChannelSyncing.Info("AutoRejoinOnKick disabled");
+                }
+#endif
+                _AutoRejoinOnKick = value;
             }
         }
 
@@ -1356,26 +1378,35 @@ namespace Meebey.SmartIrc4net
 
         private void _Event_KICK(IrcMessageData ircdata)
         {
-            string channel = ircdata.Channel;
+            string channelname = ircdata.Channel;
             string who = ircdata.Nick;
             string whom = ircdata.RawMessageArray[3];
             string reason = ircdata.Message;
-
-            if (IsMe(whom)) {
-                _JoinedChannels.Remove(channel);
+            bool isme = IsMe(whom);          
+            
+            if (isme) {
+                _JoinedChannels.Remove(channelname);
             }
 
             if (ActiveChannelSyncing) {
-                if (IsMe(whom)) {
-                    _Channels.Remove(channel);
+                if (isme) {
+                    Channel channel = GetChannel(channelname);
+                    _Channels.Remove(channelname);
+                    if (_AutoRejoinOnKick) {
+                        RfcJoin(channel.Name, channel.Key);
+            	   }	
                 } else {
-                    _RemoveChannelUser(channel, whom);
+                    _RemoveChannelUser(channelname, whom);
                     _RemoveIrcUser(whom);
                 }
-            }
-
+            } else {
+            	if (isme && _AutoRejoinOnKick) {
+                	RfcJoin(channelname);
+            	}
+            }          
+            
             if (OnKick != null) {
-                OnKick(this, new KickEventArgs(ircdata, channel, who, whom, reason));
+                OnKick(this, new KickEventArgs(ircdata, channelname, who, whom, reason));
             }
         }
 
