@@ -341,7 +341,9 @@ namespace Meebey.SmartIrc4net
                     }
                 }
             } else {
-                ReadLine(false);
+                while (ReadLine(false) != String.Empty) {
+                    // loop as long as we receive messages
+                }
             }
         }
 
