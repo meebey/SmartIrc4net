@@ -1,8 +1,8 @@
 /**
- * $Id: Consts.cs,v 1.5 2003/12/14 12:40:11 meebey Exp $
- * $Revision: 1.5 $
+ * $Id: Consts.cs,v 1.6 2003/12/28 14:07:01 meebey Exp $
+ * $Revision: 1.6 $
  * $Author: meebey $
- * $Date: 2003/12/14 12:40:11 $
+ * $Date: 2003/12/28 14:07:01 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -25,12 +25,6 @@
 
 namespace Meebey.SmartIrc4net
 {
-    public sealed class Info
-    {
-        public static readonly string Version       = "0.1.0-dev";
-        public static readonly string VersionString = "SmartIrc4net "+Version;
-    }
-
     public enum Priority
     {
         Low,
@@ -70,6 +64,7 @@ namespace Meebey.SmartIrc4net
 
     public enum ReceiveType
     {
+        Info,
         Login,
         Motd,
         List,
