@@ -6,6 +6,62 @@
  * $Date$
  */
 
+v0.3.5 (SVN r169)
+------
+fixes:
+- fixed bug in channel sync that caused duplicate exception
+  Closes sf.net bug #1064190
+- fixed tracking of ops and voices list on join
+  (thanks to Le Ka, Closes sf.net bug #1075942)
+- fixed bug that the initial channel mode is not synced (on join). 
+- fixed a crash bug in the channel sync code
+  when a user was voiced/opped/banned 2 times, an ArgumentException was thrown
+- fixed handling of a stalled connection
+  IOException was not catched in the write thread, and in the read thread
+  the IsConnectionError was not set
+- fixed InviteEventArgs, mixed who with channel name
+- fixed OnConnected event, it's now called when the connection is ready for sending data.
+- fixed Reconnect() handling in the Listen() loop, moved to ReadLine().
+- fixed InviteEventArgs.Channel property,
+  initialized with the right value now.
+
+changes:
+- improved the example/test program
+- main bin/ directory is now used for the example programs
+- removed underscores in parameter names (violates .NET library standards)
+- renamed parameters with "text" to different names (violates .NET library standards)
+- using new case-insensitive hashtables (FxCop spotted this)
+- improved handling of rejoining channels after reconnect.
+- changed overrides to new (method hiding is sufficient here).
+- using keep-alive socket now.
+
+new:
+- added IrcConnection.SocketSendTimeout and IrcConnection.SocketReceiveTimeout
+- added sign target to the makefile
+- added Halfop support (with OnHalfop and OnDehalfop events)
+  if you want to use it do:
+  irc.NonRfcSupport = true;
+  NonRfcChannel nchan = GetChannel("#channel");
+  nchan.Halfops....
+  or
+  NonRfcChannelUser nuser = GetChannelUser("#channel", "nick");
+  nuser.Halfop.....
+- added Halfop() and Dehalfop() command to IrcCommands
+- added OnErrorMessage event as general hook for all ERR_ messages
+- added SendReply(), easy way of replying to a message (regardless if its a channel, query or notice message)
+- added OnMotd event (with MotdEventArgs)
+- added IrcClient.Motd property
+- added OnChannelPassiveSynced event
+- added channel sync timings to channels.
+- added little benchmark program (examples/benchmark).
+- added IrcClient.AutoRelogin setting.
+- added event OnConnectionError to IrcConnection.
+- added IrcConnection.AutoRetryDelay setting.
+- added sanity checks in _Event_QUIT()
+  FreshIRC network does very ugly things with the IRC protocol, caused nullref
+  exception.
+- added Rfc2812.IsValidNickname() method.
+
 v0.3.0 (SVN r123)
 -------
 fixes:
