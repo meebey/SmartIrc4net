@@ -1,8 +1,8 @@
 /**
- * $Id: IrcConnection.cs,v 1.7 2003/12/28 14:41:38 meebey Exp $
- * $Revision: 1.7 $
+ * $Id: IrcConnection.cs,v 1.8 2003/12/29 18:10:31 meebey Exp $
+ * $Revision: 1.8 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:41:38 $
+ * $Date: 2003/12/29 18:10:31 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -212,7 +212,7 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info("connecting...");
 #endif
             _ConnectTries++;
-            _AddressList = addresslist;
+            _AddressList = (string[])addresslist.Clone();
             _Port = port;
 
             if (OnConnect != null) {
