@@ -21,6 +21,8 @@ fixes:
 - added sanity checks in _Event_WHOREPLY()
   this will prevent exceptions when the IRC server voilates the RFC    
   (like some psybnc version do)
+- fixed string handling in _Event_PRIVMSG() for CTCP messages
+  (Closes sf.net bug #1039286)
 
 changes:
 - making SmartIrc4net CLS and .NET standards conform
@@ -43,8 +45,8 @@ new:
 - added VisualStudio project files (thanks to prencher for creating them)
 - added constructors to the exception classes (.NET standards)
 - added log calls for queue, when data could not be sent and is requeued
-- added missing overloads for RFC commands
-  (Join, Part, Kick, List, Names)
+- added missing overloads for RFC commands (Closes sf.net bug #1061503)
+  (Join, Part, Kick, List, Names) 
 - added more RFC commands, now all RFC 2812 commands are implemented!
   (Oper, Motd, Luser, Version, Stats, Service, Squit, Links, Time, Connect,
    Trace, Admin, Info, Servlist, Squery, Whois, Whowas, Kill, Ping, Pong,
