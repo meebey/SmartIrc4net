@@ -1,8 +1,8 @@
 /**
- * $Id: IrcClient.cs,v 1.3 2003/11/21 23:40:31 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: IrcClient.cs,v 1.4 2003/11/27 23:23:55 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/11/21 23:40:31 $
+ * $Date: 2003/11/27 23:23:55 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -24,57 +24,37 @@
  */
 
 using System;
-using System.Text;
-using SmartIRC.Delegates;
+using System.Collections.Specialized;
+using Meebey.SmartIrc4net.Delegates;
 
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
-    public class IrcClient
+    public class IrcClient: IrcCommands
     {
-        private Connection      _Connection = new Connection();
-        private string          _Address;
-        private int             _Port;
-        private string          _Nick;
-        private string          _Realname;
-        private string          _Username;
-        private string          _Password;
-        private IrcCommands     _Commands;
-        private bool            _ChannelSyncing;
-        private string          _CtcpVersion;
-        private bool            _AutoRetry;
-        private bool            _AutoReconnect;
-        private bool            _AutoRejoin;
-        private bool            _Registered = false;
+        private string              _Nick = "";
+        private string              _Realname = "";
+        private int                 _Usermode = 0;
+        private string              _Username = "";
+        private string              _Password = "";
+        private bool                _ChannelSyncing;
+        private string              _CtcpVersion;
+        private bool                _AutoRejoin;
+        private bool                _Registered = false;
+        private StringCollection    _JoinedChannels = new StringCollection();
 
-        public event SimpleEventHandler     OnConnect;
-        public event SimpleEventHandler     OnDisconnect;
         public event SimpleEventHandler     OnRegistered;
-        public event SimpleEventHandler     OnQuit;
         public event PingEventHandler       OnPing;
         public event MessageEventHandler    OnMessage;
         public event MessageEventHandler    OnError;
         public event MessageEventHandler    OnJoin;
         public event MessageEventHandler    OnPart;
+        public event MessageEventHandler    OnQuit;
         public event MessageEventHandler    OnKick;
         public event MessageEventHandler    OnBan;
         public event MessageEventHandler    OnChannelMessage;
         public event MessageEventHandler    OnChannelAction;
         public event MessageEventHandler    OnQueryMessage;
         public event MessageEventHandler    OnQueryAction;
-
-        public IrcCommands Commands
-        {
-            get {
-                return _Commands;
-            }
-        }
-
-        public bool Connected
-        {
-            get {
-                return _Connection.Connected;
-            }
-        }
 
         public bool ChannelSyncing
         {
@@ -101,26 +81,6 @@ namespace SmartIRC
             }
         }
 
-        public bool AutoRetry
-        {
-            get {
-                return _AutoRetry;
-            }
-            set {
-                _AutoRetry = value;
-            }
-        }
-
-        public bool AutoReconnect
-        {
-            get {
-                return _AutoReconnect;
-            }
-            set {
-                _AutoReconnect = value;
-            }
-        }
-
         public bool AutoRejoin
         {
             get {
@@ -140,15 +100,7 @@ namespace SmartIRC
 
         public IrcClient()
         {
-            _Commands = new IrcCommands(_Connection);
-
-            if (OnConnect != null) {
-                _Connection.OnConnect    += new SimpleEventHandler(OnConnect);
-            }
-            if (OnDisconnect != null) {
-                _Connection.OnDisconnect += new SimpleEventHandler(OnDisconnect);
-            }
-            _Connection.OnReadLine   += new ReadLineEventHandler(_Parser);
+            OnReadLine        += new ReadLineEventHandler(_Parser);
 
             Logger.Init();
             Logger.Main.Debug("IrcClient created");
@@ -160,12 +112,17 @@ namespace SmartIRC
             log4net.LogManager.Shutdown();
         }
 
-        public bool Connect(string address, int port)
+        public override bool Reconnect()
         {
-            _Address = address;
-            _Port = port;
+            if(base.Reconnect() == true) {
+                Login(_Nick, _Realname, _Usermode, _Username, _Password);
+                foreach(string Channel in _JoinedChannels) {
+                    Join(Channel);
+                }
+                return true;
+            }
 
-            return _Connection.Connect(_Address, _Port);
+            return false;
         }
 
         public void Login(string nick, string realname, int usermode, string username, string password)
@@ -174,6 +131,7 @@ namespace SmartIRC
 
             _Nick = nick.Replace(" ", "");
             _Realname = realname;
+            _Usermode = usermode;
 
             if (username != "") {
                 _Username = username.Replace(" ", "");
@@ -183,11 +141,11 @@ namespace SmartIRC
 
             if (password != "") {
                 _Password = password;
-                Commands.Pass(_Password, Priority.Critical);
+                Pass(_Password, Priority.Critical);
             }
 
-            Commands.Nick(_Nick, Priority.Critical);
-            Commands.User(_Username, usermode, _Realname, Priority.Critical);
+            Nick(_Nick, Priority.Critical);
+            User(_Username, _Usermode, _Realname, Priority.Critical);
         }
 
         public void Login(string nick, string realname, int usermode, string username)
@@ -207,27 +165,12 @@ namespace SmartIRC
 
         public void Send(string data, Priority priority)
         {
-            _Connection.WriteLine(data, priority);
+            WriteLine(data, priority);
         }
 
         public void Send(string data)
         {
-            _Connection.WriteLine(data);
-        }
-
-        public void Listen()
-        {
-            _Connection.Listen();
-        }
-
-        public void ListenOnce()
-        {
-            _Connection.ListenOnce();
-        }
-
-        public void Disconnect()
-        {
-            _Connection.Disconnect();
+            WriteLine(data);
         }
 
         private void _Parser(string rawline)
@@ -235,7 +178,6 @@ namespace SmartIRC
             string   line;
             string[] lineex;
             string[] rawlineex;
-            bool     validmessage = false;
             Data     ircdata;
             string   messagecode;
             string   from;
@@ -250,7 +192,6 @@ namespace SmartIRC
             messagecode = rawlineex[0];
 
             if (rawline.Substring(0, 1) == ":") {
-                validmessage = true;
                 line = rawline.Substring(1);
                 lineex = line.Split(new Char[] {' '});
 
@@ -280,29 +221,25 @@ namespace SmartIRC
                 }
 
                 switch(ircdata.Type) {
-                    case MessageType.Channel:
+                    case ReceiveType.Join:
+                    case ReceiveType.Kick:
+                    case ReceiveType.Part:
+                    case ReceiveType.ModeChange:
+                    case ReceiveType.TopicChange:
+                    case ReceiveType.ChannelMessage:
+                    case ReceiveType.ChannelAction:
                         ircdata.Channel = lineex[2];
                     break;
+                    case ReceiveType.Who:
+                    case ReceiveType.Topic:
+                    case ReceiveType.BanList:
+                    case ReceiveType.ChannelMode:
+                        ircdata.Channel = lineex[3];
+                    break;
+                    case ReceiveType.Name:
+                        ircdata.Channel = lineex[4];
+                    break;
                 }
-
-                /*
-                if (ircdata->type & (SMARTIRC_TYPE_CHANNEL|
-                                SMARTIRC_TYPE_ACTION|
-                                SMARTIRC_TYPE_MODECHANGE|
-                                SMARTIRC_TYPE_TOPICCHANGE|
-                                SMARTIRC_TYPE_KICK|
-                                SMARTIRC_TYPE_PART|
-                                SMARTIRC_TYPE_JOIN)) {
-                    $ircdata->channel = $lineex[2];
-                } else if ($ircdata->type & (SMARTIRC_TYPE_WHO|
-                                    SMARTIRC_TYPE_BANLIST|
-                                    SMARTIRC_TYPE_TOPIC|
-                                    SMARTIRC_TYPE_CHANNELMODE)) {
-                    $ircdata->channel = $lineex[3];
-                } else if ($ircdata->type & SMARTIRC_TYPE_NAME) {
-                    $ircdata->channel = $lineex[4];
-                }
-                */
 
                 if (ircdata.Channel != null) {
                     if (ircdata.Channel.Substring(0, 1) == ":") {
@@ -344,16 +281,19 @@ namespace SmartIRC
                     }
                 break;
                 case "JOIN":
+                    _rpl_join(ircdata);
                     if (OnJoin != null) {
                         OnJoin(ircdata);
                     }
                 break;
                 case "PART":
+                    _rpl_part(ircdata);
                     if (OnPart != null) {
                         OnPart(ircdata);
                     }
                 break;
                 case "KICK":
+                    _rpl_kick(ircdata);
                     if (OnKick != null) {
                         OnKick(ircdata);
                     }
@@ -367,9 +307,9 @@ namespace SmartIRC
             }
         }
 
-        public MessageType _GetMessageType(string rawline)
+        private ReceiveType _GetMessageType(string rawline)
         {
-            return MessageType.Channel;
+            return ReceiveType.ChannelMessage;
         }
 
 // <internal messagehandler>
@@ -377,7 +317,6 @@ namespace SmartIRC
         private void _rpl_welcome(Data ircdata)
         {
             _Registered = true;
-            Logger.Connection.Info("logged in");
             // updating our nickname, that we got (maybe cutted...)
             _Nick = ircdata.RawMessageEx[2];
         }
@@ -386,7 +325,22 @@ namespace SmartIRC
         {
             Logger.Connection.Debug("Ping? Pong!");
             string pongdata = ircdata.RawMessageEx[1].Substring(1);
-            Commands.Pong(pongdata);
+            Pong(pongdata);
+        }
+
+        private void _rpl_join(Data ircdata)
+        {
+            _JoinedChannels.Add(ircdata.Channel);
+        }
+
+        private void _rpl_part(Data ircdata)
+        {
+            _JoinedChannels.Remove(ircdata.Channel);
+        }
+
+        private void _rpl_kick(Data ircdata)
+        {
+            _JoinedChannels.Remove(ircdata.Channel);
         }
 
 // </internal messagehandler>
