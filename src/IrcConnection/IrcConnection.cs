@@ -410,7 +410,7 @@ namespace Meebey.SmartIrc4net
         /// </exception>
         public void Disconnect()
         {
-            if (IsConnected != true) {
+            if (!IsConnected) {
                 throw new NotConnectedException("The connection could not be disconnected because there is no active connection");
             }
             
@@ -503,6 +503,10 @@ namespace Meebey.SmartIrc4net
         public void WriteLine(string data, Priority priority)
         {
             if (priority == Priority.Critical) {
+                if (!IsConnected) {
+                    throw new NotConnectedException();
+                }
+                
                 _WriteLine(data);
             } else {
                 ((Queue)_SendBuffer[priority]).Enqueue(data);

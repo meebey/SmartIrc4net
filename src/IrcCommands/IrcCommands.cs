@@ -57,11 +57,6 @@ namespace Meebey.SmartIrc4net
             SendMessage(type, destination, message, Priority.Medium);
         }
 
-        public void Pong(string data)
-        {
-            WriteLine(Rfc2812.Pong(data), Priority.Critical);
-        }
-
         public void Pass(string password, Priority priority)
         {
             WriteLine(Rfc2812.Pass(password), priority);
@@ -372,6 +367,171 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Stats(query, target));
         }
         
+        public void Links()
+        {
+            WriteLine(Rfc2812.Links());
+        }
+
+        public void Links(string server_mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Links(server_mask), priority);
+        }
+
+        public void Links(string server_mask)
+        {
+            WriteLine(Rfc2812.Links(server_mask));
+        }
+        
+        public void Links(string remote_server, string server_mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Links(remote_server, server_mask), priority);
+        }
+
+        public void Links(string remote_server, string server_mask)
+        {
+            WriteLine(Rfc2812.Links(remote_server, server_mask));
+        }
+        
+        public void Time(Priority priority)
+        {
+            WriteLine(Rfc2812.Time(), priority);
+        }
+
+        public void Time()
+        {
+            WriteLine(Rfc2812.Time());
+        }
+        
+        public void Time(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Time(target), priority);
+        }
+
+        public void Time(string target)
+        {
+            WriteLine(Rfc2812.Time(target));
+        }
+        
+        public void Connect(string target_server, string port, Priority priority)
+        {
+            WriteLine(Rfc2812.Connect(target_server, port), priority);
+        }
+
+        public void Connect(string target_server, string port)
+        {
+            WriteLine(Rfc2812.Connect(target_server, port));
+        }
+        
+        public void Connect(string target_server, string port, string remote_server, Priority priority)
+        {
+            WriteLine(Rfc2812.Connect(target_server, port, remote_server), priority);
+        }
+
+        public void Connect(string target_server, string port, string remote_server)
+        {
+            WriteLine(Rfc2812.Connect(target_server, port, remote_server));
+        }
+        
+        public void Trace(Priority priority)
+        {
+            WriteLine(Rfc2812.Trace(), priority);
+        }
+
+        public void Trace()
+        {
+            WriteLine(Rfc2812.Trace());
+        }
+        
+        public void Trace(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Trace(target), priority);
+        }
+
+        public void Trace(string target)
+        {
+            WriteLine(Rfc2812.Trace(target));
+        }
+        
+        public void Admin(Priority priority)
+        {
+            WriteLine(Rfc2812.Admin(), priority);
+        }
+
+        public void Admin()
+        {
+            WriteLine(Rfc2812.Admin());
+        }
+        
+        public void Admin(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Admin(target), priority);
+        }
+
+        public void Admin(string target)
+        {
+            WriteLine(Rfc2812.Admin(target));
+        }
+        
+        public void Info(Priority priority)
+        {
+            WriteLine(Rfc2812.Info(), priority);
+        }
+
+        public void Info()
+        {
+            WriteLine(Rfc2812.Info());
+        }
+        
+        public void Info(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Info(target), priority);
+        }
+
+        public void Info(string target)
+        {
+            WriteLine(Rfc2812.Info(target));
+        }
+        
+        public void Servlist(Priority priority)
+        {
+            WriteLine(Rfc2812.Servlist(), priority);
+        }
+
+        public void Servlist()
+        {
+            WriteLine(Rfc2812.Servlist());
+        }
+        
+        public void Servlist(string mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Servlist(mask), priority);
+        }
+
+        public void Servlist(string mask)
+        {
+            WriteLine(Rfc2812.Servlist(mask));
+        }
+        
+        public void Servlist(string mask, string type, Priority priority)
+        {
+            WriteLine(Rfc2812.Servlist(mask, type), priority);
+        }
+
+        public void Servlist(string mask, string type)
+        {
+            WriteLine(Rfc2812.Servlist(mask, type));
+        }
+        
+        public void Squery(string servicename, string text, Priority priority)
+        {
+            WriteLine(Rfc2812.Squery(servicename, text), priority);
+        }
+
+        public void Squery(string servicename, string text)
+        {
+            WriteLine(Rfc2812.Squery(servicename, text));
+        }
+        
         public void List(string channel, Priority priority)
         {
             WriteLine(Rfc2812.List(channel), priority);
@@ -592,34 +752,319 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Nick(newnickname));
         }
 
-        public void Who(string target, Priority priority)
+        public void Who(Priority priority)
         {
-            WriteLine(Rfc2812.Who(target), priority);
+            WriteLine(Rfc2812.Who(), priority);
         }
 
-        public void Who(string target)
+        public void Who()
         {
-            WriteLine(Rfc2812.Who(target));
+            WriteLine(Rfc2812.Who());
         }
 
-        public void Whois(string target, Priority priority)
+        public void Who(string mask, Priority priority)
         {
-            WriteLine(Rfc2812.Whois(target), priority);
+            WriteLine(Rfc2812.Who(mask), priority);
         }
 
-        public void Whois(string target)
+        public void Who(string mask)
         {
-            WriteLine(Rfc2812.Whois(target));
+            WriteLine(Rfc2812.Who(mask));
         }
 
-        public void Whowas(string target, Priority priority)
+        public void Who(string mask, bool ircop, Priority priority)
         {
-            WriteLine(Rfc2812.Whowas(target), priority);
+            WriteLine(Rfc2812.Who(mask, ircop), priority);
         }
 
-        public void Whowas(string target)
+        public void Who(string mask, bool ircop)
         {
-            WriteLine(Rfc2812.Whowas(target));
+            WriteLine(Rfc2812.Who(mask, ircop));
+        }
+
+        public void Whois(string mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Whois(mask), priority);
+        }
+
+        public void Whois(string mask)
+        {
+            WriteLine(Rfc2812.Whois(mask));
+        }
+
+        public void Whois(string[] masks, Priority priority)
+        {
+            WriteLine(Rfc2812.Whois(masks), priority);
+        }
+
+        public void Whois(string[] masks)
+        {
+            WriteLine(Rfc2812.Whois(masks));
+        }
+
+        public void Whois(string target, string mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Whois(target, mask), priority);
+        }
+
+        public void Whois(string target, string mask)
+        {
+            WriteLine(Rfc2812.Whois(target, mask));
+        }
+
+        public void Whois(string target, string[] masks, Priority priority)
+        {
+            WriteLine(Rfc2812.Whois(target ,masks), priority);
+        }
+
+        public void Whois(string target, string[] masks)
+        {
+            WriteLine(Rfc2812.Whois(target, masks));
+        }
+
+        public void Whowas(string nickname, Priority priority)
+        {
+            WriteLine(Rfc2812.Whowas(nickname), priority);
+        }
+
+        public void Whowas(string nickname)
+        {
+            WriteLine(Rfc2812.Whowas(nickname));
+        }
+
+        public void Whowas(string[] nicknames, Priority priority)
+        {
+            WriteLine(Rfc2812.Whowas(nicknames), priority);
+        }
+
+        public void Whowas(string[] nicknames)
+        {
+            WriteLine(Rfc2812.Whowas(nicknames));
+        }
+
+        public void Whowas(string nickname, string count, Priority priority)
+        {
+            WriteLine(Rfc2812.Whowas(nickname, count), priority);
+        }
+
+        public void Whowas(string nickname, string count)
+        {
+            WriteLine(Rfc2812.Whowas(nickname, count));
+        }
+
+        public void Whowas(string[] nicknames, string count, Priority priority)
+        {
+            WriteLine(Rfc2812.Whowas(nicknames, count), priority);
+        }
+
+        public void Whowas(string[] nicknames, string count)
+        {
+            WriteLine(Rfc2812.Whowas(nicknames, count));
+        }
+
+        public void Whowas(string nickname, string count, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Whowas(nickname, count, target), priority);
+        }
+
+        public void Whowas(string nickname, string count, string target)
+        {
+            WriteLine(Rfc2812.Whowas(nickname, count, target));
+        }
+
+        public void Whowas(string[] nicknames, string count, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Whowas(nicknames, count, target), priority);
+        }
+
+        public void Whowas(string[] nicknames, string count, string target)
+        {
+            WriteLine(Rfc2812.Whowas(nicknames, count, target));
+        }
+
+        public void Kill(string nickname, string comment, Priority priority)
+        {
+            WriteLine(Rfc2812.Kill(nickname, comment), priority);
+        }
+
+        public void Kill(string nickname, string comment)
+        {
+            WriteLine(Rfc2812.Kill(nickname, comment));
+        }
+        
+        public void Ping(string server, Priority priority)
+        {
+            WriteLine(Rfc2812.Ping(server), priority);
+        }
+
+        public void Ping(string server)
+        {
+            WriteLine(Rfc2812.Ping(server));
+        }
+        
+        public void Ping(string server, string server2, Priority priority)
+        {
+            WriteLine(Rfc2812.Ping(server, server2), priority);
+        }
+
+        public void Ping(string server, string server2)
+        {
+            WriteLine(Rfc2812.Ping(server, server2));
+        }
+        
+        public void Pong(string server, Priority priority)
+        {
+            WriteLine(Rfc2812.Pong(server), priority);
+        }
+
+        public void Pong(string server)
+        {
+            WriteLine(Rfc2812.Pong(server));
+        }
+        
+        public void Pong(string server, string server2, Priority priority)
+        {
+            WriteLine(Rfc2812.Pong(server, server2), priority);
+        }
+
+        public void Pong(string server, string server2)
+        {
+            WriteLine(Rfc2812.Pong(server, server2));
+        }
+        
+        public void Away(Priority priority)
+        {
+            WriteLine(Rfc2812.Away(), priority);
+        }
+
+        public void Away()
+        {
+            WriteLine(Rfc2812.Away());
+        }
+        
+        public void Away(string text, Priority priority)
+        {
+            WriteLine(Rfc2812.Away(text), priority);
+        }
+
+        public void Away(string text)
+        {
+            WriteLine(Rfc2812.Away(text));
+        }
+        
+        public void Rehash()
+        {
+            WriteLine(Rfc2812.Rehash());
+        }
+        
+        public void Die()
+        {
+            WriteLine(Rfc2812.Die());
+        }
+        
+        public void Restart()
+        {
+            WriteLine(Rfc2812.Restart());
+        }
+        
+        public void Summon(string user, Priority priority)
+        {
+            WriteLine(Rfc2812.Summon(user), priority);
+        }
+
+        public void Summon(string user)
+        {
+            WriteLine(Rfc2812.Summon(user));
+        }
+
+        public void Summon(string user, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Summon(user, target), priority);
+        }
+
+        public void Summon(string user, string target)
+        {
+            WriteLine(Rfc2812.Summon(user, target));
+        }
+
+        public void Summon(string user, string target, string channel, Priority priority)
+        {
+            WriteLine(Rfc2812.Summon(user, target, channel), priority);
+        }
+
+        public void Summon(string user, string target, string channel)
+        {
+            WriteLine(Rfc2812.Summon(user, target, channel));
+        }
+
+        public void Users(Priority priority)
+        {
+            WriteLine(Rfc2812.Users(), priority);
+        }
+
+        public void Users()
+        {
+            WriteLine(Rfc2812.Users());
+        }
+
+        public void Users(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Users(target), priority);
+        }
+
+        public void Users(string target)
+        {
+            WriteLine(Rfc2812.Users(target));
+        }
+
+        public void Wallops(string text, Priority priority)
+        {
+            WriteLine(Rfc2812.Wallops(text), priority);
+        }
+
+        public void Wallops(string text)
+        {
+            WriteLine(Rfc2812.Wallops(text));
+        }
+
+        public void Userhost(string nickname, Priority priority)
+        {
+            WriteLine(Rfc2812.Userhost(nickname), priority);
+        }
+
+        public void Userhost(string nickname)
+        {
+            WriteLine(Rfc2812.Userhost(nickname));
+        }
+
+        public void Userhost(string[] nicknames, Priority priority)
+        {
+            WriteLine(Rfc2812.Userhost(nicknames), priority);
+        }
+
+        public void Userhost(string[] nicknames)
+        {
+            WriteLine(Rfc2812.Userhost(nicknames));
+        }
+
+        public void Ison(string nickname, Priority priority)
+        {
+            WriteLine(Rfc2812.Ison(nickname), priority);
+        }
+
+        public void Ison(string nickname)
+        {
+            WriteLine(Rfc2812.Ison(nickname));
+        }
+
+        public void Ison(string[] nicknames, Priority priority)
+        {
+            WriteLine(Rfc2812.Ison(nicknames), priority);
+        }
+
+        public void Ison(string[] nicknames)
+        {
+            WriteLine(Rfc2812.Ison(nicknames));
         }
 
         public void Quit(Priority priority)

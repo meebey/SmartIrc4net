@@ -257,6 +257,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="login"> </param>
         public override void Reconnect(bool login)
         {
+            string[] channels = new string[_JoinedChannels.Count];
+            _JoinedChannels.CopyTo(channels, 0);
             base.Reconnect(true);
             if (login) {
                 Login(Nickname, Realname, IUsermode, Username, Password);
@@ -264,7 +266,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Rejoining channels...");
 #endif
-            foreach(string channel in _JoinedChannels) {
+            foreach(string channel in channels) {
                 Join(channel, Priority.High);
             }
         }
@@ -813,14 +815,14 @@ namespace Meebey.SmartIrc4net
 
         private void _Event_PING(IrcMessageData ircdata)
         {
-            string pongdata = ircdata.RawMessageArray[1].Substring(1);
+            string server = ircdata.RawMessageArray[1].Substring(1);
 #if LOG4NET
             Logger.Connection.Debug("Ping? Pong!");
 #endif
-            Pong(pongdata);
+            Pong(server, Priority.Critical);
 
             if (OnPing != null) {
-                OnPing(this, new PingEventArgs(ircdata, pongdata));
+                OnPing(this, new PingEventArgs(ircdata, server));
             }
         }
 
@@ -1473,43 +1475,56 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (ChannelSyncing) {
-#if LOG4NET
-                Logger.ChannelSyncing.Debug("updating userinfo (from whoreply) for user: "+nick+" channel: "+channel);
-#endif
+            if (ChannelSyncing &&
+                IsJoined(channel)) {
+                // checking the irc and channel user I only do for sanity!
+                // according to RFC they must be known to us already via RPL_NAMREPLY
+                // psyBNC is not very correct with this... maybe other bouncers too
                 IrcUser ircuser  = GetIrcUser(nick);
+                ChannelUser channeluser = GetChannelUser(channel, nick);
 #if LOG4NET
-                if (ircuser == null) { 
-                    Logger.ChannelSyncing.Fatal("BUG! GetIrcUser(nick) returned null!");
-                    throw new SmartIrc4netException("BUG! GetIrcUser(nick) returned null!");
+                if (ircuser == null) {
+                    Logger.ChannelSyncing.Error("GetIrcUser(nick) returned null in _Event_WHOREPLY! Ignoring...");
                 }
 #endif
-                ircuser.Ident    = ident;
-                ircuser.Host     = host;
-                ircuser.Server   = server;
-                ircuser.Nick     = nick;
-                ircuser.HopCount = hopcount;
-                ircuser.Realname = realname;
-                ircuser.IsAway   = away;
-                ircuser.IsIrcOp  = ircop;
+
+#if LOG4NET
+                if (channeluser == null) {
+                    Logger.ChannelSyncing.Error("GetChannelUser(nick) returned null in _Event_WHOREPLY! Ignoring...");
+                }
+#endif
+
+                if (ircuser != null) {                                
+#if LOG4NET
+                    Logger.ChannelSyncing.Debug("updating userinfo (from whoreply) for user: "+nick+" channel: "+channel);
+#endif
+
+                    ircuser.Ident    = ident;
+                    ircuser.Host     = host;
+                    ircuser.Server   = server;
+                    ircuser.Nick     = nick;
+                    ircuser.HopCount = hopcount;
+                    ircuser.Realname = realname;
+                    ircuser.IsAway   = away;
+                    ircuser.IsIrcOp  = ircop;
                 
-                switch (channel[0]) {
-                    case '#':
-                    case '!':
-                    case '&':
-                    case '+':
-                        // this channel may not be where we are joined!
-                        // see RFC 1459 and RFC 2812, it must return a channelname
-                        // we use this channel info when possible...
-                        ChannelUser channeluser = GetChannelUser(channel, nick);
-                        if (channeluser != null) {
-                            channeluser.IsOp    = op;
-                            channeluser.IsVoice = voice;
-                        }
-                    break;
+                    switch (channel[0]) {
+                        case '#':
+                        case '!':
+                        case '&':
+                        case '+':
+                            // this channel may not be where we are joined!
+                            // see RFC 1459 and RFC 2812, it must return a channelname
+                            // we use this channel info when possible...
+                            if (channeluser != null) {
+                                channeluser.IsOp    = op;
+                                channeluser.IsVoice = voice;
+                            }
+                        break;
+                    }
                 }
             }
-
+            
             if (OnWho != null) {
                 OnWho(this, new WhoEventArgs(ircdata, channel, nick, ident, host, realname, away, op, voice, ircop, server, hopcount));
             }
