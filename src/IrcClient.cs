@@ -1,8 +1,8 @@
 /**
- * $Id: IrcClient.cs,v 1.5 2003/12/14 12:41:46 meebey Exp $
- * $Revision: 1.5 $
+ * $Id: IrcClient.cs,v 1.6 2003/12/28 14:10:40 meebey Exp $
+ * $Revision: 1.6 $
  * $Author: meebey $
- * $Date: 2003/12/14 12:41:46 $
+ * $Date: 2003/12/28 14:10:40 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -39,43 +39,42 @@ namespace Meebey.SmartIrc4net
         private int                 _IUsermode = 0;
         private string              _Username = "";
         private string              _Password = "";
-        private bool                _ChannelSyncing;
         private string              _CtcpVersion;
-        private bool                _AutoRejoin;
+        private bool                _ChannelSyncing = false;
+        private bool                _AutoRejoin = false;
+        private Array               _ReplyCodes     = Enum.GetValues(typeof(ReplyCode));
         private StringCollection    _JoinedChannels = new StringCollection();
-        private StringDictionary    _Channels       = new StringDictionary();
-        private StringDictionary    _IrcUsers       = new StringDictionary();
+        private Hashtable           _Channels       = new Hashtable();
+        private Hashtable           _IrcUsers       = new Hashtable();
 
-        public event SimpleEventHandler     OnRegistered;
-        public event PingEventHandler       OnPing;
-        public event MessageEventHandler    OnRawMessage;
-        public event MessageEventHandler    OnError;
-        public event JoinEventHandler       OnJoin;
-        public event MessageEventHandler    OnPart;
-        public event MessageEventHandler    OnQuit;
-        public event KickEventHandler       OnKick;
-        public event MessageEventHandler    OnInvite;
-        public event MessageEventHandler    OnBan;
-        public event MessageEventHandler    OnUnban;
-        public event MessageEventHandler    OnOp;
-        public event MessageEventHandler    OnDeop;
-        public event MessageEventHandler    OnVoice;
-        public event MessageEventHandler    OnDevoice;
-        public event MessageEventHandler    OnWho;
-        public event MessageEventHandler    OnWhois;
-        public event MessageEventHandler    OnWhowas;
-        public event MessageEventHandler    OnTopic;
-        public event MessageEventHandler    OnTopicChange;
-        public event MessageEventHandler    OnNickChange;
-        public event MessageEventHandler    OnModeChange;
-        public event MessageEventHandler    OnChannelMessage;
-        public event MessageEventHandler    OnChannelAction;
-        public event MessageEventHandler    OnChannelNotice;
-        public event MessageEventHandler    OnQueryMessage;
-        public event MessageEventHandler    OnQueryAction;
-        public event MessageEventHandler    OnQueryNotice;
-        public event MessageEventHandler    OnCtcpRequest;
-        public event MessageEventHandler    OnCtcpReply;
+        public event SimpleEventHandler         OnRegistered;
+        public event PingEventHandler           OnPing;
+        public event MessageEventHandler        OnRawMessage;
+        public event MessageEventHandler        OnError;
+        public event JoinEventHandler           OnJoin;
+        public event PartEventHandler           OnPart;
+        public event QuitEventHandler           OnQuit;
+        public event KickEventHandler           OnKick;
+        public event InviteEventHandler         OnInvite;
+        public event BanEventHandler            OnBan;
+        public event UnbanEventHandler          OnUnban;
+        public event OpEventHandler             OnOp;
+        public event DeopEventHandler           OnDeop;
+        public event VoiceEventHandler          OnVoice;
+        public event DevoiceEventHandler        OnDevoice;
+        public event WhoEventHandler            OnWho;
+        public event TopicEventHandler          OnTopic;
+        public event TopicChangeEventHandler    OnTopicChange;
+        public event NickChangeEventHandler     OnNickChange;
+        public event MessageEventHandler        OnModeChange;
+        public event MessageEventHandler        OnChannelMessage;
+        public event MessageEventHandler        OnChannelAction;
+        public event MessageEventHandler        OnChannelNotice;
+        public event MessageEventHandler        OnQueryMessage;
+        public event MessageEventHandler        OnQueryAction;
+        public event MessageEventHandler        OnQueryNotice;
+        public event MessageEventHandler        OnCtcpRequest;
+        public event MessageEventHandler        OnCtcpReply;
 
         public bool ChannelSyncing
         {
@@ -110,6 +109,13 @@ namespace Meebey.SmartIrc4net
                 return _AutoRejoin;
             }
             set {
+#if LOG4NET
+                if (value == true) {
+                    Logger.ChannelSyncing.Info("AutoRejoin enabled");
+                } else {
+                    Logger.ChannelSyncing.Info("AutoRejoin disabled");
+                }
+#endif
                 _AutoRejoin = value;
             }
         }
@@ -160,12 +166,17 @@ namespace Meebey.SmartIrc4net
 #endif
         }
 
-        public override bool Reconnect()
+        public override bool Reconnect(bool login)
         {
-            if(base.Reconnect() == true) {
-                Login(_Nickname, _Realname, _IUsermode, _Username, _Password);
-                foreach(string Channel in _JoinedChannels) {
-                    Join(Channel, Priority.High);
+            if(base.Reconnect(true) == true) {
+                if (login) {
+                    Login(_Nickname, _Realname, _IUsermode, _Username, _Password);
+#if LOG4NET
+                    Logger.Connection.Info("Rejoining channels...");
+#endif
+                }
+                foreach(string channel in _JoinedChannels) {
+                    Join(channel, Priority.High);
                 }
                 return true;
             }
@@ -212,9 +223,50 @@ namespace Meebey.SmartIrc4net
             this.Login(nick, realname, 0, "", "");
         }
 
-        public bool isMe(string nickname)
+        public bool IsMe(string nickname)
         {
             return (_Nickname == nickname);
+        }
+
+        public bool IsJoined(string channelname)
+        {
+            return IsJoined(channelname, Nickname);
+        }
+
+        public bool IsJoined(string channelname, string nickname)
+        {
+            Channel channel = GetChannel(channelname);
+            if (channel != null &&
+                channel.Users.ContainsKey(nickname.ToLower())) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        public IrcUser GetIrcUser(string nickname)
+        {
+            return (IrcUser)_IrcUsers[nickname.ToLower()];
+        }
+
+        public ChannelUser GetChannelUser(string channel, string nickname)
+        {
+            return (ChannelUser)GetChannel(channel).Users[nickname.ToLower()];
+        }
+
+        public Channel GetChannel(string channel)
+        {
+            return (Channel)_Channels[channel.ToLower()];
+        }
+
+        public StringCollection GetChannels()
+        {
+            StringCollection channels = new StringCollection();
+            foreach (Channel channel in _Channels.Values) {
+                channels.Add(channel.Name);
+            }
+
+            return channels;
         }
 
         private void _Parser(string rawline)
@@ -315,10 +367,18 @@ namespace Meebey.SmartIrc4net
         {
             Match found;
 
-            found = new Regex("^:.* ([0-9]{3}) .*$/").Match(rawline);
+            found = new Regex("^:.* ([0-9]{3}) .*$").Match(rawline);
             if (found.Success) {
                 string code = found.Groups[1].Value;
                 ReplyCode replycode = (ReplyCode)int.Parse(code);
+
+                // check if this replycode is known in the RFC
+                if (Array.IndexOf(_ReplyCodes, replycode) == -1) {
+#if LOG4NET
+                    Logger.MessageTypes.Warn("This IRC server ("+Address+") doesn't conform to the RFC 2812! ignoring unrecongzied replycode '"+replycode+"'");
+#endif
+                    return ReceiveType.Unknown;
+                }
 
                 switch (replycode) {
                     case ReplyCode.RPL_WELCOME:
@@ -327,6 +387,12 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.RPL_MYINFO:
                     case ReplyCode.RPL_BOUNCE:
                         return ReceiveType.Login;
+                    case ReplyCode.RPL_LUSERCLIENT:
+                    case ReplyCode.RPL_LUSEROP:
+                    case ReplyCode.RPL_LUSERUNKNOWN:
+                    case ReplyCode.RPL_LUSERME:
+                    case ReplyCode.RPL_LUSERCHANNELS:
+                        return ReceiveType.Info;
                     case ReplyCode.RPL_MOTDSTART:
                     case ReplyCode.RPL_MOTD:
                     case ReplyCode.RPL_ENDOFMOTD:
@@ -345,6 +411,7 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.RPL_ENDOFBANLIST:
                         return ReceiveType.BanList;
                     case ReplyCode.RPL_TOPIC:
+                    case ReplyCode.RPL_NOTOPIC:
                         return ReceiveType.Topic;
                     case ReplyCode.RPL_WHOISUSER:
                     case ReplyCode.RPL_WHOISSERVER:
@@ -509,14 +576,32 @@ namespace Meebey.SmartIrc4net
                 }
 
                 try {
-                    ReplyCode replycode = (ReplyCode)int.Parse(code);
+                    ReplyCode replycode  = (ReplyCode)int.Parse(code);
                     switch (replycode) {
                         case ReplyCode.RPL_WELCOME:
                             _Event_RPL_WELCOME(ircdata);
                         break;
+                        case ReplyCode.RPL_TOPIC:
+                            _Event_RPL_TOPIC(ircdata);
+                        break;
+                        case ReplyCode.RPL_NOTOPIC:
+                            _Event_RPL_NOTOPIC(ircdata);
+                        break;
+                        case ReplyCode.RPL_NAMREPLY:
+                            _Event_RPL_NAMREPLY(ircdata);
+                        break;
+                        case ReplyCode.RPL_WHOREPLY:
+                            _Event_RPL_WHOREPLY(ircdata);
+                        break;
+                        case ReplyCode.RPL_CHANNELMODEIS:
+                            _Event_RPL_CHANNELMODEIS(ircdata);
+                        break;
+                        case ReplyCode.ERR_NICKNAMEINUSE:
+                            _Event_ERR_NICKNAMEINUSE(ircdata);
+                        break;
                     }
-                } catch {
-                    // nothing
+                } catch (FormatException) {
+                    // nothing, if it's not a number then just skip it
                 }
             } else {
                 // it's not a normal IRC message
@@ -557,36 +642,78 @@ namespace Meebey.SmartIrc4net
         private void _Event_JOIN(Data ircdata)
         {
             string who = ircdata.Nick;
-            string channel = ircdata.Channel;
+            string channelname = ircdata.Channel;
 
-            if (isMe(who)) {
-                _JoinedChannels.Add(channel);
+            if (IsMe(who)) {
+                _JoinedChannels.Add(channelname);
             }
 
-            if (_ChannelSyncing) {
-                /*
-                if (isMe(who)) {
+            if (ChannelSyncing) {
+                Channel channel;
+                if (IsMe(who)) {
                     // we joined the channel
-                    _Channels[channel] = Channel();
+#if LOG4NET
+                    Logger.ChannelSyncing.Debug("joining channel: "+channelname);
+#endif
+                    channel = new Channel(channelname);
+                    _Channels.Add(channelname.ToLower(), channel);
+                    Mode(channelname);
+                    Who(channelname);
+                    Ban(channelname);
                 } else {
                     // someone else did
+                    Who(who);
                 }
-                */
+
+#if LOG4NET
+                Logger.ChannelSyncing.Debug(who+" joins channel: "+channelname);
+#endif
+                channel = GetChannel(channelname);
+                IrcUser ircuser = GetIrcUser(who);
+
+                if (ircuser == null) {
+                    ircuser = new IrcUser(who, this);
+                    ircuser.Ident = ircdata.Ident;
+                    ircuser.Host  = ircdata.Host;
+                    _IrcUsers.Add(who.ToLower(), ircuser);
+                }
+
+                ChannelUser channeluser = new ChannelUser(channelname, ircuser);
+                channel.Users.Add(who.ToLower(), channeluser);
             }
 
             if (OnJoin != null) {
-                OnJoin(channel, who, ircdata);
+                OnJoin(channelname, who, ircdata);
             }
         }
 
         private void _Event_PART(Data ircdata)
         {
-            if (isMe(ircdata.Nick)) {
-                _JoinedChannels.Remove(ircdata.Channel);
+            string who = ircdata.Nick;
+            string channel = ircdata.Channel;
+
+            if (IsMe(who)) {
+                _JoinedChannels.Remove(channel);
+            }
+
+            if (ChannelSyncing) {
+                if (IsMe(who)) {
+#if LOG4NET
+                    Logger.ChannelSyncing.Debug("parting channel: "+channel);
+#endif
+                    _Channels.Remove(channel.ToLower());
+                } else {
+#if LOG4NET
+                    Logger.ChannelSyncing.Debug(who+" parts channel: "+channel);
+#endif
+                    GetChannel(channel).Users.Remove(who.ToLower());
+                }
+
+                GC.Collect();
             }
 
             if (OnPart != null) {
-                OnPart(ircdata);
+                OnPart(channel, who, ircdata);
             }
         }
 
@@ -597,8 +724,18 @@ namespace Meebey.SmartIrc4net
             string who = ircdata.Nick;
             string reason = ircdata.Message;
 
-            if (isMe(victim)) {
+            if (IsMe(victim)) {
                 _JoinedChannels.Remove(channel);
+            }
+
+            if (ChannelSyncing) {
+                if (IsMe(victim)) {
+                    _Channels.Remove(channel.ToLower());
+                } else {
+                    GetChannel(channel).Users.Remove(victim.ToLower());
+                }
+
+                GC.Collect();
             }
 
             if (OnKick != null) {
@@ -608,12 +745,25 @@ namespace Meebey.SmartIrc4net
 
         private void _Event_QUIT(Data ircdata)
         {
-            if (isMe(ircdata.Nick)) {
-                _JoinedChannels.Remove(ircdata.Channel);
+            string who = ircdata.Nick;
+            string reason = ircdata.Message;
+
+            if (IsMe(ircdata.Nick)) {
+                foreach (string channel in _JoinedChannels) {
+                    _JoinedChannels.Remove(channel);
+                }
+            }
+
+            if (ChannelSyncing) {
+                foreach (string channel in GetIrcUser(who).JoinedChannels) {
+                    GetChannel(channel).Users.Remove(who.ToLower());
+                }
+
+                GC.Collect();
             }
 
             if (OnQuit != null) {
-                OnQuit(ircdata);
+                OnQuit(who, reason, ircdata);
             }
         }
 
@@ -624,9 +774,11 @@ namespace Meebey.SmartIrc4net
                 if (ircdata.Message.Substring(1, 4) == "PING") {
                     Message(SendType.CtcpReply, ircdata.Nick, "PING "+ircdata.Message.Substring(6, (ircdata.Message.Length-7)));
                 } else if (ircdata.Message.Substring(1, 7) == "VERSION") {
-                    string versionstring = Info.VersionString;
-                    if (_CtcpVersion != null) {
-                        versionstring = _CtcpVersion+" | using "+Info.VersionString;
+                    string versionstring;
+                    if (_CtcpVersion == null) {
+                        versionstring = VersionString;
+                    } else {
+                        versionstring = _CtcpVersion+" | using "+VersionString;
                     }
                     Message(SendType.CtcpReply, ircdata.Nick, "VERSION "+versionstring);
                 } else if (ircdata.Message.Substring(1, 10) == "CLIENTINFO") {
@@ -686,28 +838,64 @@ namespace Meebey.SmartIrc4net
 
         private void _Event_TOPIC(Data ircdata)
         {
+            string who = ircdata.Nick;
+            string channel = ircdata.Channel;
+            string newtopic = ircdata.Message;
+
+            if (ChannelSyncing &&
+                IsJoined(channel)) {
+                GetChannel(channel).Topic = newtopic;
+#if LOG4NET
+                Logger.ChannelSyncing.Debug("stored topic for channel: "+channel);
+#endif
+            }
+
             if (OnTopicChange != null) {
-                OnTopicChange(ircdata);
+                OnTopicChange(channel, who, newtopic, ircdata);
             }
         }
 
         private void _Event_NICK(Data ircdata)
         {
+            string oldnickname = ircdata.Nick;
+            string newnickname = ircdata.RawMessageEx[2].Substring(1);
+
+            if (IsMe(ircdata.Nick)) {
+                _Nickname = newnickname;
+            }
+
+            if (ChannelSyncing) {
+                IrcUser ircuser = GetIrcUser(oldnickname);
+                // update his nickname
+                ircuser.Nick = newnickname;
+                // add him as new entry and new nickname as key
+                _IrcUsers.Add(newnickname.ToLower(), ircuser);
+                // remove the old entry
+                _IrcUsers.Remove(oldnickname.ToLower());
+#if LOG4NET
+                Logger.ChannelSyncing.Debug("updated nickname of: "+oldnickname+" to: "+newnickname);
+#endif
+            }
+
             if (OnNickChange != null) {
-                OnNickChange(ircdata);
+                OnNickChange(oldnickname, newnickname, ircdata);
             }
         }
 
         private void _Event_INVITE(Data ircdata)
         {
+            string channel = ircdata.Channel;
+            string inviter = ircdata.Nick;
+
             if (OnInvite != null) {
-                OnInvite(ircdata);
+                OnInvite(inviter, channel, ircdata);
             }
         }
 
         private void _Event_MODE(Data ircdata)
         {
-            if (isMe(ircdata.RawMessageEx[2])) {
+            if (IsMe(ircdata.RawMessageEx[2])) {
+                // my mode changed
                 _Usermode = ircdata.RawMessageEx[3].Substring(1);
             } else {
                 string   mode = ircdata.RawMessageEx[3];
@@ -718,15 +906,18 @@ namespace Meebey.SmartIrc4net
                 bool remove    = false;
                 int modelength = mode.Length;
                 string temp;
+                Channel channel = null;
+                if (ChannelSyncing) {
+                    channel = GetChannel(ircdata.Channel);
+                }
                 IEnumerator parametersEnumerator = parameters.GetEnumerator();
                 // bring the enumerator to the 1. element
                 parametersEnumerator.MoveNext();
-
                 for (int i = 0; i < modelength; i++) {
                     switch(mode[i]) {
                         case '-':
-                            remove = true;
                             add = false;
+                            remove = true;
                         break;
                         case '+':
                             add = true;
@@ -736,13 +927,25 @@ namespace Meebey.SmartIrc4net
                             temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
                             if (add) {
+                                if (ChannelSyncing) {
+                                    channel.Ops.Add(temp.ToLower(), GetIrcUser(temp));
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("adding op: "+temp+" to: "+ircdata.Channel);
+#endif
+                                }
                                 if (OnOp != null) {
-                                    OnOp(ircdata);
+                                    OnOp(ircdata.Channel, ircdata.Nick, temp, ircdata);
                                 }
                             }
                             if (remove) {
+                                if (ChannelSyncing) {
+                                    channel.Ops.Remove(temp.ToLower());
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removing op: "+temp+" from: "+ircdata.Channel);
+#endif
+                                }
                                 if (OnDeop != null) {
-                                    OnDeop(ircdata);
+                                    OnDeop(ircdata.Channel, ircdata.Nick, temp, ircdata);
                                 }
                             }
                         break;
@@ -750,13 +953,25 @@ namespace Meebey.SmartIrc4net
                             temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
                             if (add) {
+                                if (ChannelSyncing) {
+                                    channel.Voices.Add(temp.ToLower(), GetIrcUser(temp));
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("adding voice: "+temp+" to: "+ircdata.Channel);
+#endif
+                                }
                                 if (OnVoice != null) {
-                                    OnVoice(ircdata);
+                                    OnVoice(ircdata.Channel, ircdata.Nick, temp, ircdata);
                                 }
                             }
                             if (remove) {
+                                if (ChannelSyncing) {
+                                    channel.Voices.Remove(temp.ToLower());
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removing voice: "+temp+" from: "+ircdata.Channel);
+#endif
+                                }
                                 if (OnDevoice != null) {
-                                    OnDevoice(ircdata);
+                                    OnDevoice(ircdata.Channel, ircdata.Nick, temp, ircdata);
                                 }
                             }
                         break;
@@ -764,21 +979,85 @@ namespace Meebey.SmartIrc4net
                             temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
                             if (add) {
+                                if (ChannelSyncing) {
+                                    channel.Bans.Add(temp);
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("adding ban: "+temp+" to: "+ircdata.Channel);
+#endif
+                                }
                                 if (OnBan != null) {
-                                    OnBan(ircdata);
+                                    OnBan(ircdata.Channel, ircdata.Nick, temp, ircdata);
                                 }
                             }
                             if (remove) {
+                                if (ChannelSyncing) {
+                                    channel.Bans.Remove(temp);
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removing ban: "+temp+" from: "+ircdata.Channel);
+#endif
+                                }
                                 if (OnUnban != null) {
-                                    OnUnban(ircdata);
+                                    OnUnban(ircdata.Channel, ircdata.Nick, temp, ircdata);
                                 }
                             }
                         break;
                         case 'l':
+                            temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
+                            if (add) {
+                                if (ChannelSyncing) {
+                                    channel.UserLimit = int.Parse(temp);
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("stored user limit for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                            if (remove) {
+                                if (ChannelSyncing) {
+                                    channel.UserLimit = 0;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removed user limit for: "+ircdata.Channel);
+#endif
+                                }
+                            }
                         break;
                         case 'k':
+                            temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
+                            if (add) {
+                                if (ChannelSyncing) {
+                                    channel.Key = temp;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("stored channel key for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                            if (remove) {
+                                if (ChannelSyncing) {
+                                    channel.Key = "";
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removed channel key for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                        break;
+                        default:
+                            if (add) {
+                                if (ChannelSyncing) {
+                                    channel.Mode += mode[i];
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("added channel mode ("+mode[i]+") for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                            if (remove) {
+                                if (ChannelSyncing) {
+                                    channel.Mode = channel.Mode.Replace(mode[i], new char());
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("removed channel mode ("+mode[i]+") for: "+ircdata.Channel);
+#endif
+                                }
+                            }
                         break;
                     }
                 }
@@ -799,7 +1078,183 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-// </internal messagehandler>
+        private void _Event_RPL_TOPIC(Data ircdata)
+        {
+            string topic   = ircdata.Message;
+            string channel = ircdata.Channel;
+
+            if (ChannelSyncing &&
+                IsJoined(channel)) {
+                GetChannel(channel).Topic = topic;
+#if LOG4NET
+                Logger.ChannelSyncing.Debug("stored topic for channel: "+channel);
+#endif
+            }
+
+            if (OnTopic != null) {
+                OnTopic(channel, topic, ircdata);
+            }
+        }
+
+        private void _Event_RPL_NOTOPIC(Data ircdata)
+        {
+            string channel = ircdata.Channel;
+
+            if (ChannelSyncing &&
+                IsJoined(channel)) {
+                GetChannel(channel).Topic = "";
+#if LOG4NET
+                Logger.ChannelSyncing.Debug("stored empty topic for channel: "+channel);
+#endif
+            }
+
+            if (OnTopic != null) {
+                OnTopic(channel, "", ircdata);
+            }
+        }
+
+        private void _Event_RPL_NAMREPLY(Data ircdata)
+        {
+            if (ChannelSyncing &&
+                IsJoined(ircdata.Channel)) {
+                string   channel  = ircdata.Channel;
+                string[] userlist = ircdata.MessageEx;
+
+                string nickname;
+                bool   op = false;
+                bool   voice = false;
+                foreach (string user in userlist) {
+                    switch (user[0]) {
+                        case '@':
+                            op = true;
+                            nickname = user.Substring(1);
+                        break;
+                        case '+':
+                            voice = true;
+                            nickname = user.Substring(1);
+                        break;
+                        default:
+                            nickname = user;
+                        break;
+                    }
+
+                    IrcUser     ircuser     = GetIrcUser(nickname);
+                    ChannelUser channeluser = GetChannelUser(channel, nickname);
+
+                    if (ircuser == null) {
+#if LOG4NET
+                        Logger.ChannelSyncing.Debug("creating IrcUser: "+nickname+" because he doesn't exist yet");
+#endif
+                        ircuser = new IrcUser(nickname, this);
+                        _IrcUsers.Add(nickname.ToLower(), ircuser);
+                    }
+
+                    if (channeluser == null) {
+#if LOG4NET
+                        Logger.ChannelSyncing.Debug("creating ChannelUser: "+nickname+" for Channel: "+channel+" because he doesn't exist yet");
+#endif
+                        channeluser = new ChannelUser(channel, ircuser);
+                        GetChannel(channel).Users.Add(nickname.ToLower(), channeluser);
+                    }
+
+                    channeluser.Op    = op;
+                    channeluser.Voice = voice;
+                }
+            }
+        }
+
+        private void _Event_RPL_WHOREPLY(Data ircdata)
+        {
+            string channel  = ircdata.Channel;
+            string ident    = ircdata.RawMessageEx[4];
+            string host     = ircdata.RawMessageEx[5];
+            string server   = ircdata.RawMessageEx[6];
+            string nick     = ircdata.RawMessageEx[7];
+            string usermode = ircdata.RawMessageEx[8];
+            string realname = String.Join(" ", ircdata.RawMessageEx, 10, ircdata.RawMessageEx.Length-10);
+            int    hopcount = 0;
+            string temp     = ircdata.RawMessageEx[9].Substring(1);
+            try {
+                hopcount = int.Parse(temp);
+            } catch (FormatException) {
+#if LOG4NET
+                Logger.MessageParser.Warn("couldn't parse (as int): '"+temp+"'");
+#endif
+            }
+
+            bool op = false;
+            bool voice = false;
+            bool ircop = false;
+            bool away = false;
+            int usermodelength = usermode.Length;
+            for (int i = 0; i < usermodelength; i++) {
+                switch (usermode[i]) {
+                    case 'H':
+                        away = false;
+                    break;
+                    case 'G':
+                        away = true;
+                    break;
+                    case '@':
+                        op = true;
+                    break;
+                    case '+':
+                        voice = true;
+                    break;
+                    case '*':
+                        ircop = true;
+                    break;
+                }
+            }
+
+            if (ChannelSyncing) {
+#if LOG4NET
+                Logger.ChannelSyncing.Debug("updating userinfo (from whoreply) for user: "+nick+" channel: "+channel);
+#endif
+                IrcUser ircuser  = GetIrcUser(nick);
+                ircuser.Ident    = ident;
+                ircuser.Host     = host;
+                ircuser.Server   = server;
+                ircuser.Nick     = nick;
+                ircuser.HopCount = hopcount;
+                ircuser.Realname = realname;
+                ircuser.Away     = away;
+                ircuser.IrcOp    = ircop;
+
+                if (channel != "*") {
+                    ChannelUser channeluser = GetChannelUser(channel, nick);
+                    channeluser.Op    = op;
+                    channeluser.Voice = voice;
+                }
+            }
+
+            if (OnWho != null) {
+                OnWho(channel, nick, ident, host, realname, away, op, voice, ircop, server, hopcount, ircdata);
+            }
+        }
+
+        private void _Event_RPL_CHANNELMODEIS(Data ircdata)
+        {
+            if (ChannelSyncing &&
+                IsJoined(ircdata.Channel)) {
+                GetChannel(ircdata.Channel).Mode = ircdata.RawMessageEx[4];
+            }
+        }
+
+        private void _Event_ERR_NICKNAMEINUSE(Data ircdata)
+        {
+#if LOG4NET
+            Logger.Connection.Warn("nickname collision detected, changing nickname");
+#endif
+            string nickname;
+            Random rand = new Random();
+            int number = rand.Next();
+            nickname = Nickname.Substring(0, 5)+number;
+
+            Nick(nickname, Priority.Critical);
+        }
+
+        // </internal messagehandler>
     }
 }
 
