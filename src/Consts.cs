@@ -1,8 +1,8 @@
 /**
- * $Id: Consts.cs,v 1.3 2003/11/21 23:37:54 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: Consts.cs,v 1.4 2003/11/27 23:22:21 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/11/21 23:37:54 $
+ * $Date: 2003/11/27 23:22:21 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,9 +23,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
-
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
     public enum Priority
     {
@@ -53,14 +51,36 @@ namespace SmartIRC
         DCC
     }
 
-    public enum MessageType
+    public enum SendType
     {
-        Channel,
-        Query,
+        Message,
         Action,
         Notice,
         CtcpReply,
         CtcpRequest
+    }
+
+    public enum ReceiveType
+    {
+        Join,
+        Kick,
+        Part,
+        Quit,
+        Who,
+        Name,
+        Topic,
+        BanList,
+        TopicChange,
+        ModeChange,
+        ChannelMode,
+        ChannelMessage,
+        ChannelAction,
+        ChannelNotice,
+        QueryMessage,
+        QueryAction,
+        QueryNotice,
+        CtcpReply,
+        CtcpRequest,
     }
 }
 
