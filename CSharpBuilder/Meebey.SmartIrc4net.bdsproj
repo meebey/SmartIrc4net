@@ -11,7 +11,7 @@
 	<CSharp.Personality>
 		<Options>
 			<SelectedOptionSet>
-				<SelectedOptionSet Name="OptionsSet" Type="String">Debug</SelectedOptionSet>
+				<SelectedOptionSet Name="OptionsSet" Type="String">Release</SelectedOptionSet>
 			</SelectedOptionSet>
 			<OptionsSet Name="Release">
 				<Options>
@@ -88,24 +88,30 @@
 				</Options>
 			</OptionsSet>
 		</Options>
-    
       
     <FileList>
       <File FileName="c:\windows\microsoft.net\framework\v1.1.4322\System.dll" ContainerId="DotNetAssemblyCompiler" ModuleName="System" AssemblyName="System" Version="1.0.5000.0"/>
       <File FileName="..\src\AssemblyInfo.cs" ContainerId="CSharpCompiler" ModuleName="AssemblyInfo"/>
-      <File FileName="..\src\Channel.cs" ContainerId="CSharpCompiler" ModuleName="Channel"/>
-      <File FileName="..\src\ChannelUser.cs" ContainerId="CSharpCompiler" ModuleName="ChannelUser"/>
       <File FileName="..\src\Consts.cs" ContainerId="CSharpCompiler" ModuleName="Consts"/>
-      <File FileName="..\src\Data.cs" ContainerId="CSharpCompiler" ModuleName="Data"/>
-      <File FileName="..\src\Delegates.cs" ContainerId="CSharpCompiler" ModuleName="Delegates"/>
-      <File FileName="..\src\IrcClient.cs" ContainerId="CSharpCompiler" ModuleName="IrcClient"/>
-      <File FileName="..\src\IrcCommands.cs" ContainerId="CSharpCompiler" ModuleName="IrcCommands"/>
-      <File FileName="..\src\IrcConnection.cs" ContainerId="CSharpCompiler" ModuleName="IrcConnection"/>
-      <File FileName="..\src\IrcTcpClient.cs" ContainerId="CSharpCompiler" ModuleName="IrcTcpClient"/>
-      <File FileName="..\src\IrcUser.cs" ContainerId="CSharpCompiler" ModuleName="IrcUser"/>
       <File FileName="..\src\Logger.cs" ContainerId="CSharpCompiler" ModuleName="Logger"/>
-      <File FileName="..\src\Rfc2812.cs" ContainerId="CSharpCompiler" ModuleName="Rfc2812"/>
       <File FileName="..\bin\log4net.dll" ContainerId="DotNetAssemblyCompiler" ModuleName="log4net" AssemblyName="log4net" Version="1.2.0.30714"/>
+      <File FileName="..\src\EventArgs.cs" ContainerId="CSharpCompiler" ModuleName="EventArgs"/>
+      <File FileName="..\src\Exceptions.cs" ContainerId="CSharpCompiler" ModuleName="Exceptions"/>
+      <File FileName="..\src\IrcClient\NonRfcChannelUser.cs" ContainerId="CSharpCompiler" ModuleName="NonRfcChannelUser"/>
+      <File FileName="..\src\IrcClient\Channel.cs" ContainerId="CSharpCompiler" ModuleName="Channel"/>
+      <File FileName="..\src\IrcClient\ChannelUser.cs" ContainerId="CSharpCompiler" ModuleName="ChannelUser"/>
+      <File FileName="..\src\IrcClient\Delegates.cs" ContainerId="CSharpCompiler" ModuleName="Delegates"/>
+      <File FileName="..\src\IrcClient\EventArgs.cs" ContainerId="CSharpCompiler" ModuleName="EventArgs"/>
+      <File FileName="..\src\IrcClient\IrcClient.cs" ContainerId="CSharpCompiler" ModuleName="IrcClient"/>
+      <File FileName="..\src\IrcClient\IrcMessageData.cs" ContainerId="CSharpCompiler" ModuleName="IrcMessageData"/>
+      <File FileName="..\src\IrcClient\IrcUser.cs" ContainerId="CSharpCompiler" ModuleName="IrcUser"/>
+      <File FileName="..\src\IrcClient\NonRfcChannel.cs" ContainerId="CSharpCompiler" ModuleName="NonRfcChannel"/>
+      <File FileName="..\src\IrcCommands\IrcCommands.cs" ContainerId="CSharpCompiler" ModuleName="IrcCommands"/>
+      <File FileName="..\src\IrcCommands\Rfc2812.cs" ContainerId="CSharpCompiler" ModuleName="Rfc2812"/>
+      <File FileName="..\src\IrcConnection\IrcTcpClient.cs" ContainerId="CSharpCompiler" ModuleName="IrcTcpClient"/>
+      <File FileName="..\src\IrcConnection\Delegates.cs" ContainerId="CSharpCompiler" ModuleName="Delegates"/>
+      <File FileName="..\src\IrcConnection\EventArgs.cs" ContainerId="CSharpCompiler" ModuleName="EventArgs"/>
+      <File FileName="..\src\IrcConnection\IrcConnection.cs" ContainerId="CSharpCompiler" ModuleName="IrcConnection"/>
     </FileList>
   </CSharp.Personality>
 </BorlandProject>
