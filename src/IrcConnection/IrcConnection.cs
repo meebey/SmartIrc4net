@@ -376,7 +376,7 @@ namespace Meebey.SmartIrc4net
                 System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
                 _TcpClient = new IrcTcpClient();
                 _TcpClient.NoDelay = true;
-                _TcpClient.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                _TcpClient.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                 // set timeout, after this the connection will be aborted
                 _TcpClient.ReceiveTimeout = _SocketReceiveTimeout*1000;
                 _TcpClient.SendTimeout = _SocketSendTimeout*1000;
