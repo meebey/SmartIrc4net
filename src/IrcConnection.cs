@@ -1,8 +1,8 @@
 /**
- * $Id: IrcConnection.cs,v 1.1 2003/11/16 16:58:42 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: IrcConnection.cs,v 1.2 2003/11/16 18:54:17 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:42 $
+ * $Date: 2003/11/16 18:54:17 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -47,9 +47,12 @@ namespace SmartIRC
         private string              _Address;
         private int                 _Port;
         private SortedList          _SendBuffer = new SortedList();
-        private MemoryStream        _ThreadReadBuffer = new MemoryStream();
-        private StreamReader        _ThreadReadBufferStreamReader;
-        private StreamWriter        _ThreadReadBufferStreamWriter;
+        // unsyncronized queue (not thread safe), required for the wrapper
+        private Queue               _ThreadReadQueueU = new Queue();
+        private Queue               _ThreadWriteQueueU = new Queue();
+        // syncronized queue
+        private Queue               _ThreadReadQueue;
+        private Queue               _ThreadWriteQueue;
         public  Encoding            Encoding = Encoding.GetEncoding(1250);
 
         public event ReadLineEventHandler   OnReadLine;
@@ -67,8 +70,8 @@ namespace SmartIRC
 
         public Connection()
         {
-            _ThreadReadBufferStreamReader = new StreamReader(_ThreadReadBuffer, Encoding);
-            _ThreadReadBufferStreamWriter = new StreamWriter(_ThreadReadBuffer, Encoding);
+            _ThreadReadQueue  = Queue.Synchronized(_ThreadReadQueueU);
+            _ThreadWriteQueue = Queue.Synchronized(_ThreadWriteQueueU);
 
             _SendBuffer[Priority.Low]     = new StringCollection();
             _SendBuffer[Priority.Medium]  = new StringCollection();
@@ -96,6 +99,16 @@ namespace SmartIRC
                 Logger.Connection.Info("connected");
                 return true;
             } catch {
+                if (_Reader != null) {
+                    _Reader.Close();
+                }
+                if (_Writer != null) {
+                    _Writer.Close();
+                }
+                if (_TcpClient != null) {
+                    _TcpClient.Close();
+                }
+                Logger.Connection.Info("connection failed");
                 return false;
             }
         }
@@ -106,10 +119,8 @@ namespace SmartIRC
                 _Reader.Close();
                 _Writer.Close();
                 _TcpClient.Close();
-
-                _ThreadReadBufferStreamReader.Close();
-                _ThreadReadBufferStreamWriter.Close();
-                _ThreadReadBuffer.Close();
+                _ThreadReadQueue.Clear();
+                _ThreadWriteQueue.Clear();
                 if (OnDisconnect != null) {
                     OnDisconnect();
                 }
@@ -138,13 +149,19 @@ namespace SmartIRC
         public string ReadLine()
         {
             string data = "";
+
+            // block till the queue has data
             while ((Connected == true) &&
-                   (data = _ThreadReadBufferStreamReader.ReadLine()) == null) {
+                   (_ThreadReadQueue.Count == 0)) {
                 Thread.Sleep(100);
             }
 
-            if (data != null) {
-                Logger.Socket.Debug("buffer read: \""+data+"\"");
+            if (Connected == true) {
+                data = (string)(_ThreadReadQueue.Dequeue());
+            }
+
+            if (data != "" && data != null) {
+                Logger.Queue.Debug("recevied: \""+data+"\"");
                 if (OnReadLine != null) {
                     OnReadLine(data);
                 }
@@ -178,9 +195,8 @@ namespace SmartIRC
             string data = "";
             while((Connected == true) &&
                   ((data = _Reader.ReadLine()) != null)) {
-                _ThreadReadBufferStreamWriter.WriteLine(data);
-                _ThreadReadBufferStreamWriter.Flush();
-                Logger.Socket.Debug("thread received: \""+data+"\"");
+                _ThreadReadQueue.Enqueue(data);
+                Logger.Socket.Debug("received: \""+data+"\"");
             }
 
             Logger.Socket.Warn("detected dead connection (socket returned null)");
