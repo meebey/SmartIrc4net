@@ -47,7 +47,8 @@ namespace Meebey.SmartIrc4net
         private string           _CtcpVersion;
         private bool             _ActiveChannelSyncing  = false;
         private bool             _PassiveChannelSyncing = false;
-        private bool             _AutoRejoin         = false;
+        private bool             _AutoJoinOnInvite      = false;
+        private bool             _AutoRejoin            = false;
         private StringCollection _AutoRejoinChannels = new StringCollection();
         private bool             _AutoRejoinOnKick = false;
         private bool             _AutoRelogin    = false;
@@ -169,6 +170,26 @@ namespace Meebey.SmartIrc4net
             }
             set {
                 _CtcpVersion = value;
+            }
+        }
+
+        /// <summary>
+        /// Enables/disables auto joining of channels when invited
+        /// </summary>
+        public bool AutoJoinOnInvite
+        {
+            get {
+                return _AutoJoinOnInvite;
+            }
+            set {
+#if LOG4NET
+                if (value == true) {
+                    Logger.ChannelSyncing.Info("AutoJoinOnInvite enabled");
+                } else {
+                    Logger.ChannelSyncing.Info("AutoJoinOnInvite disabled");
+                }
+#endif
+                _AutoJoinOnInvite = value;
             }
         }
 
@@ -1387,23 +1408,23 @@ namespace Meebey.SmartIrc4net
             if (isme) {
                 _JoinedChannels.Remove(channelname);
             }
-
+            
             if (ActiveChannelSyncing) {
                 if (isme) {
                     Channel channel = GetChannel(channelname);
                     _Channels.Remove(channelname);
                     if (_AutoRejoinOnKick) {
                         RfcJoin(channel.Name, channel.Key);
-            	   }	
+                    }
                 } else {
                     _RemoveChannelUser(channelname, whom);
                     _RemoveIrcUser(whom);
                 }
             } else {
-            	if (isme && _AutoRejoinOnKick) {
-                	RfcJoin(channelname);
-            	}
-            }          
+                if (isme && AutoRejoinOnKick) {
+                    RfcJoin(channelname);
+                }
+            }
             
             if (OnKick != null) {
                 OnKick(this, new KickEventArgs(ircdata, channelname, who, whom, reason));
@@ -1595,7 +1616,13 @@ namespace Meebey.SmartIrc4net
         {
             string channel = ircdata.Channel;
             string inviter = ircdata.Nick;
-
+            
+            if (AutoJoinOnInvite) {
+                if (channel != "0") {
+                    RfcJoin(channel);
+                }
+            }
+            
             if (OnInvite != null) {
                 OnInvite(this, new InviteEventArgs(ircdata, channel, inviter));
             }
