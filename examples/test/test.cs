@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections;
+using System.Threading;
 using Meebey.SmartIrc4net;
 
 public class Test
@@ -108,7 +109,7 @@ public class Test
                 irc.SendMessage(SendType.Notice, channel, "SmartIrc4net rocks "+i.ToString());
             }
             
-            new System.Threading.Thread(new System.Threading.ThreadStart(ReadCommand)).Start();
+            new Thread(new ThreadStart(ReadCommand)).Start();
             irc.Listen();
             irc.Disconnect();
         } catch (ConnectionException) {
