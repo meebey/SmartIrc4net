@@ -6,7 +6,7 @@
  * $Date$
  */
 
-v0.3.5 (SVN r169)
+v0.3.5 (SVN r178)
 ------
 fixes:
 - fixed bug in channel sync that caused duplicate exception
@@ -40,6 +40,7 @@ changes:
 - improved the example/test program
 - main bin/ directory is now used for the example programs
 - changed overrides to new (method hiding is sufficient here).
+- updated all MS VS.NET project files.
 
 new:
 - added Halfop support (with OnHalfop and OnDehalfop events)
@@ -64,6 +65,7 @@ new:
 - added Rfc2812.IsValidNickname() method.
 - added IrcConnection.SocketSendTimeout and IrcConnection.SocketReceiveTimeout
 - added little benchmark program (examples/benchmark).
+- added stresstest program (examples/stresstest).
 - added sign target to the makefile
 
 v0.3.0 (SVN r123)
