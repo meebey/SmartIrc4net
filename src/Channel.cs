@@ -1,8 +1,8 @@
 /**
- * $Id: Channel.cs,v 1.1 2003/11/16 16:58:42 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: Channel.cs,v 1.2 2003/11/27 23:16:31 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:42 $
+ * $Date: 2003/11/27 23:16:31 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,24 +23,23 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
 using System.Collections;
 
-namespace SmartIRC
+namespace Meebey.SmartIrc4net
 {
     public class Channel
     {
-        public string        name;
-        public string        key;
-        public SortedList    users;
-        public SortedList    ops;
-        public SortedList    voices;
-        public SortedList    bans;
-        public string        topic;
-        public int           user_limit = 0;
-        public string        mode;
-        public int           synctime_start;
-        public int           synctime_stop;
-        public int           synctime;
+        public string        Name;
+        public string        Key;
+        public SortedList    Users;
+        public SortedList    Ops;
+        public SortedList    Voices;
+        public SortedList    Bans;
+        public string        Topic;
+        public int           UserLimit = 0;
+        public string        Mode;
+        public int           SynctimeStart;
+        public int           SynctimeStop;
+        public int           Synctime;
     }
 }
