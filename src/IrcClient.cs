@@ -208,13 +208,10 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string[] JoinedChannels
+        public StringCollection JoinedChannels
         {
             get {
-                string[] result;
-                result = new string[_JoinedChannels.Count];
-                _JoinedChannels.CopyTo(result, 0);
-                return result;
+                return _JoinedChannels;
             }
         }
         
@@ -276,13 +273,13 @@ namespace Meebey.SmartIrc4net
             _Realname = realname;
             _IUsermode = usermode;
 
-            if (username != String.Empty) {
+            if (username != null && username.Length > 0) {
                 _Username = username.Replace(" ", "");
             } else {
                 _Username = Environment.UserName.Replace(" ", "");
             }
 
-            if (password != String.Empty) {
+            if (password != null && password.Length > 0) {
                 _Password = password;
                 Pass(Password, Priority.Critical);
             }

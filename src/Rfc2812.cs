@@ -24,12 +24,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+using System;
+using System.Globalization;
+
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
     ///
     /// </summary>
-    public class Rfc2812
+    public sealed class Rfc2812
     {
         private Rfc2812()
         {

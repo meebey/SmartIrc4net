@@ -36,7 +36,7 @@ namespace Meebey.SmartIrc4net
         Medium,
         AboveMedium,
         High,
-        Critical,
+        Critical
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ namespace Meebey.SmartIrc4net
         ChannelSyncing,
         UserSyncing,
         Modules,
-        DCC
+        Dcc
     }
 
     /// <summary>
@@ -255,4 +255,3 @@ namespace Meebey.SmartIrc4net
         ERR_USERSDONTMATCH =       502
     }
 }
-

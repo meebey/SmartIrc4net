@@ -26,31 +26,29 @@
 
 namespace Meebey.SmartIrc4net
 {
-    public delegate void SimpleEventHandler();
-    
     // delegates for IrcClient
-    public delegate void IrcEventHandler(object sender, IrcEventArgs args);
-    public delegate void ActionEventHandler(object sender, ActionEventArgs args);
-    public delegate void ErrorEventHandler(object sender, ErrorEventArgs args);
-    public delegate void PingEventHandler(object sender, PingEventArgs args);
-    public delegate void KickEventHandler(object sender, KickEventArgs args);
-    public delegate void JoinEventHandler(object sender, JoinEventArgs args);
-    public delegate void NamesEventHandler(object sender, NamesEventArgs args);
-    public delegate void PartEventHandler(object sender, PartEventArgs args);
-    public delegate void InviteEventHandler(object sender, InviteEventArgs args);
-    public delegate void OpEventHandler(object sender, OpEventArgs args);
-    public delegate void DeopEventHandler(object sender, DeopEventArgs args);
-    public delegate void VoiceEventHandler(object sender, VoiceEventArgs args);
-    public delegate void DevoiceEventHandler(object sender, DevoiceEventArgs args);
-    public delegate void BanEventHandler(object sender, BanEventArgs args);
-    public delegate void UnbanEventHandler(object sender, UnbanEventArgs args);
-    public delegate void TopicEventHandler(object sender, TopicEventArgs args);
-    public delegate void TopicChangeEventHandler(object sender, TopicChangeEventArgs args);
-    public delegate void NickChangeEventHandler(object sender, NickChangeEventArgs args);
-    public delegate void QuitEventHandler(object sender, QuitEventArgs args);
-    public delegate void WhoEventHandler(object sender, WhoEventArgs args);
+    public delegate void IrcEventHandler(object sender, IrcEventArgs e);
+    public delegate void ActionEventHandler(object sender, ActionEventArgs e);
+    public delegate void ErrorEventHandler(object sender, ErrorEventArgs e);
+    public delegate void PingEventHandler(object sender, PingEventArgs e);
+    public delegate void KickEventHandler(object sender, KickEventArgs e);
+    public delegate void JoinEventHandler(object sender, JoinEventArgs e);
+    public delegate void NamesEventHandler(object sender, NamesEventArgs e);
+    public delegate void PartEventHandler(object sender, PartEventArgs e);
+    public delegate void InviteEventHandler(object sender, InviteEventArgs e);
+    public delegate void OpEventHandler(object sender, OpEventArgs e);
+    public delegate void DeopEventHandler(object sender, DeopEventArgs e);
+    public delegate void VoiceEventHandler(object sender, VoiceEventArgs e);
+    public delegate void DevoiceEventHandler(object sender, DevoiceEventArgs e);
+    public delegate void BanEventHandler(object sender, BanEventArgs e);
+    public delegate void UnbanEventHandler(object sender, UnbanEventArgs e);
+    public delegate void TopicEventHandler(object sender, TopicEventArgs e);
+    public delegate void TopicChangeEventHandler(object sender, TopicChangeEventArgs e);
+    public delegate void NickChangeEventHandler(object sender, NickChangeEventArgs e);
+    public delegate void QuitEventHandler(object sender, QuitEventArgs e);
+    public delegate void WhoEventHandler(object sender, WhoEventArgs e);
     
     // delegates for IrcConnection
-    public delegate void ReadLineEventHandler(object sender, ReadLineEventArgs args);
-    public delegate void WriteLineEventHandler(object sender, WriteLineEventArgs args);
+    public delegate void ReadLineEventHandler(object sender, ReadLineEventArgs e);
+    public delegate void WriteLineEventHandler(object sender, WriteLineEventArgs e);
 }

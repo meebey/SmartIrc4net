@@ -27,6 +27,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 // Information about this assembly is defined by the following
 // attributes.
@@ -35,6 +36,7 @@ using System.Runtime.CompilerServices;
 // you compile.
 
 [assembly: CLSCompliant(true)]
+[assembly: ComVisible(true)]
 [assembly: AssemblyTitle("SmartIrc4net")]
 [assembly: AssemblyDescription("IRC library for the .NET Framework")]
 [assembly: AssemblyConfiguration("")]
@@ -57,4 +59,8 @@ using System.Runtime.CompilerServices;
 // .NET Framework documentation for more information about signing.
 // This is not required, if you don't want signing let these attributes like they're.
 [assembly: AssemblyDelaySign(false)]
+#if !DEBUG
+[assembly: AssemblyKeyFile("../../../SmartIrc4net.snk")]
+#else
 [assembly: AssemblyKeyFile("")]
+#endif

@@ -24,8 +24,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System.Collections.Specialized;
-
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
@@ -34,9 +32,9 @@ namespace Meebey.SmartIrc4net
     public class ChannelUser
     {
         private string    _Channel;
-        private IrcUser   _IrcUser = null;
-        private bool      _IsOp      = false;
-        private bool      _IsVoice   = false;
+        private IrcUser   _IrcUser  = null;
+        private bool      _IsOp     = false;
+        private bool      _IsVoice  = false;
 
         /// <summary>
         /// 

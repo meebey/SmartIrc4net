@@ -50,33 +50,33 @@ namespace Meebey.SmartIrc4net
         private IrcTcpClient    _TcpClient;
         private Hashtable       _SendBuffer = Hashtable.Synchronized(new Hashtable());
         private int             _SendDelay = 200;
-        private bool            _Registered = false;
-        private bool            _Connected  = false;
+        private bool            _IsRegistered = false;
+        private bool            _IsConnected  = false;
+        private bool            _IsConnectionError = false;
         private int             _ConnectTries = 0;
         private bool            _AutoRetry     = false;
         private bool            _AutoReconnect = false;
-        private bool            _ConnectionError = false;
         private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-15");
         //private Encoding        _Encoding = Encoding.GetEncoding(1252);
         //private Encoding        _Encoding = Encoding.UTF8;
 
         public event ReadLineEventHandler   OnReadLine;
         public event WriteLineEventHandler  OnWriteLine;
-        public event SimpleEventHandler     OnConnect;
-        public event SimpleEventHandler     OnConnected;
-        public event SimpleEventHandler     OnDisconnect;
-        public event SimpleEventHandler     OnDisconnected;
-
-        protected bool ConnectionError
+        public event EventHandler           OnConnect;
+        public event EventHandler           OnConnected;
+        public event EventHandler           OnDisconnect;
+        public event EventHandler           OnDisconnected;
+        
+        protected bool IsConnectionError
         {
             get {
                 lock (this) {
-                    return _ConnectionError;
+                    return _IsConnectionError;
                 }
             }
             set {
                 lock (this) {
-                    _ConnectionError = value;
+                    _IsConnectionError = value;
                 }
             }
         }
@@ -146,17 +146,17 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public bool Registered
+        public bool IsRegistered
         {
             get {
-                return _Registered;
+                return _IsRegistered;
             }
         }
 
-        public bool Connected
+        public bool IsConnected
         {
             get {
-                return _Connected;
+                return _IsConnected;
             }
         }
 
@@ -211,7 +211,7 @@ namespace Meebey.SmartIrc4net
 
         public bool Connect(string[] addresslist, int port)
         {
-            if (_Connected != false) {
+            if (_IsConnected != false) {
                 throw new Exception("already connected");
             }
 
@@ -223,14 +223,14 @@ namespace Meebey.SmartIrc4net
             _Port = port;
 
             if (OnConnect != null) {
-                OnConnect();
+                OnConnect(this, new EventArgs());
             }
             try {
                 System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
                 _TcpClient = new IrcTcpClient();
                 _TcpClient.Connect(ip, port);
                 if (OnConnected != null) {
-                    OnConnected();
+                    OnConnected(this, new EventArgs());
                 }
 
                 _Reader = new StreamReader(_TcpClient.GetStream(), Encoding);
@@ -241,9 +241,9 @@ namespace Meebey.SmartIrc4net
 
                 // updating the connection id, so connecting is possible again
                 lock(this) {
-                    ConnectionError = false;
+                    IsConnectionError = false;
                 }
-                _Connected = true;
+                _IsConnected = true;
 #if LOG4NET
                 Logger.Connection.Info("connected");
 #endif
@@ -262,8 +262,8 @@ namespace Meebey.SmartIrc4net
                 if (_TcpClient != null) {
                     _TcpClient.Close();
                 }
-                _Connected = false;
-                ConnectionError = true;
+                _IsConnected = false;
+                IsConnectionError = true;
 #if LOG4NET
                 Logger.Connection.Info("connection failed: "+e.Message);
 #endif
@@ -301,22 +301,22 @@ namespace Meebey.SmartIrc4net
 
         public bool Disconnect()
         {
-            if (Connected == true) {
+            if (IsConnected == true) {
 #if LOG4NET
                 Logger.Connection.Info("disconnecting...");
 #endif
                 if (OnDisconnect != null) {
-                    OnDisconnect();
+                    OnDisconnect(this, new EventArgs());
                 }
 
                 _ReadThread.Stop();
                 _WriteThread.Stop();
                 _TcpClient.Close();
-                _Connected = false;
-                _Registered = false;
+                _IsConnected = false;
+                _IsRegistered = false;
 
                 if (OnDisconnected != null) {
-                    OnDisconnected();
+                    OnDisconnected(this, new EventArgs());
                 }
 
 #if LOG4NET
@@ -331,9 +331,9 @@ namespace Meebey.SmartIrc4net
         public void Listen(bool blocking)
         {
             if (blocking) {
-                while(Connected == true) {
+                while(IsConnected == true) {
                     ReadLine(true);
-                    if (ConnectionError == true) {
+                    if (IsConnectionError == true) {
                         if (AutoReconnect == true) {
                             Reconnect();
                         } else {
@@ -342,7 +342,7 @@ namespace Meebey.SmartIrc4net
                     }
                 }
             } else {
-                while (ReadLine(false) != String.Empty) {
+                while (ReadLine(false).Length > 0) {
                     // loop as long as we receive messages
                 }
             }
@@ -370,18 +370,18 @@ namespace Meebey.SmartIrc4net
             
             if (blocking) {
                 // block till the queue has data
-                while ((Connected == true) &&
-                    (_ReadThread.Queue.Count == 0)) {
+                while ((IsConnected == true) &&
+                       (_ReadThread.Queue.Count == 0)) {
                     Thread.Sleep(10);
                 }
             }
 
-            if ((Connected == true) &&
+            if ((IsConnected == true) &&
                 (_ReadThread.Queue.Count > 0)) {
                 data = (string)(_ReadThread.Queue.Dequeue());
             }
 
-            if (data != "" && data != null) {
+            if (data != null && data.Length > 0) {
 #if LOG4NET
                 Logger.Queue.Debug("read: \""+data+"\"");
 #endif
@@ -409,7 +409,7 @@ namespace Meebey.SmartIrc4net
 
         private bool _WriteLine(string data)
         {
-            if (Connected == true) {
+            if (IsConnected == true) {
                 try {
                     _Writer.Write(data+"\r\n");
                     _Writer.Flush();
@@ -417,7 +417,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.Socket.Warn("sending data failed, connection lost");
 #endif
-                    ConnectionError = true;
+                    IsConnectionError = true;
                     return false;
                 }
 
@@ -458,7 +458,7 @@ namespace Meebey.SmartIrc4net
                     ReplyCode replycode = (ReplyCode)int.Parse(messagecode);
                     switch(replycode) {
                         case ReplyCode.RPL_WELCOME:
-                            _Registered = true;
+                            _IsRegistered = true;
 #if LOG4NET
                             Logger.Connection.Info("logged in");
 #endif
@@ -471,7 +471,7 @@ namespace Meebey.SmartIrc4net
                 messagecode = rawlineex[0];
                 switch(messagecode) {
                     case "ERROR":
-                        ConnectionError = true;
+                        IsConnectionError = true;
                     break;
                 }
             }
@@ -518,7 +518,7 @@ namespace Meebey.SmartIrc4net
                 try {
                     string data = "";
                     try {
-                        while ((_Connection.Connected == true) &&
+                        while ((_Connection.IsConnected == true) &&
                                ((data = _Connection._Reader.ReadLine()) != null)) {
                             _Queue.Enqueue(data);
 #if LOG4NET
@@ -534,7 +534,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.Socket.Warn("connection lost");
 #endif
-                    _Connection.ConnectionError = true;
+                    _Connection.IsConnectionError = true;
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
 #if LOG4NET
@@ -586,7 +586,7 @@ namespace Meebey.SmartIrc4net
                 Logger.Socket.Debug("WriteThread started");
 #endif
                 try {
-                    while (_Connection.Connected == true) {
+                    while (_Connection.IsConnected == true) {
                         _CheckBuffer();
                         Thread.Sleep(_Connection._SendDelay);
                     }
@@ -594,7 +594,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.Socket.Warn("connection lost");
 #endif
-                    _Connection.ConnectionError = true;
+                    _Connection.IsConnectionError = true;
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
 #if LOG4NET
@@ -607,7 +607,7 @@ namespace Meebey.SmartIrc4net
             private void _CheckBuffer()
             {
                 // only send data if we are succefully registered on the IRC network
-                if (!_Connection._Registered) {
+                if (!_Connection._IsRegistered) {
                     return;
                 }
 

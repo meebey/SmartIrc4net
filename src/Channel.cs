@@ -108,9 +108,6 @@ namespace Meebey.SmartIrc4net
             get {
                 return _Users;
             }
-            set {
-                _Users = value;
-            }
         }
 
         /// <summary>
@@ -132,9 +129,6 @@ namespace Meebey.SmartIrc4net
         {
             get {
                 return _Ops;
-            }
-            set {
-                _Ops = value;
             }
         }
 
@@ -158,9 +152,6 @@ namespace Meebey.SmartIrc4net
             get {
                 return _Voices;
             }
-            set {
-                _Voices = value;
-            }
         }
 
         /// <summary>
@@ -171,9 +162,6 @@ namespace Meebey.SmartIrc4net
         {
             get {
                 return _Bans;
-            }
-            set {
-                _Bans = value;
             }
         }
 

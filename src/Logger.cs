@@ -69,7 +69,7 @@ namespace Meebey.SmartIrc4net
             _LoggerList[Category.ChannelSyncing] = log4net.LogManager.GetLogger("CHANNELSYNCING");
             _LoggerList[Category.UserSyncing]    = log4net.LogManager.GetLogger("USERSYNCING");
             _LoggerList[Category.Modules]        = log4net.LogManager.GetLogger("MODULES");
-            _LoggerList[Category.DCC]            = log4net.LogManager.GetLogger("DCC");
+            _LoggerList[Category.Dcc]            = log4net.LogManager.GetLogger("DCC");
         }
 
         public static log4net.ILog Main
@@ -163,10 +163,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public static log4net.ILog DCC
+        public static log4net.ILog Dcc
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.DCC];
+                return (log4net.ILog)_LoggerList[Category.Dcc];
             }
         }
     }
