@@ -676,12 +676,12 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                         Logger.Socket.Warn("IOException: "+e.Message);
 #endif
-                    }
-
+                    } finally {
 #if LOG4NET
-                    Logger.Socket.Warn("connection lost");
+                        Logger.Socket.Warn("connection lost");
 #endif
-                    _Connection.IsConnectionError = true;
+                        _Connection.IsConnectionError = true;
+                    }
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
 #if LOG4NET
@@ -733,15 +733,21 @@ namespace Meebey.SmartIrc4net
                 Logger.Socket.Debug("WriteThread started");
 #endif
                 try {
-                    while (_Connection.IsConnected == true) {
-                        _CheckBuffer();
-                        Thread.Sleep(_Connection._SendDelay);
-                    }
-
+                    try {
+                        while (_Connection.IsConnected == true) {
+                            _CheckBuffer();
+                            Thread.Sleep(_Connection._SendDelay);
+                        }
+                    } catch (IOException e) {
 #if LOG4NET
-                    Logger.Socket.Warn("connection lost");
+                        Logger.Socket.Warn("IOException: "+e.Message);
 #endif
-                    _Connection.IsConnectionError = true;
+                    } finally {
+#if LOG4NET
+                        Logger.Socket.Warn("connection lost");
+#endif
+                        _Connection.IsConnectionError = true;
+                    }
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
 #if LOG4NET

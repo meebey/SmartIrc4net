@@ -88,6 +88,7 @@ namespace Meebey.SmartIrc4net
         CtcpReply,
         CtcpRequest,
         Error,
+        ErrorMessage,
         Unknown
     }
 

@@ -584,9 +584,7 @@ namespace Meebey.SmartIrc4net
         
         private ReceiveType _GetMessageType(string rawline)
         {
-            Match found;
-
-            found = _ReplyCodeRegex.Match(rawline);
+            Match found = _ReplyCodeRegex.Match(rawline);
             if (found.Success) {
                 string code = found.Groups[1].Value;
                 ReplyCode replycode = (ReplyCode)int.Parse(code);
@@ -646,14 +644,16 @@ namespace Meebey.SmartIrc4net
                         return ReceiveType.UserMode;
                     case ReplyCode.ChannelModeIs:
                         return ReceiveType.ChannelMode;
-                    case ReplyCode.ErrorNicknameInUse:
-                    case ReplyCode.ErrorNotRegistered:
-                        return ReceiveType.Error;
                     default:
+                        if (((int)replycode >= 400) &&
+                            ((int)replycode <= 599)) {
+                            return ReceiveType.ErrorMessage;
+                        } else {
 #if LOG4NET
-                        Logger.MessageTypes.Warn("replycode unknown ("+code+"): \""+rawline+"\"");
+                            Logger.MessageTypes.Warn("replycode unknown ("+code+"): \""+rawline+"\"");
 #endif
-                        return ReceiveType.Unknown;
+                            return ReceiveType.Unknown;
+                        }                        
                 }
             }
 
@@ -787,7 +787,7 @@ namespace Meebey.SmartIrc4net
             }
 
             if ((OnErrorMessage != null) &&
-                ((int)ircdata.ReplyCode >= 400 && (int)ircdata.ReplyCode <= 599)) {
+                (ircdata.Type == ReceiveType.ErrorMessage)) {
                 OnErrorMessage(this, new IrcEventArgs(ircdata));
             }
             
@@ -925,10 +925,16 @@ namespace Meebey.SmartIrc4net
                         if (add) {
                             if (ActiveChannelSyncing) {
                                 // update the op list
-                                channel.UnsafeOps.Add(temp.ToLower(), GetIrcUser(temp));
+                                try {
+                                    channel.UnsafeOps.Add(temp.ToLower(), GetIrcUser(temp));
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
 #endif
+                                } catch (ArgumentException) {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("duplicate op: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                }
                                 
                                 // update the user op status
                                 GetChannelUser(ircdata.Channel, temp).IsOp = true;
@@ -965,10 +971,16 @@ namespace Meebey.SmartIrc4net
                             if (add) {
                                 if (ActiveChannelSyncing) {
                                     // update the halfop list
-                                    ((NonRfcChannel)channel).UnsafeHalfops.Add(temp.ToLower(), GetIrcUser(temp));
+                                    try {
+                                        ((NonRfcChannel)channel).UnsafeHalfops.Add(temp.ToLower(), GetIrcUser(temp));
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
+                                        Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
 #endif
+                                    } catch (ArgumentException) {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("duplicate halfop: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                    }
                                     
                                     // update the user halfop status
                                     ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = true;
@@ -1005,10 +1017,17 @@ namespace Meebey.SmartIrc4net
                         if (add) {
                             if (ActiveChannelSyncing) {
                                 // update the voice list
-                                channel.UnsafeVoices.Add(temp.ToLower(), GetIrcUser(temp));
+                                try {
+                                    channel.UnsafeVoices.Add(temp.ToLower(), GetIrcUser(temp));
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
 #endif
+                                } catch (ArgumentException) {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("duplicate voice: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                }
+                                
                                 // update the user voice status
                                 GetChannelUser(ircdata.Channel, temp).IsVoice = true;
 #if LOG4NET
@@ -1042,10 +1061,16 @@ namespace Meebey.SmartIrc4net
                         parametersEnumerator.MoveNext();
                         if (add) {
                             if (ActiveChannelSyncing) {
-                                channel.Bans.Add(temp);
+                                try {
+                                    channel.Bans.Add(temp);
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("added ban: "+temp+" to: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("added ban: "+temp+" to: "+ircdata.Channel);
 #endif
+                                } catch (ArgumentException) {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("duplicate ban: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                }
                             }
                             if (OnBan != null) {
                                OnBan(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
