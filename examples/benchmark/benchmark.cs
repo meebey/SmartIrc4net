@@ -1,8 +1,8 @@
 /**
- * $Id: test.cs,v 1.4 2004/05/20 14:20:38 meebey Exp $
- * $Revision: 1.4 $
- * $Author: meebey $
- * $Date: 2004/05/20 14:20:38 $
+ * $Id$
+ * $Revision$
+ * $Author$
+ * $Date$
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  * This is a benchmark test client for the library.

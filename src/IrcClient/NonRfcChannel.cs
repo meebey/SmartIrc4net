@@ -1,9 +1,9 @@
 /**
- * $Id: Channel.cs 140 2004-11-30 19:23:58Z meebey $
- * $URL: svn+ssh://svn.qnetp.net/svn/smartirc/SmartIrc4net/trunk/src/IrcClient/Channel.cs $
- * $Rev: 140 $
- * $Author: meebey $
- * $Date: 2004-11-30 20:23:58 +0100 (Tue, 30 Nov 2004) $
+ * $Id$
+ * $URL$
+ * $Rev$
+ * $Author$
+ * $Date$
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
