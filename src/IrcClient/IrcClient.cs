@@ -660,6 +660,22 @@ namespace Meebey.SmartIrc4net
             _AutoRejoinChannels.Clear();
         }
         
+        private void _SyncingCleanup()
+        {
+            // lets clean it baby, powered by Mr. Proper
+#if LOG4NET
+            Logger.ChannelSyncing.Debug("Mr. Proper action, cleaning good...");
+#endif
+            _JoinedChannels.Clear();
+            if (ActiveChannelSyncing) {
+                _Channels.Clear();
+                _IrcUsers.Clear();
+            }
+            
+            _MotdReceived = false;
+            _Motd.Clear();
+        }
+        
         private ReceiveType _GetMessageType(string rawline)
         {
             Match found = _ReplyCodeRegex.Match(rawline);
@@ -844,19 +860,6 @@ namespace Meebey.SmartIrc4net
             return ReceiveType.Unknown;
         }
         
-        private void _SyncingCleanup()
-        {
-            // lets clean it baby, powered by Mr. Proper
-#if LOG4NET
-            Logger.ChannelSyncing.Debug("Mr. Proper action, cleaning good...");
-#endif
-            _JoinedChannels.Clear();
-            if (ActiveChannelSyncing) {
-                _Channels.Clear();
-                _IrcUsers.Clear();
-            }
-        }
-
         private void _HandleEvents(IrcMessageData ircdata)
         {
             if (OnRawMessage != null) {
