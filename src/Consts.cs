@@ -1,8 +1,8 @@
 /**
- * $Id: Consts.cs,v 1.2 2003/11/16 18:58:37 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: Consts.cs,v 1.3 2003/11/21 23:37:54 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/16 18:58:37 $
+ * $Date: 2003/11/21 23:37:54 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -51,6 +51,16 @@ namespace SmartIRC
         UserSyncing,
         Modules,
         DCC
+    }
+
+    public enum MessageType
+    {
+        Channel,
+        Query,
+        Action,
+        Notice,
+        CtcpReply,
+        CtcpRequest
     }
 }
 
