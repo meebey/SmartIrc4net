@@ -2,19 +2,23 @@
   <StartMode startupentry="SmartIrc4net" single="False">
     <Execute entry="SmartIrc4net" type="None" />
     <Execute entry="Test" type="Execute" />
+    <Execute entry="Benchmark" type="None" />
   </StartMode>
   <Entries>
     <Entry filename="./SmartIrc4net.prjx" />
     <Entry filename="../examples/test/MonoDevelop/Test.prjx" />
+    <Entry filename="../examples/benchmark/benchmark.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
       <Entry name="SmartIrc4net" configurationname="Debug" build="False" />
       <Entry name="Test" configurationname="Debug" build="False" />
+      <Entry name="Benchmark" configurationname="Debug" build="False" />
     </Configuration>
     <Configuration name="Debug">
       <Entry name="SmartIrc4net" configurationname="Debug" build="False" />
       <Entry name="Test" configurationname="Debug" build="False" />
+      <Entry name="Benchmark" configurationname="Debug" build="False" />
     </Configuration>
   </Configurations>
 </Combine>

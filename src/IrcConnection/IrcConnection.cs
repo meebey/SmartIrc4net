@@ -476,13 +476,19 @@ namespace Meebey.SmartIrc4net
         public void Listen(bool blocking)
         {
             if (blocking) {
-                while(IsConnected == true) {
+                while (IsConnected) {
                     ReadLine(true);
-                    if (IsConnectionError == true) {
-                        if (AutoReconnect == true) {
-                            Reconnect();
+                    if (IsConnectionError) {
+                        if (AutoReconnect) {
+                            try {
+                                Reconnect();
+                            } catch (ConnectionException) {
+                            }
                         } else {
-                            Disconnect();
+                            try {
+                                Disconnect();
+                            } catch (ConnectionException) {
+                            }
                         }
                     }
                 }

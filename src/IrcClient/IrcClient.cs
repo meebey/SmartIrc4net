@@ -539,7 +539,7 @@ namespace Meebey.SmartIrc4net
                 message = line.Substring(colonpos+1);
             }
 
-            switch(type) {
+            switch (type) {
                 case ReceiveType.Join:
                 case ReceiveType.Kick:
                 case ReceiveType.Part:
@@ -855,6 +855,9 @@ namespace Meebey.SmartIrc4net
                     break;
                     case ReplyCode.NamesReply:
                         _Event_RPL_NAMREPLY(ircdata);
+                    break;
+                    case ReplyCode.EndOfNames:
+                        _Event_RPL_ENDOFNAMES(ircdata);
                     break;
                     case ReplyCode.WhoReply:
                         _Event_RPL_WHOREPLY(ircdata);
@@ -1658,15 +1661,22 @@ namespace Meebey.SmartIrc4net
             if (OnNames != null) {
                 OnNames(this, new NamesEventArgs(ircdata, channelname, userlist));
             }
-            
+        }
+        
+        private void _Event_RPL_ENDOFNAMES(IrcMessageData ircdata)
+        {
+            string channelname = ircdata.RawMessageArray[3];
+            if (ActiveChannelSyncing &&
+                IsJoined(channelname)) {
 #if LOG4NET
-            Logger.ChannelSyncing.Debug("passive synced: "+channelname);
+                Logger.ChannelSyncing.Debug("passive synced: "+channelname);
 #endif
-            if (OnChannelPassiveSynced != null) {
-                OnChannelPassiveSynced(this, new IrcEventArgs(ircdata));
+                if (OnChannelPassiveSynced != null) {
+                    OnChannelPassiveSynced(this, new IrcEventArgs(ircdata));
+                }
             }
         }
-
+        
         private void _Event_RPL_WHOREPLY(IrcMessageData ircdata)
         {
             string channel  = ircdata.Channel;
@@ -1789,11 +1799,18 @@ namespace Meebey.SmartIrc4net
         
         private void _Event_RPL_ENDOFBANLIST(IrcMessageData ircdata)
         {
+            string channelname = ircdata.Channel;
+            if (ActiveChannelSyncing &&
+                IsJoined(channelname)) {
+                Channel channel = GetChannel(channelname);
+                channel.ActiveSyncStop = DateTime.Now;
 #if LOG4NET
-            Logger.ChannelSyncing.Debug("active synced: "+ircdata.Channel);
+                Logger.ChannelSyncing.Debug("active synced: "+channelname+
+                    " (in "+channel.ActiveSyncTime.TotalSeconds+" sec)");
 #endif
-            if (OnChannelActiveSynced != null) {
-                OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
+                if (OnChannelActiveSynced != null) {
+                    OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
+                }
             }
         }
         

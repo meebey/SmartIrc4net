@@ -26,6 +26,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 
@@ -45,9 +46,9 @@ namespace Meebey.SmartIrc4net
         private string           _Topic     = "";
         private int              _UserLimit = 0;
         private string           _Mode      = "";
-        private int              _SynctimeStart;
-        private int              _SynctimeStop;
-        private int              _Synctime;
+        private DateTime         _ActiveSyncStart;
+        private DateTime         _ActiveSyncStop;
+        private TimeSpan         _ActiveSyncTime;
         
         /// <summary>
         /// 
@@ -56,6 +57,7 @@ namespace Meebey.SmartIrc4net
         internal Channel(string name)
         {
             _Name = name;
+            _ActiveSyncStart = DateTime.Now;
         }
 
 #if LOG4NET
@@ -213,13 +215,10 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public int SynctimeStart
+        public DateTime ActiveSyncStart
         {
             get {
-                return _SynctimeStart;
-            }
-            set {
-                _SynctimeStart = value;
+                return _ActiveSyncStart;
             }
         }
 
@@ -227,13 +226,14 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public int SynctimeStop
+        public DateTime ActiveSyncStop
         {
             get {
-                return _SynctimeStop;
+                return _ActiveSyncStop;
             }
             set {
-                _SynctimeStop = value;
+                _ActiveSyncStop = value;
+                _ActiveSyncTime = _ActiveSyncStop.Subtract(_ActiveSyncStart);
             }
         }
 
@@ -241,13 +241,10 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public int Synctime
+        public TimeSpan ActiveSyncTime
         {
             get {
-                return _Synctime;
-            }
-            set {
-                _Synctime = value;
+                return _ActiveSyncTime;
             }
         }
     }
