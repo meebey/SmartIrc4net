@@ -627,14 +627,14 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Servlist(mask, type));
         }
         
-        public void RfcSquery(string servicename, string text, Priority priority)
+        public void RfcSquery(string servicename, string servicetext, Priority priority)
         {
-            WriteLine(Rfc2812.Squery(servicename, text), priority);
+            WriteLine(Rfc2812.Squery(servicename, servicetext), priority);
         }
 
-        public void RfcSquery(string servicename, string text)
+        public void RfcSquery(string servicename, string servicetext)
         {
-            WriteLine(Rfc2812.Squery(servicename, text));
+            WriteLine(Rfc2812.Squery(servicename, servicetext));
         }
         
         public void RfcList(string channel, Priority priority)
@@ -977,14 +977,14 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Away());
         }
         
-        public void RfcAway(string text, Priority priority)
+        public void RfcAway(string awaytext, Priority priority)
         {
-            WriteLine(Rfc2812.Away(text), priority);
+            WriteLine(Rfc2812.Away(awaytext), priority);
         }
 
-        public void RfcAway(string text)
+        public void RfcAway(string awaytext)
         {
-            WriteLine(Rfc2812.Away(text));
+            WriteLine(Rfc2812.Away(awaytext));
         }
         
         public void RfcRehash()
@@ -1052,14 +1052,14 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Users(target));
         }
 
-        public void RfcWallops(string text, Priority priority)
+        public void RfcWallops(string wallopstext, Priority priority)
         {
-            WriteLine(Rfc2812.Wallops(text), priority);
+            WriteLine(Rfc2812.Wallops(wallopstext), priority);
         }
 
-        public void RfcWallops(string text)
+        public void RfcWallops(string wallopstext)
         {
-            WriteLine(Rfc2812.Wallops(text));
+            WriteLine(Rfc2812.Wallops(wallopstext));
         }
 
         public void RfcUserhost(string nickname, Priority priority)

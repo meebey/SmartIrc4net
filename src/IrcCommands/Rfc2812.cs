@@ -293,9 +293,9 @@ namespace Meebey.SmartIrc4net
             return "SERVLIST "+mask+" "+type;
         }
         
-        public static string Squery(string servicename, string text)
+        public static string Squery(string servicename, string servicetext)
         {
-            return "SQUERY "+servicename+" :"+text;
+            return "SQUERY "+servicename+" :"+servicetext;
         }
         
         public static string List()
@@ -491,9 +491,9 @@ namespace Meebey.SmartIrc4net
             return "AWAY";
         }
         
-        public static string Away(string text)
+        public static string Away(string awaytext)
         {
-            return "AWAY :"+text;
+            return "AWAY :"+awaytext;
         }
         
         public static string Rehash()
@@ -536,9 +536,9 @@ namespace Meebey.SmartIrc4net
             return "USERS "+target;
         }
         
-        public static string Wallops(string text)
+        public static string Wallops(string wallopstext)
         {
-            return "WALLOPS :"+text;
+            return "WALLOPS :"+wallopstext;
         }
         
         public static string Userhost(string nickname)
