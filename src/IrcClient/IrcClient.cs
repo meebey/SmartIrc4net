@@ -563,10 +563,10 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.WhoIsIdle:
                     case ReplyCode.WhoIsChannels:
                     case ReplyCode.EndOfWhoIs:
-                        return ReceiveType.Whois;
+                        return ReceiveType.WhoIs;
                     case ReplyCode.WhoWasUser:
                     case ReplyCode.EndOfWhoWas:
-                        return ReceiveType.Whowas;
+                        return ReceiveType.WhoWas;
                     case ReplyCode.UserModeIs:
                         return ReceiveType.UserMode;
                     case ReplyCode.ChannelModeIs:
