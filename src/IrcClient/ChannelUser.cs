@@ -34,7 +34,7 @@ namespace Meebey.SmartIrc4net
     public class ChannelUser
     {
         private string    _Channel;
-        private IrcUser   _IrcUser  = null;
+        private IrcUser   _IrcUser;
         private bool      _IsOp     = false;
         private bool      _IsVoice  = false;
 

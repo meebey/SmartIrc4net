@@ -38,9 +38,9 @@ namespace Meebey.SmartIrc4net
     {
         private string           _Name;
         private string           _Key       = "";
-        private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable());
-        private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable());
-        private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable());
+        private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private StringCollection _Bans      = new StringCollection();
         private string           _Topic     = "";
         private int              _UserLimit = 0;

@@ -55,7 +55,7 @@ namespace Meebey.SmartIrc4net
         private bool            _IsRegistered = false;
         private bool            _IsConnected  = false;
         private bool            _IsConnectionError = false;
-        private int             _ConnectTries = 0;
+        private int             _ConnectTries  = 0;
         private bool            _AutoRetry     = false;
         private bool            _AutoReconnect = false;
         private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-1");

@@ -147,7 +147,7 @@ namespace Meebey.SmartIrc4net
                 StringCollection joinedchannels = new StringCollection();
                 foreach (string channelname in channels) {
                     channel = _IrcClient.GetChannel(channelname);
-                    if (channel.UnsafeUsers.ContainsKey(_Nick.ToLower())) {
+                    if (channel.UnsafeUsers.ContainsKey(_Nick)) {
                         joinedchannels.Add(channelname);
                     }
                 }

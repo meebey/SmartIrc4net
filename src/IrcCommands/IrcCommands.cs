@@ -64,13 +64,13 @@ namespace Meebey.SmartIrc4net
         {
             switch (data.Type) {
                 case ReceiveType.ChannelMessage:
-                    SendMessage(SendType.Message, data.Channel, data.Message);
+                    SendMessage(SendType.Message, data.Channel, message, priority);
                 break;
                 case ReceiveType.QueryMessage:
-                    SendMessage(SendType.Message, data.Nick, data.Message);
+                    SendMessage(SendType.Message, data.Nick, message, priority);
                 break;
                 case ReceiveType.QueryNotice:
-                    SendMessage(SendType.Notice, data.Nick, data.Message);
+                    SendMessage(SendType.Notice, data.Nick, message, priority);
                 break;
             }
         }
