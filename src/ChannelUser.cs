@@ -1,8 +1,8 @@
 /**
- * $Id: ChannelUser.cs,v 1.2 2003/11/27 23:17:09 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: ChannelUser.cs,v 1.3 2003/12/14 12:38:37 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:17:09 $
+ * $Date: 2003/12/14 12:38:37 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -23,11 +23,91 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+using System.Collections.Specialized;
+
 namespace Meebey.SmartIrc4net
 {
-    public class ChannelUser: User
+    public class ChannelUser
     {
-        public bool      Op;
-        public bool      Voice;
+        private IrcUser   _IrcUser = null;
+        private bool      _Op      = false;
+        private bool      _Voice   = false;
+
+        public bool Op
+        {
+            get {
+                return _Op;
+            }
+        }
+
+        public bool Voice
+        {
+            get {
+                return _Voice;
+            }
+        }
+
+        public string Nick
+        {
+            get {
+                return _IrcUser.Nick;
+            }
+        }
+
+        public string Ident
+        {
+            get {
+                return _IrcUser.Ident;
+            }
+        }
+
+        public string Host
+        {
+            get {
+                return _IrcUser.Host;
+            }
+        }
+
+        public string Realname
+        {
+            get {
+                return _IrcUser.Realname;
+            }
+        }
+
+        public bool IrcOp
+        {
+            get {
+                return _IrcUser.IrcOp;
+            }
+        }
+
+        public bool Away
+        {
+            get {
+                return _IrcUser.Away;
+            }
+        }
+
+        public string Server
+        {
+            get {
+                return _IrcUser.Server;
+            }
+        }
+
+        public int HopCount
+        {
+            get {
+                return _IrcUser.HopCount;
+            }
+        }
+
+        public StringCollection JoinedChannels
+        {
+            get {
+                return _IrcUser.JoinedChannels;
+            }
+        }
     }
 }
