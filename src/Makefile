@@ -6,10 +6,10 @@ TARGET=$(SMARTIRC_DLL)
 
 all: release
 
-debug: *.cs
+debug: *.cs */*.cs
 	$(CSC) /debug /define:TRACE,DEBUG,LOG4NET /target:library /r:../bin/$(LOG4NET_DLL) /out:../bin/mono/debug/$(TARGET) $^
 
-release: *.cs
+release: *.cs */*.cs
 	$(CSC) /target:library /out:../bin/mono/release/$(TARGET) $^
 
 install: release
