@@ -1,0 +1,27 @@
+<Project name="Benchmark" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
+  <Contents>
+    <File name="../benchmark.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+  </Contents>
+  <References>
+    <Reference type="Project" refto="SmartIrc4net" localcopy="True" />
+  </References>
+  <DeploymentInformation target="" script="" strategy="File" />
+  <Configuration runwithwarnings="False" name="Debug">
+    <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Exe" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+    <Execution commandlineparameters="" consolepause="True" />
+    <Output directory="../../../bin/mono/debug" assembly="benchmark" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+  </Configuration>
+  <Configurations active="Debug">
+    <Configuration runwithwarnings="False" name="Debug">
+      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Exe" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <Execution commandlineparameters="" consolepause="True" />
+      <Output directory="../../../bin/mono/debug" assembly="benchmark" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+    </Configuration>
+    <Configuration runwithwarnings="False" name="Release">
+      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="False" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Exe" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <Execution commandlineparameters="" consolepause="True" />
+      <Output directory="../../../bin/mono/release" assembly="benchmark" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+    </Configuration>
+  </Configurations>
+</Project>
