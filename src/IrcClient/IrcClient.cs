@@ -53,10 +53,10 @@ namespace Meebey.SmartIrc4net
         private static Regex     _ReplyCodeRegex   = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex        = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex       = new Regex("^ERROR :.*", RegexOptions.Compiled);
-        private static Regex     _ActionRegex      = new Regex("^:.*? PRIVMSG (.).* :\x1ACTION .*\x1$", RegexOptions.Compiled);
-        private static Regex     _CtcpRequestRegex = new Regex("^:.*? PRIVMSG .* :\x1.*\x1$", RegexOptions.Compiled);
+        private static Regex     _ActionRegex      = new Regex("^:.*? PRIVMSG (.).* :"+"\x1"+"ACTION .*"+"\x1"+"$", RegexOptions.Compiled);
+        private static Regex     _CtcpRequestRegex = new Regex("^:.*? PRIVMSG .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
         private static Regex     _MessageRegex     = new Regex("^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled);
-        private static Regex     _CtcpReplyRegex   = new Regex("^:.*? NOTICE .* :\x1.*\x1$", RegexOptions.Compiled);
+        private static Regex     _CtcpReplyRegex   = new Regex("^:.*? NOTICE .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
         private static Regex     _NoticeRegex      = new Regex("^:.*? NOTICE (.).* :.*$", RegexOptions.Compiled);
         private static Regex     _InviteRegex      = new Regex("^:.*? INVITE .* .*$", RegexOptions.Compiled);
         private static Regex     _JoinRegex        = new Regex("^:.*? JOIN .*$", RegexOptions.Compiled);
