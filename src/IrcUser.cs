@@ -1,8 +1,8 @@
 /**
- * $Id: IrcUser.cs,v 1.4 2003/12/28 14:43:05 meebey Exp $
- * $Revision: 1.4 $
+ * $Id: IrcUser.cs,v 1.5 2004/05/20 14:20:39 meebey Exp $
+ * $Revision: 1.5 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:43:05 $
+ * $Date: 2004/05/20 14:20:39 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -132,11 +132,12 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public StringCollection JoinedChannels
+        public string[] JoinedChannels
         {
             get {
-                Channel channel;
-                StringCollection channels = _IrcClient.GetChannels();
+                Channel          channel;
+                string[]         result;
+                string[]         channels       = _IrcClient.GetChannels();
                 StringCollection joinedchannels = new StringCollection();
                 foreach (string channelname in channels) {
                     channel = _IrcClient.GetChannel(channelname);
@@ -144,8 +145,10 @@ namespace Meebey.SmartIrc4net
                         joinedchannels.Add(channelname);
                     }
                 }
-                
-                return joinedchannels;
+
+                result = new string[joinedchannels.Count];
+                joinedchannels.CopyTo(result, 0);
+                return result;
             }
         }
     }

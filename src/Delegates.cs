@@ -1,8 +1,8 @@
 /**
- * $Id: Delegates.cs,v 1.4 2003/12/29 18:06:29 meebey Exp $
- * $Revision: 1.4 $
+ * $Id: Delegates.cs,v 1.5 2004/05/20 14:20:39 meebey Exp $
+ * $Revision: 1.5 $
  * $Author: meebey $
- * $Date: 2003/12/29 18:06:29 $
+ * $Date: 2004/05/20 14:20:39 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -28,10 +28,13 @@ namespace Meebey.SmartIrc4net.Delegates
     public delegate void SimpleEventHandler();
     
     // for IrcClient
+    public delegate void MessageEventHandler(Data ircdata);
+    public delegate void ActionEventHandler(string action, Data ircdata);
+    public delegate void ErrorEventHandler(string message, Data ircdata);
     public delegate void PingEventHandler(string data);
     public delegate void KickEventHandler(string channel, string victim, string who, string reason, Data ircdata);
     public delegate void JoinEventHandler(string channel, string who, Data ircdata);
-    public delegate void PartEventHandler(string channel, string who, Data ircdata);
+    public delegate void PartEventHandler(string channel, string who, string partmessage, Data ircdata);
     public delegate void InviteEventHandler(string inviter, string channel, Data ircdata);
     public delegate void OpEventHandler(string channel, string who, string whom, Data ircdata);
     public delegate void DeopEventHandler(string channel, string who, string whom, Data ircdata);
@@ -42,9 +45,8 @@ namespace Meebey.SmartIrc4net.Delegates
     public delegate void TopicEventHandler(string channel, string topic, Data ircdata);
     public delegate void TopicChangeEventHandler(string channel, string who, string newtopic, Data ircdata);
     public delegate void NickChangeEventHandler(string oldnickname, string newnickname, Data ircdata);
-    public delegate void QuitEventHandler(string who, string reason, Data ircdata);
+    public delegate void QuitEventHandler(string who, string quitmessage, Data ircdata);
     public delegate void WhoEventHandler(string channel, string nick, string ident, string host, string realname, bool away, bool op, bool voice, bool ircop, string server, int hopcount, Data ircdata);
-    public delegate void MessageEventHandler(Data ircdata);
 
     // for IrcConnection
     public delegate void ReadLineEventHandler(string rawline);

@@ -1,8 +1,8 @@
 /**
- * $Id: Channel.cs,v 1.4 2003/12/28 14:03:50 meebey Exp $
- * $Revision: 1.4 $
+ * $Id: Channel.cs,v 1.5 2004/05/20 14:20:39 meebey Exp $
+ * $Revision: 1.5 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:03:50 $
+ * $Date: 2004/05/20 14:20:39 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -32,9 +32,9 @@ namespace Meebey.SmartIrc4net
     {
         private string           _Name;
         private string           _Key       = "";
-        private Hashtable        _Users     = new Hashtable();
-        private Hashtable        _Ops       = new Hashtable();
-        private Hashtable        _Voices    = new Hashtable();
+        private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable());
+        private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable());
+        private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable());
         private StringCollection _Bans      = new StringCollection();
         private string           _Topic     = "";
         private int              _UserLimit = 0;

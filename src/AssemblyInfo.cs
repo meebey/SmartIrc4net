@@ -10,9 +10,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("SmartIrc4net")]
 [assembly: AssemblyDescription("IRC library for the .NET Framework")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("qNETp")]
 [assembly: AssemblyProduct("SmartIrc4net")]
-[assembly: AssemblyCopyright("2003 (C) Mirco 'meebey' Bauer")]
+[assembly: AssemblyCopyright("2003-2004 (C) Mirco 'meebey' Bauer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

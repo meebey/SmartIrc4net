@@ -1,8 +1,8 @@
 /**
- * $Id: test.cs,v 1.3 2003/12/28 14:45:40 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: test.cs,v 1.4 2004/05/20 14:20:38 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:45:40 $
+ * $Date: 2004/05/20 14:20:38 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -77,18 +77,18 @@ public class Test
         irc.ChannelSyncing = true;
         irc.OnQueryMessage += new MessageEventHandler(OnQueryMessage);
 
-        string[] serverlist = {"irc.fu-berlin.de", "localhost"};
+        string[] serverlist;
+        serverlist = new string[] {"localhost"};
+
         int    port   = 6667;
         if(irc.Connect(serverlist, port) == true) {
             irc.Login("SmartIRC", "Mirco Bauer");
             irc.Join("#test");
-            /*
             for(int i = 0; i < 32; i++) {
                 irc.Message(SendType.Message, "#test", "test message "+i.ToString());
                 irc.Message(SendType.Action, "#test", " thinks this is cool "+i.ToString());
                 irc.Message(SendType.Notice, "#test", "you all suck "+i.ToString());
             }
-            */
             irc.Listen();
             irc.Disconnect();
         } else {

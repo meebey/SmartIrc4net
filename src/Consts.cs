@@ -1,8 +1,8 @@
 /**
- * $Id: Consts.cs,v 1.7 2003/12/29 18:05:57 meebey Exp $
- * $Revision: 1.7 $
+ * $Id: Consts.cs,v 1.8 2004/05/20 14:20:39 meebey Exp $
+ * $Revision: 1.8 $
  * $Author: meebey $
- * $Date: 2003/12/29 18:05:57 $
+ * $Date: 2004/05/20 14:20:39 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -81,9 +81,10 @@ namespace Meebey.SmartIrc4net
         BanList,
         NickChange,
         TopicChange,
-        ModeChange,
         UserMode,
+        UserModeChange,
         ChannelMode,
+        ChannelModeChange,
         ChannelMessage,
         ChannelAction,
         ChannelNotice,

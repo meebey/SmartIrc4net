@@ -87,7 +87,9 @@
 					<Options Name="AspNetHTTPAddress" Type="String"></Options>
 				</Options>
 			</OptionsSet>
-		</Options>  
+		</Options>
+    
+      
     <FileList>
       <File FileName="c:\windows\microsoft.net\framework\v1.1.4322\System.dll" ContainerId="DotNetAssemblyCompiler" ModuleName="System" AssemblyName="System" Version="1.0.5000.0"/>
       <File FileName="..\src\AssemblyInfo.cs" ContainerId="CSharpCompiler" ModuleName="AssemblyInfo"/>

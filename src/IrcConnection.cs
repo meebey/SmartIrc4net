@@ -1,10 +1,10 @@
 /**
- * $Id: IrcConnection.cs,v 1.8 2003/12/29 18:10:31 meebey Exp $
- * $Revision: 1.8 $
+ * $Id: IrcConnection.cs,v 1.9 2004/05/20 14:20:39 meebey Exp $
+ * $Revision: 1.9 $
  * $Author: meebey $
- * $Date: 2003/12/29 18:10:31 $
+ * $Date: 2004/05/20 14:20:39 $
  *
- * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -53,7 +53,9 @@ namespace Meebey.SmartIrc4net
         private bool            _AutoRetry     = false;
         private bool            _AutoReconnect = false;
         private bool            _ConnectionError = false;
-        private Encoding        _Encoding = Encoding.GetEncoding(1250);
+        //private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-15");
+        private Encoding        _Encoding = Encoding.GetEncoding(1252);
+        //private Encoding        _Encoding = Encoding.UTF8;
 
         public event ReadLineEventHandler   OnReadLine;
         public event WriteLineEventHandler  OnWriteLine;
@@ -65,12 +67,12 @@ namespace Meebey.SmartIrc4net
         protected bool ConnectionError
         {
             get {
-                lock(this) {
+                lock (this) {
                     return _ConnectionError;
                 }
             }
             set {
-                lock(this) {
+                lock (this) {
                     _ConnectionError = value;
                 }
             }
@@ -181,7 +183,6 @@ namespace Meebey.SmartIrc4net
 
         public IrcConnection()
         {
-            Thread.CurrentThread.Name = "Main";
             _SendBuffer[Priority.High]        = Queue.Synchronized(new Queue());
             _SendBuffer[Priority.AboveMedium] = Queue.Synchronized(new Queue());
             _SendBuffer[Priority.Medium]      = Queue.Synchronized(new Queue());
@@ -384,7 +385,7 @@ namespace Meebey.SmartIrc4net
         {
             if (Connected == true) {
                 try {
-                    _Writer.WriteLine(data);
+                    _Writer.Write(data+"\r\n");
                     _Writer.Flush();
                 } catch (IOException) {
 #if LOG4NET
@@ -408,8 +409,9 @@ namespace Meebey.SmartIrc4net
 
         private void _NextAddress()
         {
+            _CurrentAddress++;
             if (_CurrentAddress < _AddressList.Length) {
-                _CurrentAddress++;
+                // nothing
             } else {
                 _CurrentAddress = 0;
             }

@@ -1,8 +1,8 @@
 /**
- * $Id: ChannelUser.cs,v 1.4 2003/12/28 14:05:41 meebey Exp $
- * $Revision: 1.4 $
+ * $Id: ChannelUser.cs,v 1.5 2004/05/20 14:20:39 meebey Exp $
+ * $Revision: 1.5 $
  * $Author: meebey $
- * $Date: 2003/12/28 14:05:41 $
+ * $Date: 2004/05/20 14:20:39 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -137,7 +137,7 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public StringCollection JoinedChannels
+        public string[] JoinedChannels
         {
             get {
                 return _IrcUser.JoinedChannels;
