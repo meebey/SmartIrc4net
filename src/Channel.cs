@@ -51,7 +51,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <param name="name"> </param>
-        public Channel(string name)
+        internal Channel(string name)
         {
             _Name = name;
         }

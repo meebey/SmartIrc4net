@@ -31,7 +31,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
-    public class IrcTcpClient: TcpClient
+    internal class IrcTcpClient: TcpClient
     {
         public Socket Socket
         {

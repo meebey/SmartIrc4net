@@ -30,7 +30,6 @@ using System.Text;
 using System.Collections;
 using System.Threading;
 using System.Reflection;
-using Meebey.SmartIrc4net.Delegates;
 
 namespace Meebey.SmartIrc4net
 {
@@ -387,7 +386,7 @@ namespace Meebey.SmartIrc4net
                 Logger.Queue.Debug("read: \""+data+"\"");
 #endif
                 if (OnReadLine != null) {
-                    OnReadLine(data);
+                    OnReadLine(this, new ReadLineEventArgs(data));
                 }
             }
 
@@ -426,7 +425,7 @@ namespace Meebey.SmartIrc4net
                 Logger.Socket.Debug("sent: \""+data+"\"");
 #endif
                 if (OnWriteLine != null) {
-                    OnWriteLine(data);
+                    OnWriteLine(this, new WriteLineEventArgs(data));
                 }
                 return true;
             }
@@ -447,10 +446,11 @@ namespace Meebey.SmartIrc4net
 #endif
         }
 
-        private void _SimpleParser(string rawline)
+        private void _SimpleParser(object sender, ReadLineEventArgs args)
         {
-            string messagecode = "";
+            string   rawline = args.Line; 
             string[] rawlineex = rawline.Split(new Char[] {' '});
+            string   messagecode = "";
 
             if (rawline.Substring(0, 1) == ":") {
                 messagecode = rawlineex[1];

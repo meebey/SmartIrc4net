@@ -43,7 +43,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="channel"> </param>
         /// <param name="ircuser"> </param>
-        public ChannelUser(string channel, IrcUser ircuser)
+        internal ChannelUser(string channel, IrcUser ircuser)
         {
             _Channel = channel;
             _IrcUser = ircuser;

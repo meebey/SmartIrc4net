@@ -43,7 +43,7 @@ namespace Meebey.SmartIrc4net
         private string    _Server   = null;
         private int       _HopCount = -1;
 
-        public IrcUser(string nickname, IrcClient ircclient)
+        internal IrcUser(string nickname, IrcClient ircclient)
         {
             _IrcClient = ircclient;
             _Nick      = nickname;

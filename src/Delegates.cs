@@ -24,33 +24,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-namespace Meebey.SmartIrc4net.Delegates
+namespace Meebey.SmartIrc4net
 {
     public delegate void SimpleEventHandler();
     
-    // for IrcClient
-    public delegate void MessageEventHandler(Data ircdata);
-    public delegate void ActionEventHandler(string action, Data ircdata);
-    public delegate void ErrorEventHandler(string message, Data ircdata);
-    public delegate void PingEventHandler(string data);
-    public delegate void KickEventHandler(string channel, string victim, string who, string reason, Data ircdata);
-    public delegate void JoinEventHandler(string channel, string who, Data ircdata);
-    public delegate void NameReplyEventHandler(string channel, string[] userlist, Data ircdata);
-    public delegate void PartEventHandler(string channel, string who, string partmessage, Data ircdata);
-    public delegate void InviteEventHandler(string inviter, string channel, Data ircdata);
-    public delegate void OpEventHandler(string channel, string who, string whom, Data ircdata);
-    public delegate void DeopEventHandler(string channel, string who, string whom, Data ircdata);
-    public delegate void VoiceEventHandler(string channel, string who, string whom, Data ircdata);
-    public delegate void DevoiceEventHandler(string channel, string who, string whom, Data ircdata);
-    public delegate void BanEventHandler(string channel, string who, string userhostmask, Data ircdata);
-    public delegate void UnbanEventHandler(string channel, string who, string userhostmask, Data ircdata);
-    public delegate void TopicEventHandler(string channel, string topic, Data ircdata);
-    public delegate void TopicChangeEventHandler(string channel, string who, string newtopic, Data ircdata);
-    public delegate void NickChangeEventHandler(string oldnickname, string newnickname, Data ircdata);
-    public delegate void QuitEventHandler(string who, string quitmessage, Data ircdata);
-    public delegate void WhoEventHandler(string channel, string nick, string ident, string host, string realname, bool away, bool op, bool voice, bool ircop, string server, int hopcount, Data ircdata);
-
-    // for IrcConnection
-    public delegate void ReadLineEventHandler(string rawline);
-    public delegate void WriteLineEventHandler(string rawline);
+    // delegates for IrcClient
+    public delegate void IrcEventHandler(object sender, IrcEventArgs args);
+    public delegate void ActionEventHandler(object sender, ActionEventArgs args);
+    public delegate void ErrorEventHandler(object sender, ErrorEventArgs args);
+    public delegate void PingEventHandler(object sender, PingEventArgs args);
+    public delegate void KickEventHandler(object sender, KickEventArgs args);
+    public delegate void JoinEventHandler(object sender, JoinEventArgs args);
+    public delegate void NamesEventHandler(object sender, NamesEventArgs args);
+    public delegate void PartEventHandler(object sender, PartEventArgs args);
+    public delegate void InviteEventHandler(object sender, InviteEventArgs args);
+    public delegate void OpEventHandler(object sender, OpEventArgs args);
+    public delegate void DeopEventHandler(object sender, DeopEventArgs args);
+    public delegate void VoiceEventHandler(object sender, VoiceEventArgs args);
+    public delegate void DevoiceEventHandler(object sender, DevoiceEventArgs args);
+    public delegate void BanEventHandler(object sender, BanEventArgs args);
+    public delegate void UnbanEventHandler(object sender, UnbanEventArgs args);
+    public delegate void TopicEventHandler(object sender, TopicEventArgs args);
+    public delegate void TopicChangeEventHandler(object sender, TopicChangeEventArgs args);
+    public delegate void NickChangeEventHandler(object sender, NickChangeEventArgs args);
+    public delegate void QuitEventHandler(object sender, QuitEventArgs args);
+    public delegate void WhoEventHandler(object sender, WhoEventArgs args);
+    
+    // delegates for IrcConnection
+    public delegate void ReadLineEventHandler(object sender, ReadLineEventArgs args);
+    public delegate void WriteLineEventHandler(object sender, WriteLineEventArgs args);
 }

@@ -4,11 +4,12 @@
     <File name="../src/Channel.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/ChannelUser.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/Consts.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
-    <File name="../src/Data.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/Delegates.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../src/EventArgs.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcClient.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcCommands.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcConnection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../src/IrcMessageData.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcTcpClient.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcUser.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/Logger.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
