@@ -61,7 +61,9 @@ using System.Runtime.InteropServices;
 // This is not required, if you don't want signing let these attributes like they're.
 [assembly: AssemblyDelaySign(false)]
 #if !DEBUG
+#if SIGN
 [assembly: AssemblyKeyFile("../SmartIrc4net.snk")]
+#endif
 #else
 [assembly: AssemblyKeyFile("")]
 #endif
