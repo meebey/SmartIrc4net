@@ -477,24 +477,24 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Links());
         }
 
-        public void RfcLinks(string server_mask, Priority priority)
+        public void RfcLinks(string servermask, Priority priority)
         {
-            WriteLine(Rfc2812.Links(server_mask), priority);
+            WriteLine(Rfc2812.Links(servermask), priority);
         }
 
-        public void RfcLinks(string server_mask)
+        public void RfcLinks(string servermask)
         {
-            WriteLine(Rfc2812.Links(server_mask));
+            WriteLine(Rfc2812.Links(servermask));
         }
         
-        public void RfcLinks(string remote_server, string server_mask, Priority priority)
+        public void RfcLinks(string remoteserver, string servermask, Priority priority)
         {
-            WriteLine(Rfc2812.Links(remote_server, server_mask), priority);
+            WriteLine(Rfc2812.Links(remoteserver, servermask), priority);
         }
 
-        public void RfcLinks(string remote_server, string server_mask)
+        public void RfcLinks(string remoteserver, string servermask)
         {
-            WriteLine(Rfc2812.Links(remote_server, server_mask));
+            WriteLine(Rfc2812.Links(remoteserver, servermask));
         }
         
         public void RfcTime(Priority priority)
@@ -517,24 +517,24 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Time(target));
         }
         
-        public void RfcConnect(string target_server, string port, Priority priority)
+        public void RfcConnect(string targetserver, string port, Priority priority)
         {
-            WriteLine(Rfc2812.Connect(target_server, port), priority);
+            WriteLine(Rfc2812.Connect(targetserver, port), priority);
         }
 
-        public void RfcConnect(string target_server, string port)
+        public void RfcConnect(string targetserver, string port)
         {
-            WriteLine(Rfc2812.Connect(target_server, port));
+            WriteLine(Rfc2812.Connect(targetserver, port));
         }
         
-        public void RfcConnect(string target_server, string port, string remote_server, Priority priority)
+        public void RfcConnect(string targetserver, string port, string remoteserver, Priority priority)
         {
-            WriteLine(Rfc2812.Connect(target_server, port, remote_server), priority);
+            WriteLine(Rfc2812.Connect(targetserver, port, remoteserver), priority);
         }
 
-        public void RfcConnect(string target_server, string port, string remote_server)
+        public void RfcConnect(string targetserver, string port, string remoteserver)
         {
-            WriteLine(Rfc2812.Connect(target_server, port, remote_server));
+            WriteLine(Rfc2812.Connect(targetserver, port, remoteserver));
         }
         
         public void RfcTrace(Priority priority)

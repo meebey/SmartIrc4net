@@ -218,14 +218,14 @@ namespace Meebey.SmartIrc4net
             return "LINKS";
         }
         
-        public static string Links(string server_mask)
+        public static string Links(string servermask)
         {
-            return "LINKS "+server_mask;
+            return "LINKS "+servermask;
         }
         
-        public static string Links(string remote_server, string server_mask)
+        public static string Links(string remoteserver, string servermask)
         {
-            return "LINKS "+remote_server+" "+server_mask;
+            return "LINKS "+remoteserver+" "+servermask;
         }
         
         public static string Time()
@@ -238,14 +238,14 @@ namespace Meebey.SmartIrc4net
             return "TIME "+target;
         }
         
-        public static string Connect(string target_server, string port)
+        public static string Connect(string targetserver, string port)
         {
-            return "CONNECT "+target_server+" "+port;
+            return "CONNECT "+targetserver+" "+port;
         }
         
-        public static string Connect(string target_server, string port, string remote_server)
+        public static string Connect(string targetserver, string port, string remoteserver)
         {
-            return "CONNECT "+target_server+" "+port+" "+remote_server;
+            return "CONNECT "+targetserver+" "+port+" "+remoteserver;
         }
         
         public static string Trace()
@@ -481,9 +481,9 @@ namespace Meebey.SmartIrc4net
             return "PONG "+server+" "+server2;
         }
 
-        public static string Error(string error_message)
+        public static string Error(string errormessage)
         {
-            return "ERROR :"+error_message;
+            return "ERROR :"+errormessage;
         }
         
         public static string Away()
