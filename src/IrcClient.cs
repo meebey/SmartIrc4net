@@ -34,7 +34,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
-    public class IrcClient: IrcCommands
+    public class IrcClient : IrcCommands
     {
         private string              _Nickname = "";
         private string              _Realname = "";
@@ -83,9 +83,9 @@ namespace Meebey.SmartIrc4net
         public event IrcEventHandler            OnCtcpReply;
 
         /// <summary>
-        /// 
+        /// Enables/disables the channel sync feature
         /// </summary>
-        /// <value> </value>
+        /// <value>true, to enable </value>
         public bool ChannelSyncing
         {
             get {
@@ -104,7 +104,7 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Sets the ctcp version that should be replied on ctcp version request
         /// </summary>
         /// <value> </value>
         public string CtcpVersion
@@ -238,22 +238,18 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <param name="login"> </param>
-        public override bool Reconnect(bool login)
+        public override void Reconnect(bool login)
         {
-            if(base.Reconnect(true) == true) {
-                if (login) {
-                    Login(Nickname, Realname, IUsermode, Username, Password);
-                }
-#if LOG4NET
-                Logger.Connection.Info("Rejoining channels...");
-#endif
-                foreach(string channel in _JoinedChannels) {
-                    Join(channel, Priority.High);
-                }
-                return true;
+            base.Reconnect(true);
+            if (login) {
+                Login(Nickname, Realname, IUsermode, Username, Password);
             }
-
-            return false;
+#if LOG4NET
+            Logger.Connection.Info("Rejoining channels...");
+#endif
+            foreach(string channel in _JoinedChannels) {
+                Join(channel, Priority.High);
+            }
         }
 
         /// <summary>
@@ -1294,7 +1290,7 @@ namespace Meebey.SmartIrc4net
             _Nickname = ircdata.RawMessageArray[2];
 
             if (OnRegistered != null) {
-                OnRegistered(this, new EventArgs());
+                OnRegistered(this, EventArgs.Empty);
             }
         }
 

@@ -1,0 +1,16 @@
+/**
+ * $Id$
+ * $URL$
+ * $Rev$
+ * $Author$
+ * $Date$
+ */
+
+- Change strings[] IrcUser.JoinedChannels to Channel[]
+- Exception handling for Connection()
+- Documentation
+- Timeout detection
+- Use async sockets
+- Create OnChannelSynced event
+- Exception Error Handling
+- Create Debian Package

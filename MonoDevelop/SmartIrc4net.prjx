@@ -6,6 +6,7 @@
     <File name="../src/Consts.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/Delegates.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/EventArgs.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../src/Exceptions.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcClient.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcCommands.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcConnection.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
