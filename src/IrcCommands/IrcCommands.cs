@@ -31,30 +31,30 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class IrcCommands: IrcConnection
     {
-        public void Message(SendType type, string destination, string message, Priority priority)
+        public void SendMessage(SendType type, string destination, string message, Priority priority)
         {
             switch(type) {
                 case SendType.Message:
                     Privmsg(destination, message, priority);
                 break;
                 case SendType.Action:
-                    Privmsg(destination, (char)1+"ACTION "+message+(char)1, priority);
+                    Privmsg(destination, "\001ACTION "+message+"\001", priority);
                 break;
                 case SendType.Notice:
                     Notice(destination, message, priority);
                 break;
                 case SendType.CtcpRequest:
-                    Privmsg(destination, (char)1+message+(char)1, priority);
+                    Privmsg(destination, "\001"+message+"\001", priority);
                 break;
                 case SendType.CtcpReply:
-                    Notice(destination, (char)1+message+(char)1, priority);
+                    Notice(destination, "\001"+message+"\001", priority);
                 break;
             }
         }
 
-        public void Message(SendType type, string destination, string message)
+        public void SendMessage(SendType type, string destination, string message)
         {
-            Message(type, destination, message, Priority.Medium);
+            SendMessage(type, destination, message, Priority.Medium);
         }
 
         public void Pong(string data)

@@ -36,7 +36,8 @@ using System.Runtime.InteropServices;
 // you compile.
 
 [assembly: CLSCompliant(true)]
-[assembly: ComVisible(true)]
+[assembly: ComVisible(false)]
+
 [assembly: AssemblyTitle("SmartIrc4net")]
 [assembly: AssemblyDescription("IRC library for the .NET Framework")]
 [assembly: AssemblyConfiguration("")]

@@ -33,6 +33,27 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
+    public enum LogCategory
+    {
+        Main,
+        Connection,
+        Socket,
+        Queue,
+        IrcMessages,
+        MessageTypes,
+        MessageParser,
+        ActionHandler,
+        TimeHandler,
+        MessageHandler,
+        ChannelSyncing,
+        UserSyncing,
+        Modules,
+        Dcc
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
     internal class Logger
     {
         private static SortedList _LoggerList = new SortedList();
@@ -56,117 +77,117 @@ namespace Meebey.SmartIrc4net
                 log4net.Config.BasicConfigurator.Configure();
             }
 
-            _LoggerList[Category.Main]           = log4net.LogManager.GetLogger("MAIN");
-            _LoggerList[Category.Socket]         = log4net.LogManager.GetLogger("SOCKET");
-            _LoggerList[Category.Queue]          = log4net.LogManager.GetLogger("QUEUE");
-            _LoggerList[Category.Connection]     = log4net.LogManager.GetLogger("CONNECTION");
-            _LoggerList[Category.IrcMessages]    = log4net.LogManager.GetLogger("IRCMESSAGE");
-            _LoggerList[Category.MessageParser]  = log4net.LogManager.GetLogger("MESSAGEPARSER");
-            _LoggerList[Category.MessageTypes]   = log4net.LogManager.GetLogger("MESSAGETYPES");
-            _LoggerList[Category.ActionHandler]  = log4net.LogManager.GetLogger("ACTIONHANDLER");
-            _LoggerList[Category.TimeHandler]    = log4net.LogManager.GetLogger("TIMEHANDLER");
-            _LoggerList[Category.MessageHandler] = log4net.LogManager.GetLogger("MESSAGEHANDLER");
-            _LoggerList[Category.ChannelSyncing] = log4net.LogManager.GetLogger("CHANNELSYNCING");
-            _LoggerList[Category.UserSyncing]    = log4net.LogManager.GetLogger("USERSYNCING");
-            _LoggerList[Category.Modules]        = log4net.LogManager.GetLogger("MODULES");
-            _LoggerList[Category.Dcc]            = log4net.LogManager.GetLogger("DCC");
+            _LoggerList[LogCategory.Main]           = log4net.LogManager.GetLogger("MAIN");
+            _LoggerList[LogCategory.Socket]         = log4net.LogManager.GetLogger("SOCKET");
+            _LoggerList[LogCategory.Queue]          = log4net.LogManager.GetLogger("QUEUE");
+            _LoggerList[LogCategory.Connection]     = log4net.LogManager.GetLogger("CONNECTION");
+            _LoggerList[LogCategory.IrcMessages]    = log4net.LogManager.GetLogger("IRCMESSAGE");
+            _LoggerList[LogCategory.MessageParser]  = log4net.LogManager.GetLogger("MESSAGEPARSER");
+            _LoggerList[LogCategory.MessageTypes]   = log4net.LogManager.GetLogger("MESSAGETYPES");
+            _LoggerList[LogCategory.ActionHandler]  = log4net.LogManager.GetLogger("ACTIONHANDLER");
+            _LoggerList[LogCategory.TimeHandler]    = log4net.LogManager.GetLogger("TIMEHANDLER");
+            _LoggerList[LogCategory.MessageHandler] = log4net.LogManager.GetLogger("MESSAGEHANDLER");
+            _LoggerList[LogCategory.ChannelSyncing] = log4net.LogManager.GetLogger("CHANNELSYNCING");
+            _LoggerList[LogCategory.UserSyncing]    = log4net.LogManager.GetLogger("USERSYNCING");
+            _LoggerList[LogCategory.Modules]        = log4net.LogManager.GetLogger("MODULES");
+            _LoggerList[LogCategory.Dcc]            = log4net.LogManager.GetLogger("DCC");
         }
 
         public static log4net.ILog Main
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.Main];
+                return (log4net.ILog)_LoggerList[LogCategory.Main];
             }
         }
 
         public static log4net.ILog Socket
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.Socket];
+                return (log4net.ILog)_LoggerList[LogCategory.Socket];
             }
         }
 
         public static log4net.ILog Queue
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.Queue];
+                return (log4net.ILog)_LoggerList[LogCategory.Queue];
             }
         }
 
         public static log4net.ILog Connection
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.Connection];
+                return (log4net.ILog)_LoggerList[LogCategory.Connection];
             }
         }
 
         public static log4net.ILog IrcMessages
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.IrcMessages];
+                return (log4net.ILog)_LoggerList[LogCategory.IrcMessages];
             }
         }
 
         public static log4net.ILog MessageParser
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.MessageParser];
+                return (log4net.ILog)_LoggerList[LogCategory.MessageParser];
             }
         }
 
         public static log4net.ILog MessageTypes
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.MessageTypes];
+                return (log4net.ILog)_LoggerList[LogCategory.MessageTypes];
             }
         }
 
         public static log4net.ILog ActionHandler
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.ActionHandler];
+                return (log4net.ILog)_LoggerList[LogCategory.ActionHandler];
             }
         }
 
         public static log4net.ILog TimeHandler
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.TimeHandler];
+                return (log4net.ILog)_LoggerList[LogCategory.TimeHandler];
             }
         }
 
         public static log4net.ILog MessageHandler
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.MessageHandler];
+                return (log4net.ILog)_LoggerList[LogCategory.MessageHandler];
             }
         }
 
         public static log4net.ILog ChannelSyncing
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.ChannelSyncing];
+                return (log4net.ILog)_LoggerList[LogCategory.ChannelSyncing];
             }
         }
 
         public static log4net.ILog UserSyncing
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.UserSyncing];
+                return (log4net.ILog)_LoggerList[LogCategory.UserSyncing];
             }
         }
 
         public static log4net.ILog Modules
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.Modules];
+                return (log4net.ILog)_LoggerList[LogCategory.Modules];
             }
         }
 
         public static log4net.ILog Dcc
         {
             get {
-                return (log4net.ILog)_LoggerList[Category.Dcc];
+                return (log4net.ILog)_LoggerList[LogCategory.Dcc];
             }
         }
     }

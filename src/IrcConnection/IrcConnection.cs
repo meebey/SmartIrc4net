@@ -556,15 +556,15 @@ namespace Meebey.SmartIrc4net
         private void _SimpleParser(object sender, ReadLineEventArgs args)
         {
             string   rawline = args.Line; 
-            string[] rawlineex = rawline.Split(new Char[] {' '});
+            string[] rawlineex = rawline.Split(new char[] {' '});
             string   messagecode = "";
 
-            if (rawline.Substring(0, 1) == ":") {
+            if (rawline[0] == ':') {
                 messagecode = rawlineex[1];
                 try {
                     ReplyCode replycode = (ReplyCode)int.Parse(messagecode);
                     switch(replycode) {
-                        case ReplyCode.RPL_WELCOME:
+                        case ReplyCode.Welcome:
                             _IsRegistered = true;
 #if LOG4NET
                             Logger.Connection.Info("logged in");
