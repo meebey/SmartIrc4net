@@ -1,8 +1,8 @@
 /**
- * $Id: IrcConnection.cs,v 1.2 2003/11/16 18:54:17 meebey Exp $
- * $Revision: 1.2 $
+ * $Id: IrcConnection.cs,v 1.3 2003/11/20 23:08:26 meebey Exp $
+ * $Revision: 1.3 $
  * $Author: meebey $
- * $Date: 2003/11/16 18:54:17 $
+ * $Date: 2003/11/20 23:08:26 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -35,8 +35,8 @@ namespace SmartIRC
 {
     public delegate void ReadLineEventHandler(string data);
     public delegate void WriteLineEventHandler(string data);
-    public delegate void ConnectingEventHandler();
     public delegate void ConnectEventHandler();
+    public delegate void ConnectingEventHandler();
     public delegate void DisconnectEventHandler();
 
     public class Connection
@@ -46,13 +46,11 @@ namespace SmartIRC
         private StreamWriter        _Writer;
         private string              _Address;
         private int                 _Port;
-        private SortedList          _SendBuffer = new SortedList();
-        // unsyncronized queue (not thread safe), required for the wrapper
-        private Queue               _ThreadReadQueueU = new Queue();
-        private Queue               _ThreadWriteQueueU = new Queue();
-        // syncronized queue
-        private Queue               _ThreadReadQueue;
-        private Queue               _ThreadWriteQueue;
+        private Hashtable           _SendBuffer = new Hashtable();
+        private ReadThread          _ReadThread;
+        private WriteThread         _WriteThread;
+        private int                 _SendDelay = 200;
+        private bool                _Registered = false;
         public  Encoding            Encoding = Encoding.GetEncoding(1250);
 
         public event ReadLineEventHandler   OnReadLine;
@@ -70,12 +68,14 @@ namespace SmartIRC
 
         public Connection()
         {
-            _ThreadReadQueue  = Queue.Synchronized(_ThreadReadQueueU);
-            _ThreadWriteQueue = Queue.Synchronized(_ThreadWriteQueueU);
+            _SendBuffer[Priority.Low]     = Queue.Synchronized(new Queue());
+            _SendBuffer[Priority.Medium]  = Queue.Synchronized(new Queue());
+            _SendBuffer[Priority.High]    = Queue.Synchronized(new Queue());
 
-            _SendBuffer[Priority.Low]     = new StringCollection();
-            _SendBuffer[Priority.Medium]  = new StringCollection();
-            _SendBuffer[Priority.High]    = new StringCollection();
+            OnReadLine += new ReadLineEventHandler(_SimpleParser);
+
+            _ReadThread  = new ReadThread(this);
+            _WriteThread = new WriteThread(this);
         }
 
         public bool Connect(string address, int port)
@@ -96,6 +96,8 @@ namespace SmartIRC
 
                 _Reader = new StreamReader(_TcpClient.GetStream(), Encoding);
                 _Writer = new StreamWriter(_TcpClient.GetStream(), Encoding);
+
+                _WriteThread.Start();
                 Logger.Connection.Info("connected");
                 return true;
             } catch {
@@ -119,8 +121,6 @@ namespace SmartIRC
                 _Reader.Close();
                 _Writer.Close();
                 _TcpClient.Close();
-                _ThreadReadQueue.Clear();
-                _ThreadWriteQueue.Clear();
                 if (OnDisconnect != null) {
                     OnDisconnect();
                 }
@@ -133,8 +133,7 @@ namespace SmartIRC
 
         public void Listen()
         {
-            Thread t = new Thread(new ThreadStart(_ReadThread));
-            t.Start();
+            _ReadThread.Start();
             while((Connected == true) &&
                   (ReadLine() != null)) {
                   // ReadLine does the work...
@@ -152,16 +151,16 @@ namespace SmartIRC
 
             // block till the queue has data
             while ((Connected == true) &&
-                   (_ThreadReadQueue.Count == 0)) {
-                Thread.Sleep(100);
+                   (_ReadThread.Queue.Count == 0)) {
+                Thread.Sleep(10);
             }
 
             if (Connected == true) {
-                data = (string)(_ThreadReadQueue.Dequeue());
+                data = (string)(_ReadThread.Queue.Dequeue());
             }
 
             if (data != "" && data != null) {
-                Logger.Queue.Debug("recevied: \""+data+"\"");
+                Logger.Queue.Debug("read: \""+data+"\"");
                 if (OnReadLine != null) {
                     OnReadLine(data);
                 }
@@ -172,15 +171,19 @@ namespace SmartIRC
 
         public void WriteLine(string data, Priority priority)
         {
-            _WriteLine(data, priority);
+            if (priority == Priority.Critical) {
+                _WriteLine(data);
+            } else {
+                ((Queue)_SendBuffer[priority]).Enqueue(data);
+            }
         }
 
         public void WriteLine(string data)
         {
-            _WriteLine(data, Priority.Medium);
+            WriteLine(data, Priority.Medium);
         }
 
-        private void _WriteLine(string data, Priority priority)
+        private void _WriteLine(string data)
         {
             _Writer.WriteLine(data);
             _Writer.Flush();
@@ -190,17 +193,174 @@ namespace SmartIRC
             }
         }
 
-        private void _ReadThread()
+        private void _SimpleParser(string rawline)
         {
-            string data = "";
-            while((Connected == true) &&
-                  ((data = _Reader.ReadLine()) != null)) {
-                _ThreadReadQueue.Enqueue(data);
-                Logger.Socket.Debug("received: \""+data+"\"");
+            string[] rawlineex = rawline.Split(new Char[] {' '});
+            string messagecode = rawlineex[1];
+
+            switch(messagecode) {
+                case "001":
+                    _Registered = true;
+                    OnReadLine -= new ReadLineEventHandler(_SimpleParser);
+                break;
+            }
+        }
+
+        private class ReadThread
+        {
+            private Connection  _Connection;
+            private Thread      _Thread;
+            // syncronized queue (thread safe)
+            private Queue       _Queue = Queue.Synchronized(new Queue());
+
+            public Queue Queue
+            {
+                get {
+                    return _Queue;
+                }
             }
 
-            Logger.Socket.Warn("detected dead connection (socket returned null)");
-            Disconnect();
+            public ReadThread(Connection connection)
+            {
+                _Connection = connection;
+            }
+
+            public void Start()
+            {
+                _Thread = new Thread(new ThreadStart(_Worker));
+                _Thread.Start();
+            }
+
+            private void _Worker()
+            {
+                string data = "";
+                while ((_Connection.Connected == true) &&
+                       ((data = _Connection._Reader.ReadLine()) != null)) {
+                    _Queue.Enqueue(data);
+                    Logger.Socket.Debug("received: \""+data+"\"");
+                }
+
+                Logger.Socket.Warn("detected dead connection (socket returned null)");
+                _Connection.Disconnect();
+            }
+        }
+
+        private class WriteThread
+        {
+            private Connection  _Connection;
+            private Thread      _Thread;
+            private int         _BurstCount = 0;
+            private int         _HighCount   = 0;
+            private int         _MediumCount = 0;
+            private int         _LowCount    = 0;
+            private int         _HighSentCount   = 0;
+            private int         _MediumSentCount = 0;
+            private int         _LowSentCount    = 0;
+            private int         _HighThresholdCount   = 2;
+            private int         _MediumThresholdCount = 1;
+            private int         _LowThresholdCount    = 0;
+
+            public WriteThread(Connection connection)
+            {
+                _Connection = connection;
+            }
+
+            public void Start()
+            {
+                _Thread = new Thread(new ThreadStart(_Worker));
+                _Thread.Start();
+            }
+
+            // WARNING: complex scheduler, don't even think about changing it!
+            private void _CheckBuffer()
+            {
+                if (!_Connection._Registered) {
+                    return;
+                }
+                
+                _HighCount   = ((Queue)_Connection._SendBuffer[Priority.High]).Count;
+                _MediumCount = ((Queue)_Connection._SendBuffer[Priority.Medium]).Count;
+                _LowCount    = ((Queue)_Connection._SendBuffer[Priority.Low]).Count;
+
+                if ((_CheckHighBuffer() == true) &&
+                    (_CheckMediumBuffer() == true) &&
+                    (_CheckLowBuffer() == true)) {
+                    _HighSentCount = 0;
+                    _MediumSentCount = 0;
+                    _LowSentCount = 0;
+                }
+
+                if (_BurstCount < 3) {
+                    _BurstCount++;
+                    _CheckBuffer();
+                } else {
+                    _BurstCount = 0;
+                }
+            }
+
+            private bool _CheckHighBuffer()
+            {
+                if ((_HighCount > 0) &&
+                    (_HighSentCount < _HighThresholdCount)) {
+                    _Connection._WriteLine(((string)((Queue)_Connection._SendBuffer[Priority.High]).Dequeue()));
+                    _HighSentCount++;
+
+                    if (_HighSentCount < _HighThresholdCount) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            private bool _CheckMediumBuffer()
+            {
+                if ((_MediumCount > 0) &&
+                    (_MediumSentCount < _MediumThresholdCount)) {
+                    _Connection._WriteLine(((string)((Queue)_Connection._SendBuffer[Priority.Medium]).Dequeue()));
+                    _MediumSentCount++;
+
+                    if (_MediumSentCount < _MediumThresholdCount) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            private bool _CheckLowBuffer()
+            {
+                if ((_LowCount > 0) &&
+                    (_LowSentCount <= _LowThresholdCount)) {
+                    if ((_LowThresholdCount == 0) &&
+                         ((_HighCount > 0) ||
+                          (_MediumCount > 0))) {
+                            return true;
+                    }
+
+                    _Connection._WriteLine(((string)((Queue)_Connection._SendBuffer[Priority.Low]).Dequeue()));
+                    _LowSentCount++;
+
+                    if (_LowSentCount < _LowThresholdCount) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            // END OF WARNING, below this you can read/change again ;)
+
+            private void _Worker()
+            {
+                while (_Connection.Connected == true) {
+                    _CheckBuffer();
+                    Thread.Sleep(_Connection._SendDelay);
+                }
+
+                Logger.Socket.Warn("detected dead connection");
+                _Connection.Disconnect();
+            }
         }
     }
 }
+
