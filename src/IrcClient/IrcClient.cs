@@ -343,7 +343,6 @@ namespace Meebey.SmartIrc4net
         ~IrcClient()
         {
             Logger.Main.Debug("IrcClient destroyed");
-            log4net.LogManager.Shutdown();
         }
 #endif
 
@@ -641,6 +640,9 @@ namespace Meebey.SmartIrc4net
         
         private void _StoreChannelsToRejoin()
         {
+#if LOG4NET
+            Logger.Connection.Info("Storing channels for rejoin...");
+#endif
             foreach (string channel in _JoinedChannels) {
                 _AutoRejoinChannels.Add(channel);
             }
