@@ -1,9 +1,9 @@
 /**
- * $Id: Rfc2812.cs 77 2004-09-19 13:31:53Z meebey $
- * $URL: svn+ssh://svn.qnetp.net/svn/smartirc/SmartIrc4net/trunk/src/Rfc2812.cs $
- * $Rev: 77 $
- * $Author: meebey $
- * $Date: 2004-09-19 15:31:53 +0200 (Sun, 19 Sep 2004) $
+ * $Id$
+ * $URL$
+ * $Rev$
+ * $Author$
+ * $Date$
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
