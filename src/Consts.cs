@@ -1,8 +1,8 @@
 /**
- * $Id: Consts.cs,v 1.1 2003/11/16 16:58:42 meebey Exp $
- * $Revision: 1.1 $
+ * $Id: Consts.cs,v 1.2 2003/11/16 18:58:37 meebey Exp $
+ * $Revision: 1.2 $
  * $Author: meebey $
- * $Date: 2003/11/16 16:58:42 $
+ * $Date: 2003/11/16 18:58:37 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -40,6 +40,7 @@ namespace SmartIRC
         Main,
         Connection,
         Socket,
+        Queue,
         IrcMessages,
         MessageTypes,
         MessageParser,
