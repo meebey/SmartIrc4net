@@ -72,19 +72,19 @@ public class Test
 
     public static void Main(string[] args)
     {
-//        irc.SendDelay = 200;
+        irc.SendDelay = 200;
         irc.AutoRetry = true;
         irc.ChannelSyncing = true;
         irc.OnQueryMessage += new MessageEventHandler(OnQueryMessage);
 
         string[] serverlist;
-        serverlist = new string[] {"localhost"};
+        serverlist = new string[] {"irc.fu-berlin.de"};
 
         int    port   = 6667;
         if(irc.Connect(serverlist, port) == true) {
             irc.Login("SmartIRC", "Mirco Bauer");
-            irc.Join("#test");
-            for(int i = 0; i < 32; i++) {
+            irc.Join("#smartirc");
+            for(int i = 0; i < 3; i++) {
                 irc.Message(SendType.Message, "#test", "test message "+i.ToString());
                 irc.Message(SendType.Action, "#test", " thinks this is cool "+i.ToString());
                 irc.Message(SendType.Notice, "#test", "you all suck "+i.ToString());

@@ -30,6 +30,7 @@ using System.Collections;
 using System.Threading;
 using System.Reflection;
 using Meebey.SmartIrc4net.Delegates;
+
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
