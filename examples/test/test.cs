@@ -26,25 +26,24 @@
 using System;
 using System.Collections;
 using Meebey.SmartIrc4net;
-using Meebey.SmartIrc4net.Delegates;
 
 public class Test
 {
     public static IrcClient irc = new IrcClient();
 
-    public static void OnQueryMessage(Data ircdata)
+    public static void OnQueryMessage(object sender, IrcEventArgs e)
     {
-        switch (ircdata.MessageEx[0]) {
+        switch (e.Data.MessageArray[0]) {
             case "dump_channel":
-                string requested_channel = ircdata.MessageEx[1];
+                string requested_channel = e.Data.MessageArray[1];
                 Channel channel = irc.GetChannel(requested_channel);
-                irc.Message(SendType.Message, ircdata.Nick, "<channel '"+requested_channel+"'>");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "<channel '"+requested_channel+"'>");
 
-                irc.Message(SendType.Message, ircdata.Nick, "Name: '"+channel.Name+"'");
-                irc.Message(SendType.Message, ircdata.Nick, "Topic: '"+channel.Topic+"'");
-                irc.Message(SendType.Message, ircdata.Nick, "Mode: '"+channel.Mode+"'");
-                irc.Message(SendType.Message, ircdata.Nick, "Key: '"+channel.Key+"'");
-                irc.Message(SendType.Message, ircdata.Nick, "UserLimit: '"+channel.UserLimit+"'");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "Name: '"+channel.Name+"'");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "Topic: '"+channel.Topic+"'");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "Mode: '"+channel.Mode+"'");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "Key: '"+channel.Key+"'");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "UserLimit: '"+channel.UserLimit+"'");
 
                 string nickname_list = "";
                 nickname_list += "Users: ";
@@ -54,15 +53,15 @@ public class Test
                     ChannelUser channeluser = (ChannelUser)it.Value;
                     nickname_list += key+" => "+channeluser.Nick+", ";
                 }
-                irc.Message(SendType.Message, ircdata.Nick, nickname_list);
+                irc.SendMessage(SendType.Message, e.Data.Nick, nickname_list);
 
-                irc.Message(SendType.Message, ircdata.Nick, "</channel>");
+                irc.SendMessage(SendType.Message, e.Data.Nick, "</channel>");
             break;
             case "join":
-                irc.Join(ircdata.MessageEx[1]);
+                irc.RfcJoin(e.Data.MessageArray[1]);
             break;
             case "part":
-                irc.Part(ircdata.MessageEx[1]);
+                irc.RfcPart(e.Data.MessageArray[1]);
             break;
             case "gc":
                 GC.Collect();
@@ -72,27 +71,29 @@ public class Test
 
     public static void Main(string[] args)
     {
+        System.Threading.Thread.CurrentThread.Name = "Main";
         irc.SendDelay = 200;
         irc.AutoRetry = true;
-        irc.ChannelSyncing = true;
-        irc.OnQueryMessage += new MessageEventHandler(OnQueryMessage);
+        irc.ActiveChannelSyncing = true;
+        irc.OnQueryMessage += new IrcEventHandler(OnQueryMessage);
 
         string[] serverlist;
         serverlist = new string[] {"irc.fu-berlin.de"};
-
-        int    port   = 6667;
-        if(irc.Connect(serverlist, port) == true) {
-            irc.Login("SmartIRC", "Mirco Bauer");
-            irc.Join("#smartirc");
-            for(int i = 0; i < 3; i++) {
-                irc.Message(SendType.Message, "#test", "test message "+i.ToString());
-                irc.Message(SendType.Action, "#test", " thinks this is cool "+i.ToString());
-                irc.Message(SendType.Notice, "#test", "you all suck "+i.ToString());
+        int port = 6667;
+        string channel = "#smartirc";
+        try {
+            irc.Connect(serverlist, port);
+            irc.Login("SmartIRC", "SmartIrc4net Test Bot");
+            irc.RfcJoin(channel);
+            for (int i = 0; i < 3; i++) {
+                irc.SendMessage(SendType.Message, channel, "test message "+i.ToString());
+                irc.SendMessage(SendType.Action, channel, "thinks this is cool "+i.ToString());
+                irc.SendMessage(SendType.Notice, channel, "SmartIrc4net rocks "+i.ToString());
             }
             irc.Listen();
             irc.Disconnect();
-        } else {
-            System.Console.WriteLine("couldn't connect!");
+        } catch (ConnectionException e) {
+            System.Console.WriteLine("couldn't connect! Reason: "+e.Message);
         }
     }
 }
