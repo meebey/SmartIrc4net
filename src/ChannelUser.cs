@@ -1,8 +1,8 @@
 /**
- * $Id: ChannelUser.cs,v 1.3 2003/12/14 12:38:37 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: ChannelUser.cs,v 1.4 2003/12/28 14:05:41 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/12/14 12:38:37 $
+ * $Date: 2003/12/28 14:05:41 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -29,14 +29,38 @@ namespace Meebey.SmartIrc4net
 {
     public class ChannelUser
     {
+        private string    _Channel;
         private IrcUser   _IrcUser = null;
         private bool      _Op      = false;
         private bool      _Voice   = false;
+
+        public ChannelUser(string channel, IrcUser ircuser)
+        {
+            _Channel = channel;
+            _IrcUser = ircuser;
+        }
+
+        ~ChannelUser()
+        {
+#if LOG4NET
+            Logger.ChannelSyncing.Debug("ChannelUser ("+Channel+":"+IrcUser.Nick+") destroyed");
+#endif
+        }
+
+        public string Channel
+        {
+            get {
+                return _Channel;
+            }
+        }
 
         public bool Op
         {
             get {
                 return _Op;
+            }
+            set {
+                _Op = value;
             }
         }
 
@@ -44,6 +68,16 @@ namespace Meebey.SmartIrc4net
         {
             get {
                 return _Voice;
+            }
+            set {
+                _Voice = value;
+            }
+        }
+
+        public IrcUser IrcUser
+        {
+            get {
+                return _IrcUser;
             }
         }
 
