@@ -28,6 +28,7 @@
 
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Meebey.SmartIrc4net
 {
@@ -36,8 +37,31 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public sealed class Rfc2812
     {
+        // nickname   =  ( letter / special ) *8( letter / digit / special / "-" )
+        // letter     =  %x41-5A / %x61-7A       ; A-Z / a-z
+        // digit      =  %x30-39                 ; 0-9
+        // special    =  %x5B-60 / %x7B-7D
+        //                  ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
+        private static Regex _NicknameRegex = new Regex(@"^[A-Za-z\[\]\\`_^{|}][A-Za-z0-9\[\]\\`_\-^{|}]+$", RegexOptions.Compiled);
+        
         private Rfc2812()
         {
+        }
+        
+        /// <summary>
+        /// Checks if the passed nickname is valid according to the RFC
+        ///
+        /// Use with caution, many IRC servers are not conform with this!
+        /// </summary>
+        public static bool IsValidNickname(string nickname)
+        {
+            if ((nickname != null) &&
+                (nickname.Length > 0) &&
+                (_NicknameRegex.Match(nickname).Success)) {
+                return true;
+            }
+            
+            return false;
         }
         
         public static string Pass(string password)

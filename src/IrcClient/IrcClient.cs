@@ -583,6 +583,7 @@ namespace Meebey.SmartIrc4net
                 break;
                 case ReceiveType.Who:
                 case ReceiveType.Topic:
+                case ReceiveType.Invite:
                 case ReceiveType.BanList:
                 case ReceiveType.ChannelMode:
                     channel = linear[3];
@@ -1383,10 +1384,25 @@ namespace Meebey.SmartIrc4net
             // no need to handle if we quit, disconnect event will take care
             
             if (ActiveChannelSyncing) {
-                foreach (string channel in GetIrcUser(who).JoinedChannels) {
-                    _RemoveChannelUser(channel, who);
+                // sanity checks, freshirc is very broken about RFC
+                IrcUser user = GetIrcUser(who);
+                if (user != null) {
+                    string[] joined_channels = user.JoinedChannels;
+                    if (joined_channels != null) {
+                        foreach (string channel in joined_channels) {
+                            _RemoveChannelUser(channel, who);
+                        }
+                        _RemoveIrcUser(who);
+#if LOG4NET
+                    } else {
+                        Logger.ChannelSyncing.Warn("received quit message from a user without beeing in any channel?!? ignored");
+#endif
+                    }
+#if LOG4NET
+                } else {
+                    Logger.ChannelSyncing.Warn("received quit message from a non-existent user?!? ignored");
+#endif
                 }
-                _RemoveIrcUser(who);
             }
 
             if (OnQuit != null) {
