@@ -473,7 +473,6 @@ namespace Meebey.SmartIrc4net
         public string ReadLine(bool blocking)
         {
             string data = "";
-            bool received = false;
             
             if (blocking) {
                 // block till the queue has data
