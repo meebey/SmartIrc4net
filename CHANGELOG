@@ -6,7 +6,7 @@
  * $Date$
  */
 
-v0.3.0 (SVN r106)
+v0.3.0 (SVN r110)
 -------
 fixes:
 - fine tuned the "#ifdef LOG4NET" statements (thanks to prencher for noticing this
@@ -58,7 +58,7 @@ new:
 - prefixed all IrcCommands that are actually plain RFC commands with "Rfc"
   e.g. Join() is now called RfcJoin()
 
-v0.2.0 (SVN r84)
+v0.2.0 (SVN r83)
 -------
 fixes:
 

@@ -6,12 +6,12 @@
  * $Date$
  */
 
-- passive channel sync
 - DCC chat, file send/receive
-- Change strings[] IrcUser.JoinedChannels to Channel[]
+- add server properties to IrcConnection (required for smart mode changes etc)
 - Documentation
-- Timeout detection
-- Use async sockets
+- passive channel sync
+- Change string[] IrcUser.JoinedChannels to Channel[]?
+- Use async sockets?
 - Exception Error Handling (argument checking)
 - Create Debian Package
 X connection timeout detection (socket based?)
