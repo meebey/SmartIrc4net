@@ -18,7 +18,9 @@
     <File name="../src/IrcClient/EventArgs.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcClient/IrcUser.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcClient/Channel.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../src/IrcClient/NonRfcChannel.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="../src/IrcClient/ChannelUser.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="../src/IrcClient/NonRfcChannelUser.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Assembly" refto="../bin/log4net.dll" localcopy="True" />

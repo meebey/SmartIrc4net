@@ -652,6 +652,82 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
+    public class HalfopEventArgs : IrcEventArgs
+    {
+        private string   _Channel;
+        private string   _Who;
+        private string   _Whom;
+        
+        public string Channel
+        {
+            get {
+                return _Channel;
+            }
+        }
+
+        public string Who
+        {
+            get {
+                return _Who;
+            }
+        }
+
+        public string Whom
+        {
+            get {
+                return _Whom;
+            }
+        }
+        
+        internal HalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        {
+            _Channel = channel;
+            _Who = who;
+            _Whom = whom;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public class DehalfopEventArgs : IrcEventArgs
+    {
+        private string   _Channel;
+        private string   _Who;
+        private string   _Whom;
+        
+        public string Channel
+        {
+            get {
+                return _Channel;
+            }
+        }
+
+        public string Who
+        {
+            get {
+                return _Who;
+            }
+        }
+
+        public string Whom
+        {
+            get {
+                return _Whom;
+            }
+        }
+        
+        internal DehalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        {
+            _Channel = channel;
+            _Who = who;
+            _Whom = whom;
+        }
+    }
+    
+    /// <summary>
+    ///
+    /// </summary>
     public class VoiceEventArgs : IrcEventArgs
     {
         private string   _Channel;

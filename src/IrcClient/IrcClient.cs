@@ -48,6 +48,7 @@ namespace Meebey.SmartIrc4net
         private bool             _ActiveChannelSyncing = false;
         private bool             _PassiveChannelSyncing = false;
         private bool             _AutoRejoin     = false;
+        private bool             _SupportNonRfc  = false;
         private Array            _ReplyCodes     = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels = new StringCollection();
         private Hashtable        _Channels       = Hashtable.Synchronized(new Hashtable());
@@ -83,6 +84,8 @@ namespace Meebey.SmartIrc4net
         public event UnbanEventHandler          OnUnban;
         public event OpEventHandler             OnOp;
         public event DeopEventHandler           OnDeop;
+        public event HalfopEventHandler         OnHalfop;
+        public event DehalfopEventHandler       OnDehalfop;
         public event VoiceEventHandler          OnVoice;
         public event DevoiceEventHandler        OnDevoice;
         public event WhoEventHandler            OnWho;
@@ -179,6 +182,27 @@ namespace Meebey.SmartIrc4net
                 }
 #endif
                 _AutoRejoin = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool SupportNonRfc
+        {
+            get {
+                return _SupportNonRfc;
+            }
+            set {
+#if LOG4NET
+                if (value == true) {
+                    Logger.ChannelSyncing.Info("SupportNonRfc enabled");
+                } else {
+                    Logger.ChannelSyncing.Info("SupportNonRfc disabled");
+                }
+#endif
+                _SupportNonRfc = value;
             }
         }
 
@@ -838,6 +862,18 @@ namespace Meebey.SmartIrc4net
 
             return false;
         }
+        
+        private void _RemoveChannelUser(string channelname, string nickname)
+        {
+            Channel chan = GetChannel(channelname);
+            chan.UnsafeUsers.Remove(nickname.ToLower());
+            chan.UnsafeOps.Remove(nickname.ToLower());
+            chan.UnsafeVoices.Remove(nickname.ToLower());
+            if (SupportNonRfc) {
+                NonRfcChannel nchan = (NonRfcChannel)chan;
+                nchan.UnsafeHalfops.Remove(nickname.ToLower());
+            } 
+        }
 
         // <internal messagehandler>
 
@@ -1223,6 +1259,47 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                         break;
+                        case 'h':
+                            if (SupportNonRfc) {
+                                temp = (string)parametersEnumerator.Current;
+                                parametersEnumerator.MoveNext();
+                                if (add) {
+                                    if (ActiveChannelSyncing) {
+                                        // update the halfop list
+                                        ((NonRfcChannel)channel).UnsafeHalfops.Add(temp.ToLower(), GetIrcUser(temp));
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
+#endif
+                                        
+                                        // update the user halfop status
+                                        ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = true;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("set halfop status: "+temp+" for: "+ircdata.Channel);
+#endif
+                                    }
+                                    if (OnHalfop != null) {
+                                        OnHalfop(this, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                    }
+                                }
+                                if (remove) {
+                                    if (ActiveChannelSyncing) {
+                                        // update the halfop list
+                                        ((NonRfcChannel)channel).UnsafeHalfops.Remove(temp.ToLower());
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("removed halfop: "+temp+" from: "+ircdata.Channel);
+#endif
+                                        // update the user halfop status
+                                        ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = false;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("unset halfop status: "+temp+" for: "+ircdata.Channel);
+#endif
+                                    }
+                                    if (OnDehalfop != null) {
+                                        OnDehalfop(this, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                    }
+                                }
+                            }
+                        break;
                         case 'v':
                             temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
@@ -1418,6 +1495,7 @@ namespace Meebey.SmartIrc4net
                 IsJoined(channelname)) {
                 string nickname;
                 bool   op;
+                bool   halfop;
                 bool   voice;
                 foreach (string user in userlist) {
                     if (user.Length <= 0) {
@@ -1425,6 +1503,7 @@ namespace Meebey.SmartIrc4net
                     }
 
                     op = false;
+                    halfop = false;
                     voice = false;
                     switch (user[0]) {
                         case '@':
@@ -1441,6 +1520,7 @@ namespace Meebey.SmartIrc4net
                             nickname = user.Substring(1);
                         break;
                         case '%':
+                            halfop = true;
                             nickname = user.Substring(1);
                         break;
                         case '~':
@@ -1476,6 +1556,12 @@ namespace Meebey.SmartIrc4net
                             Logger.ChannelSyncing.Debug("added op: "+nickname+" to: "+channelname);
 #endif
                         }
+                        if (halfop && SupportNonRfc)  {
+                            ((NonRfcChannel)channel).UnsafeHalfops.Add(nickname.ToLower(), channeluser);
+#if LOG4NET
+                            Logger.ChannelSyncing.Debug("added halfop: "+nickname+" to: "+channelname);
+#endif
+                        }
                         if (voice) {
                             channel.UnsafeVoices.Add(nickname.ToLower(), channeluser);
 #if LOG4NET
@@ -1486,6 +1572,9 @@ namespace Meebey.SmartIrc4net
 
                     channeluser.IsOp    = op;
                     channeluser.IsVoice = voice;
+                    if (SupportNonRfc) {
+                        ((NonRfcChannelUser)channeluser).IsHalfop = halfop;
+                    }
                 }
             }
             
