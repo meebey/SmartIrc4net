@@ -352,7 +352,7 @@ namespace Meebey.SmartIrc4net
                 if (OnConnected != null) {
                     OnConnected(this, EventArgs.Empty);
                 }
-
+                
                 _Reader = new StreamReader(_TcpClient.GetStream(), Encoding);
                 _Writer = new StreamWriter(_TcpClient.GetStream(), Encoding);
 

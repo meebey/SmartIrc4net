@@ -6,8 +6,8 @@
   </StartMode>
   <Entries>
     <Entry filename="./SmartIrc4net.prjx" />
-    <Entry filename="../examples/test/MonoDevelop/Test.prjx" />
-    <Entry filename="../examples/benchmark/benchmark.prjx" />
+    <Entry filename="../examples/test/MonoDevelop/test.prjx" />
+    <Entry filename="../examples/benchmark/MonoDevelop/benchmark.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">

@@ -27,60 +27,107 @@
  */
  
 using System;
+using System.IO;
+using System.Threading;
+using System.Net.Sockets;
 using Meebey.SmartIrc4net;
 
 public class Benchmark
 {
-	public static void Main(string[] args)
-	{
-	   DateTime start, end;
+    const string SERVER   = "saberhagen.freenode.net";
+    const int    PORT     = 6667;
+    const string NICK     = "SmartIrcB";
+    const string REALNAME = "SmartIrc4net Benchmark Bot";
+    const string CHANNEL  = "#C#";
+    
+    public static void Main(string[] args)
+    {
+        DateTime start, end;
 
-	   start = DateTime.Now;
-	   IrcClientList();
-	   end = DateTime.Now;
-	   Console.WriteLine("IrcClientList() took "+end.Subtract(start).TotalSeconds+" sec");
-	   
-	   start = DateTime.Now;
-	   IrcConnectionList();
-	   end = DateTime.Now;
-	   Console.WriteLine("IrcConnectionList() took "+end.Subtract(start).TotalSeconds+" sec");
-	}
-	
-	public static void IrcClientList()
-	{
-	   IrcClient irc = new IrcClient();
-	   irc.OnRawMessage += new IrcEventHandler(IrcClientListCallback);
-	   irc.Connect("irc.freenet.de", 6667);
-	   irc.Login("SmartIRC", "Benchmark Bot");
-	   irc.RfcList("#C#");
-	   irc.Listen();
-	}
-	
-	public static void IrcClientListCallback(object sender, IrcEventArgs e)
-	{
-	   if (e.Data.ReplyCode == ReplyCode.List) {
-	       Console.WriteLine("On the IRC channel #php are "+e.Data.RawMessageArray[4]+" users");
-	       e.Data.Irc.Disconnect();
-	   }
-	}
-	
-	public static void IrcConnectionList()
-	{
-	   IrcConnection irc = new IrcConnection();
-	   irc.OnReadLine += new ReadLineEventHandler(IrcConnectionListCallback);
-	   irc.Connect("irc.freenet.de", 6667);
-	   irc.WriteLine(Rfc2812.Nick("SmartIRC"), Priority.Critical);
-	   irc.WriteLine(Rfc2812.User("SmartIRC", 0, "Benchmark Bot"), Priority.Critical);
-	   irc.WriteLine(Rfc2812.List("#C#"));
-	   irc.Listen();
-	}
-	
-	public static void IrcConnectionListCallback(object sender, ReadLineEventArgs e)
-	{
-	   string[] linear = e.Line.Split(new char[] {' '});
-	   if (linear.Length >= 5 && linear[1] == "322") {
-	       Console.WriteLine("On the IRC channel #php are "+linear[4]+" users");
-	       ((IrcConnection)sender).Disconnect();
-	   }
-	}
+        start = DateTime.Now;
+        TcpClientList();
+        end = DateTime.Now;
+        Console.WriteLine("TcpClientList() took "+end.Subtract(start).TotalSeconds+" sec");
+        Thread.Sleep(3000);
+        
+        start = DateTime.Now;
+        IrcConnectionList();
+        end = DateTime.Now;
+        Console.WriteLine("IrcConnectionList() took "+end.Subtract(start).TotalSeconds+" sec");
+        Thread.Sleep(3000);
+        
+        start = DateTime.Now;
+        IrcClientList();
+        end = DateTime.Now;
+        Console.WriteLine("IrcClientList() took "+end.Subtract(start).TotalSeconds+" sec");
+        Thread.Sleep(3000);
+    }
+    
+    public static void TcpClientList()
+    {
+        TcpClient tc = new TcpClient(SERVER, PORT);
+        StreamReader sr = new StreamReader(tc.GetStream());
+        StreamWriter sw = new StreamWriter(tc.GetStream());
+        sw.Write(Rfc2812.Nick(NICK)+"\r\n");
+        sw.Write(Rfc2812.User(NICK, 0, REALNAME)+"\r\n");
+        sw.Flush();
+        
+        string   line;
+        string[] linear;
+        while (true) {
+            line = sr.ReadLine();
+            if (line != null) {
+                linear = line.Split(new char[] {' '});
+                if (linear.Length >= 2 && linear[1] == "001") {
+                    sw.Write(Rfc2812.List(CHANNEL)+"\r\n");
+                    sw.Flush();
+                }
+                if (linear.Length >= 5 && linear[1] == "322") {
+                    Console.WriteLine("On the IRC channel "+CHANNEL+" are "+linear[4]+" users");
+                    sr.Close();
+                    sw.Close();
+                    tc.Close();
+                    break;
+                }
+            }
+        }
+    }
+    
+    public static void IrcClientList()
+    {
+        IrcClient irc = new IrcClient();
+        irc.OnRawMessage += new IrcEventHandler(IrcClientListCallback);
+        irc.Connect(SERVER, PORT);
+        irc.Login(NICK, REALNAME);
+        irc.RfcList(CHANNEL);
+        irc.Listen();
+    }
+    
+    public static void IrcClientListCallback(object sender, IrcEventArgs e)
+    {
+        if (e.Data.ReplyCode == ReplyCode.List) {
+            Console.WriteLine("On the IRC channel "+CHANNEL+" are "+e.Data.RawMessageArray[4]+" users");
+            e.Data.Irc.Disconnect();
+        }
+    }
+    	
+    public static void IrcConnectionList()
+    {
+        IrcConnection irc = new IrcConnection();
+        irc.OnReadLine += new ReadLineEventHandler(IrcConnectionListCallback);
+        irc.Connect(SERVER, PORT);
+        irc.WriteLine(Rfc2812.Nick(NICK), Priority.Critical);
+        irc.WriteLine(Rfc2812.User(NICK, 0, REALNAME), Priority.Critical);
+        irc.WriteLine(Rfc2812.List(CHANNEL));
+        irc.Listen();
+    }
+    
+    public static void IrcConnectionListCallback(object sender, ReadLineEventArgs e)
+    {
+        string[] linear = e.Line.Split(new char[] {' '});
+        if (linear.Length >= 5 && linear[1] == "322") {
+            Console.WriteLine("On the IRC channel "+CHANNEL+" are "+linear[4]+" users");
+            ((IrcConnection)sender).Disconnect();
+        }
+    }
 }
