@@ -45,9 +45,11 @@ namespace Meebey.SmartIrc4net
         private string           _Username = "";
         private string           _Password = "";
         private string           _CtcpVersion;
-        private bool             _ActiveChannelSyncing = false;
+        private bool             _ActiveChannelSyncing  = false;
         private bool             _PassiveChannelSyncing = false;
-        private bool             _AutoRejoin     = false;
+        private bool             _AutoRejoin         = false;
+        private StringCollection _AutoRejoinChannels = new StringCollection();
+        private bool             _AutoRelogin    = false;
         private bool             _SupportNonRfc  = false;
         private bool             _SupportNonRfcLocked = false;
         private StringCollection _Motd = new StringCollection();
@@ -194,6 +196,27 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
+        public bool AutoRelogin
+        {
+            get {
+                return _AutoRelogin;
+            }
+            set {
+#if LOG4NET
+                if (value == true) {
+                    Logger.ChannelSyncing.Info("AutoRelogin enabled");
+                } else {
+                    Logger.ChannelSyncing.Info("AutoRelogin disabled");
+                }
+#endif
+                _AutoRelogin = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
         public bool SupportNonRfc
         {
             get {
@@ -313,6 +336,7 @@ namespace Meebey.SmartIrc4net
 #endif
             OnReadLine        += new ReadLineEventHandler(_Worker);
             OnDisconnected    += new EventHandler(_OnDisconnected);
+            OnConnectionError += new EventHandler(_OnConnectionError);
         }
 
 #if LOG4NET
@@ -326,7 +350,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        public override void Connect(string[] addresslist, int port)
+        public new void Connect(string[] addresslist, int port)
         {
             _SupportNonRfcLocked = true;
             base.Connect(addresslist, port);
@@ -335,23 +359,31 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="login"> </param>
-        public override void Reconnect(bool login)
+        /// <param name="login">if the login data should be sent, after successful connect</pararm>
+        /// <param name="channels">if the channels should be rejoined, after successful connect</param>
+        public void Reconnect(bool login, bool channels)
         {
-            string[] channels = new string[_JoinedChannels.Count];
-            _JoinedChannels.CopyTo(channels, 0);
-            base.Reconnect(true);
+            if (channels) {
+                _StoreChannelsToRejoin();
+            }
+            base.Reconnect();
             if (login) {
                 Login(Nickname, Realname, IUsermode, Username, Password);
             }
-#if LOG4NET
-            Logger.Connection.Info("Rejoining channels...");
-#endif
-            foreach(string channel in channels) {
-                RfcJoin(channel, Priority.High);
+            if (channels) {
+                _RejoinChannels();
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="login"> </param>
+        public void Reconnect(bool login)
+        {
+            Reconnect(login, true);
+        }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -405,7 +437,7 @@ namespace Meebey.SmartIrc4net
         {
             Login(nick, realname, 0, "", "");
         }
-
+        
         public bool IsMe(string nickname)
         {
             return (Nickname == nickname);
@@ -590,7 +622,39 @@ namespace Meebey.SmartIrc4net
 
         private void _OnDisconnected(object sender, EventArgs e)
         {
+            if (AutoRejoin) {
+                _StoreChannelsToRejoin();
+            }
             _SyncingCleanup();
+        }
+        
+        private void _OnConnectionError(object sender, EventArgs e)
+        {
+            // AutoReconnect is handled in IrcConnection._OnConnectionError
+            if (AutoRelogin) {
+                Login(Nickname, Realname, IUsermode, Username, Password);
+            }
+            if (AutoRejoin) {
+                _RejoinChannels();
+            }
+        }
+        
+        private void _StoreChannelsToRejoin()
+        {
+            foreach (string channel in _JoinedChannels) {
+                _AutoRejoinChannels.Add(channel);
+            }
+        }
+        
+        private void _RejoinChannels()
+        {
+#if LOG4NET
+            Logger.Connection.Info("Rejoining channels...");
+#endif
+            foreach(string channel in _AutoRejoinChannels) {
+                RfcJoin(channel, Priority.High);
+            }
+            _AutoRejoinChannels.Clear();
         }
         
         private ReceiveType _GetMessageType(string rawline)

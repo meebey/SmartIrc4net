@@ -6,19 +6,25 @@
  * $Date$
  */
 
+- write PingThread which pings every 60 sec the server and waits 300 seconds before it triggers IsConnectionError
 - Documentation
 - passive channel sync
+- add nicklist parameter for Login()
+- AutoRejoin
+- AutoJoinOnInvite
+- AutoNickChange
 - clean message parser, channel is not always right set (need to check for replycode!)
+- DCC chat, file send/receive
 X halfop commands in IrcCommands
 - ipv6 support?
 - add IrcConnection.HostAddress (which IP is used for the client)
 X add OnErrorMessage event for ERR_* replycodes
 - add OnSocketTimeout event
 - Disconnect(quitmessage)
-- DCC chat, file send/receive
 - add server properties to IrcConnection (required for smart mode changes etc)
 - Exception Error Handling (argument checking)
 - Create Debian Package
 X connection timeout detection (socket based?)
 - Change string[] IrcUser.JoinedChannels to Channel[]?
 - Use async sockets?
+- server properties
