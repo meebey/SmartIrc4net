@@ -1,8 +1,8 @@
 /**
- * $Id: IrcConnection.cs,v 1.9 2004/05/20 14:20:39 meebey Exp $
- * $Revision: 1.9 $
+ * $Id: IrcConnection.cs,v 1.10 2004/07/15 20:51:03 meebey Exp $
+ * $Revision: 1.10 $
  * $Author: meebey $
- * $Date: 2004/05/20 14:20:39 $
+ * $Date: 2004/07/15 20:51:03 $
  *
  * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -53,8 +53,8 @@ namespace Meebey.SmartIrc4net
         private bool            _AutoRetry     = false;
         private bool            _AutoReconnect = false;
         private bool            _ConnectionError = false;
-        //private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-15");
-        private Encoding        _Encoding = Encoding.GetEncoding(1252);
+        private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-15");
+        //private Encoding        _Encoding = Encoding.GetEncoding(1252);
         //private Encoding        _Encoding = Encoding.UTF8;
 
         public event ReadLineEventHandler   OnReadLine;
@@ -183,6 +183,7 @@ namespace Meebey.SmartIrc4net
 
         public IrcConnection()
         {
+            Logger.Init();
             _SendBuffer[Priority.High]        = Queue.Synchronized(new Queue());
             _SendBuffer[Priority.AboveMedium] = Queue.Synchronized(new Queue());
             _SendBuffer[Priority.Medium]      = Queue.Synchronized(new Queue());
@@ -472,7 +473,7 @@ namespace Meebey.SmartIrc4net
             public void Start()
             {
                 _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "ReadThread";
+                _Thread.Name = "ReadThread ("+_Connection.Address+":"+_Connection.Port+")";
                 _Thread.IsBackground = true;
                 _Thread.Start();
             }
@@ -542,7 +543,7 @@ namespace Meebey.SmartIrc4net
             public void Start()
             {
                 _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "WriteThread";
+                _Thread.Name = "WriteThread ("+_Connection.Address+":"+_Connection.Port+")";
                 _Thread.IsBackground = true;
                 _Thread.Start();
             }

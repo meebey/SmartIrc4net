@@ -1,10 +1,10 @@
 /**
- * $Id: IrcCommands.cs,v 1.5 2003/12/29 18:09:34 meebey Exp $
- * $Revision: 1.5 $
+ * $Id: IrcCommands.cs,v 1.6 2004/07/15 20:51:03 meebey Exp $
+ * $Revision: 1.6 $
  * $Author: meebey $
- * $Date: 2003/12/29 18:09:34 $
+ * $Date: 2004/07/15 20:51:03 $
  *
- * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 

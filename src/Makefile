@@ -1,16 +1,19 @@
 CSC=mcs
+GACUTIL=gacutil
 LOG4NET_DLL=log4net.dll
 SMARTIRC_DLL=Meebey.SmartIrc4net.dll
-LIB="bin/mono/debug/$(LOG4NET_DLL),bin/mono/debug/$(SMARTIRC_DLL)"
 TARGET=$(SMARTIRC_DLL)
 
-all: debug release
+all: release
 
 debug: *.cs
-	$(CSC) /debug /define:TRACE,LOG4NET /target:library /r:../bin/$(LOG4NET_DLL) /out:../bin/mono/debug/$(TARGET) $^
+	$(CSC) /debug /define:TRACE,DEBUG,LOG4NET /target:library /r:../bin/$(LOG4NET_DLL) /out:../bin/mono/debug/$(TARGET) $^
 
 release: *.cs
-	$(CSC) /target:library /r:../bin/$(LOG4NET_DLL) /out:../bin/mono/release/$(TARGET) $^
+	$(CSC) /target:library /out:../bin/mono/release/$(TARGET) $^
+
+install: release
+	$(GACUTIL) -i ../bin/mono/release/$(SMARTIRC_DLL) -f -package SmartIrc4net
 
 clean:
 	-rm -f ../bin/mono/debug/$(TARGET)

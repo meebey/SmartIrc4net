@@ -1,10 +1,10 @@
 /**
- * $Id: Delegates.cs,v 1.5 2004/05/20 14:20:39 meebey Exp $
- * $Revision: 1.5 $
+ * $Id: Delegates.cs,v 1.6 2004/07/15 20:51:03 meebey Exp $
+ * $Revision: 1.6 $
  * $Author: meebey $
- * $Date: 2004/05/20 14:20:39 $
+ * $Date: 2004/07/15 20:51:03 $
  *
- * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *

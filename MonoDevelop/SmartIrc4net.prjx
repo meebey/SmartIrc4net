@@ -15,21 +15,23 @@
     <File name="../src/Makefile" subtype="Code" buildaction="Nothing" dependson="" data="" />
     <File name="../src/Rfc2812.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
-  <References />
+  <References>
+    <Reference type="Assembly" refto="../bin/log4net.dll" localcopy="True" />
+  </References>
   <DeploymentInformation target="" script="" strategy="File" />
-  <Configuration runwithwarnings="False" name="Release">
-    <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="False" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" mainclass="" target="WinExe" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+  <Configuration runwithwarnings="False" name="Debug">
+    <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="LOG4NET" generatexmldocumentation="False" win32Icon="" />
     <Execution commandlineparameters="" consolepause="False" />
-    <Output directory="../bin/mono/release" assembly="Meebey.SmartIrc4net" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
+    <Output directory="../bin/mono/debug" assembly="Meebey.SmartIrc4net" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
   </Configuration>
-  <Configurations active="Release">
+  <Configurations active="Debug">
     <Configuration runwithwarnings="False" name="Debug">
-      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="WinExe" definesymbols="LOG4NET" generatexmldocumentation="False" win32Icon="" />
+      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="True" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" target="Library" definesymbols="LOG4NET" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
       <Output directory="../bin/mono/debug" assembly="Meebey.SmartIrc4net" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>
     <Configuration runwithwarnings="False" name="Release">
-      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="False" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" mainclass="" target="WinExe" definesymbols="" generatexmldocumentation="False" win32Icon="" />
+      <CodeGeneration runtime="MsNet" compiler="Csc" warninglevel="4" nowarn="" includedebuginformation="False" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" mainclass="" target="Library" definesymbols="" generatexmldocumentation="False" win32Icon="" />
       <Execution commandlineparameters="" consolepause="False" />
       <Output directory="../bin/mono/release" assembly="Meebey.SmartIrc4net" executeScript="" executeBeforeBuild="" executeAfterBuild="" />
     </Configuration>

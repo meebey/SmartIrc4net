@@ -1,8 +1,8 @@
 /**
- * $Id: Logger.cs,v 1.4 2003/12/14 12:44:34 meebey Exp $
- * $Revision: 1.4 $
+ * $Id: Logger.cs,v 1.5 2004/07/15 20:51:03 meebey Exp $
+ * $Revision: 1.5 $
  * $Author: meebey $
- * $Date: 2003/12/14 12:44:34 $
+ * $Date: 2004/07/15 20:51:03 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -32,16 +32,22 @@ namespace Meebey.SmartIrc4net
     public class Logger
     {
         private static SortedList _LoggerList = new SortedList();
-
+        private static bool       _Init = false;
         private Logger()
         {
         }
-
+        
         public static void Init()
         {
+            if (_Init) {
+                return;
+            }
+            
+            _Init = true;
+            
             FileInfo fi = new FileInfo("SmartIrc4net_log.config");
             if (fi.Exists) {
-                log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
+                    log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
             } else {
                 log4net.Config.BasicConfigurator.Configure();
             }

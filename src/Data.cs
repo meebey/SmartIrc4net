@@ -1,10 +1,10 @@
 /**
- * $Id: Data.cs,v 1.3 2003/11/27 23:22:47 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: Data.cs,v 1.4 2004/07/15 20:51:03 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:22:47 $
+ * $Date: 2004/07/15 20:51:03 $
  *
- * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -27,6 +27,7 @@ namespace Meebey.SmartIrc4net
 {
     public class Data
     {
+        public IrcClient    Irc;
         public string       From;
         public string       Nick;
         public string       Ident;

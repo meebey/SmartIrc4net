@@ -1,8 +1,8 @@
 /**
- * $Id: IrcClient.cs,v 1.8 2004/05/20 14:20:39 meebey Exp $
- * $Revision: 1.8 $
+ * $Id: IrcClient.cs,v 1.9 2004/07/15 20:51:03 meebey Exp $
+ * $Revision: 1.9 $
  * $Author: meebey $
- * $Date: 2004/05/20 14:20:39 $
+ * $Date: 2004/07/15 20:51:03 $
  *
  * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  *
@@ -73,7 +73,7 @@ namespace Meebey.SmartIrc4net
         public event ActionEventHandler         OnChannelAction;
         public event MessageEventHandler        OnChannelNotice;
         public event MessageEventHandler        OnQueryMessage;
-        public event ActionEventHandler        OnQueryAction;
+        public event ActionEventHandler         OnQueryAction;
         public event MessageEventHandler        OnQueryNotice;
         public event MessageEventHandler        OnCtcpRequest;
         public event MessageEventHandler        OnCtcpReply;
@@ -177,7 +177,6 @@ namespace Meebey.SmartIrc4net
         public IrcClient()
         {
 #if LOG4NET
-            Logger.Init();
             Logger.Main.Debug("IrcClient created");
 #endif
             OnReadLine        += new ReadLineEventHandler(_Worker);
@@ -271,8 +270,8 @@ namespace Meebey.SmartIrc4net
             
             Channel channel = GetChannel(channelname);
             if (channel != null &&
-                channel.Users != null &&
-                channel.Users.ContainsKey(nickname.ToLower())) {
+                channel.UnsafeUsers != null &&
+                channel.UnsafeUsers.ContainsKey(nickname.ToLower())) {
                 return true;
             }
             
@@ -300,7 +299,7 @@ namespace Meebey.SmartIrc4net
             
             Channel ircchannel = GetChannel(channel);
             if (ircchannel != null) {
-                return (ChannelUser)ircchannel.Users[nickname.ToLower()];
+                return (ChannelUser)ircchannel.UnsafeUsers[nickname.ToLower()];
             } else {
                 return null;
             } 
@@ -328,10 +327,10 @@ namespace Meebey.SmartIrc4net
         
         public Data MessageParser(string rawline)
         {
+            Data     ircdata;
             string   line;
             string[] lineex;
             string[] rawlineex;
-            Data     ircdata;
             string   messagecode;
             string   from;
             int      exclamationpos;
@@ -340,6 +339,7 @@ namespace Meebey.SmartIrc4net
 
             rawlineex = rawline.Split(new Char[] {' '});
             ircdata = new Data();
+            ircdata.Irc = this;
             ircdata.RawMessage = rawline;
             ircdata.RawMessageEx = rawlineex;
             messagecode = rawlineex[0];
@@ -388,6 +388,7 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.ChannelModeChange:
                 case ReceiveType.ChannelMessage:
                 case ReceiveType.ChannelAction:
+                case ReceiveType.ChannelNotice:
                     ircdata.Channel = lineex[2];
                 break;
                 case ReceiveType.Who:
@@ -431,7 +432,7 @@ namespace Meebey.SmartIrc4net
         {
             Match found;
 
-            found = new Regex("^:.*? ([0-9]{3}) .*$").Match(rawline);
+            found = new Regex("^:[^ ]+? ([0-9]{3}) .+$").Match(rawline);
             if (found.Success) {
                 string code = found.Groups[1].Value;
                 ReplyCode replycode = (ReplyCode)int.Parse(code);
@@ -777,7 +778,7 @@ namespace Meebey.SmartIrc4net
                 }
 
                 ChannelUser channeluser = new ChannelUser(channelname, ircuser);
-                channel.Users.Add(who.ToLower(), channeluser);
+                channel.UnsafeUsers.Add(who.ToLower(), channeluser);
             }
 
             if (OnJoin != null) {
@@ -805,7 +806,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.ChannelSyncing.Debug(who+" parts channel: "+channel);
 #endif
-                    GetChannel(channel).Users.Remove(who.ToLower());
+                    GetChannel(channel).UnsafeUsers.Remove(who.ToLower());
                     _RemoveIrcUser(who);
                 }
 
@@ -832,7 +833,7 @@ namespace Meebey.SmartIrc4net
                 if (IsMe(victim)) {
                     _Channels.Remove(channel.ToLower());
                 } else {
-                    GetChannel(channel).Users.Remove(victim.ToLower());
+                    GetChannel(channel).UnsafeUsers.Remove(victim.ToLower());
                     _RemoveIrcUser(who);
                 }
 
@@ -857,7 +858,7 @@ namespace Meebey.SmartIrc4net
 
             if (ChannelSyncing) {
                 foreach (string channel in GetIrcUser(who).JoinedChannels) {
-                    GetChannel(channel).Users.Remove(who.ToLower());
+                    GetChannel(channel).UnsafeUsers.Remove(who.ToLower());
                 }
                 _RemoveIrcUser(who);
 
@@ -993,8 +994,8 @@ namespace Meebey.SmartIrc4net
                         channel     = GetChannel(channelname);
                         channeluser = GetChannelUser(channelname, oldnickname);
                         // remove first to avoid duplication, Foo -> foo
-                        channel.Users.Remove(oldnickname.ToLower());
-                        channel.Users.Add(newnickname.ToLower(), channeluser);
+                        channel.UnsafeUsers.Remove(oldnickname.ToLower());
+                        channel.UnsafeUsers.Add(newnickname.ToLower(), channeluser);
                     }
                 }
             }
@@ -1270,6 +1271,14 @@ namespace Meebey.SmartIrc4net
                             voice = true;
                             nickname = user.Substring(1);
                         break;
+                        // RFC VIOLATION
+                        // some IRC network do this and break our channel sync...
+                        case '&':
+                            nickname = user.Substring(1);
+                        break;
+                        case '%':
+                            nickname = user.Substring(1);
+                        break;
                         default:
                             nickname = user;
                         break;
@@ -1291,7 +1300,7 @@ namespace Meebey.SmartIrc4net
                         Logger.ChannelSyncing.Debug("creating ChannelUser: "+nickname+" for Channel: "+channel+" because he doesn't exist yet");
 #endif
                         channeluser = new ChannelUser(channel, ircuser);
-                        GetChannel(channel).Users.Add(nickname.ToLower(), channeluser);
+                        GetChannel(channel).UnsafeUsers.Add(nickname.ToLower(), channeluser);
                     }
 
                     channeluser.Op    = op;
