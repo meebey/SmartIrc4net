@@ -128,9 +128,9 @@ public class Test
 
         string[] serverlist;
         // the server we want to connect to, could be also a simple string
-        serverlist = new string[] {"irc.fu-berlin.de"};
+        serverlist = new string[] {"irc.freenode.org"};
         int port = 6667;
-        string channel = "#smartirc";
+        string channel = "#smartirc-test";
         try {
             // here we try to connect to the server and exceptions get handled
             irc.Connect(serverlist, port);
@@ -145,12 +145,13 @@ public class Test
             irc.Login("SmartIRC", "SmartIrc4net Test Bot");
             // join the channel
             irc.RfcJoin(channel);
+            
             for (int i = 0; i < 3; i++) {
                 // here we send just 3 different types of messages, 3 times for
                 // testing the delay and flood protection (messagebuffer work)
-                irc.SendMessage(SendType.Message, channel, "test message "+i.ToString());
-                irc.SendMessage(SendType.Action, channel, "thinks this is cool "+i.ToString());
-                irc.SendMessage(SendType.Notice, channel, "SmartIrc4net rocks "+i.ToString());
+                irc.SendMessage(SendType.Message, channel, "test message ("+i.ToString()+")");
+                irc.SendMessage(SendType.Action, channel, "thinks this is cool ("+i.ToString()+")");
+                irc.SendMessage(SendType.Notice, channel, "SmartIrc4net rocks ("+i.ToString()+")");
             }
             
             // spawn a new thread to read the stdin of the console, this we use
