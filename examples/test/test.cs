@@ -4,7 +4,10 @@
  * $Author: meebey $
  * $Date: 2004/05/20 14:20:38 $
  *
- * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
+ * This is a simple test client for the library.
+ *
+ * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 

@@ -11,7 +11,7 @@ Full featurelist of SmartIrc4net
 
 - 3 layered API
   - IrcConnection (low-level API)
-    contains message buffer, ping/pong handling
+    contains socket handling and message buffer
   - IrcCommands (extends IrcConnection, middle-level API)
     contains RFC IRC commands plus easy to use IRC methods (like Op/Deop/Ban/Unban...)
   - IrcClient (extends IrcCommands, high-level API)
