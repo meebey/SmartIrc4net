@@ -5,7 +5,9 @@
  * $Author$
  * $Date$
  *
- * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
+ *
+ * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -268,7 +270,7 @@ namespace Meebey.SmartIrc4net
                 return _SocketReceiveTimeout;
             }
             set {
-                _SocketReceiveTimeout = value*1000;
+                _SocketReceiveTimeout = value;
             }
         }
         
@@ -282,7 +284,7 @@ namespace Meebey.SmartIrc4net
                 return _SocketSendTimeout;
             }
             set {
-                _SocketSendTimeout = value*1000;
+                _SocketSendTimeout = value;
             }
         }
         
@@ -343,9 +345,9 @@ namespace Meebey.SmartIrc4net
                 System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
                 _TcpClient = new IrcTcpClient();
                 _TcpClient.NoDelay = true;
-                // set timeout to 6 minutes, after this the connection will be aborted
-                _TcpClient.ReceiveTimeout = _SocketReceiveTimeout;
-                _TcpClient.SendTimeout = _SocketSendTimeout;
+                // set timeout, after this the connection will be aborted
+                _TcpClient.ReceiveTimeout = _SocketReceiveTimeout*1000;
+                _TcpClient.SendTimeout = _SocketSendTimeout*1000;
                 _TcpClient.Connect(ip, port);
                 if (OnConnected != null) {
                     OnConnected(this, EventArgs.Empty);

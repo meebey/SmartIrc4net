@@ -5,7 +5,9 @@
  * $Author$
  * $Date$
  *
- * Copyright (c) 2003-2004 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
+ * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
+ *
+ * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -1410,10 +1412,10 @@ namespace Meebey.SmartIrc4net
 
         private void _Event_RPL_NAMREPLY(IrcMessageData ircdata)
         {
-            string   channel  = ircdata.Channel;
-            string[] userlist = ircdata.MessageArray;
+            string   channelname  = ircdata.Channel;
+            string[] userlist     = ircdata.MessageArray;
             if (ActiveChannelSyncing &&
-                IsJoined(channel)) {
+                IsJoined(channelname)) {
                 string nickname;
                 bool   op;
                 bool   voice;
@@ -1450,7 +1452,7 @@ namespace Meebey.SmartIrc4net
                     }
 
                     IrcUser     ircuser     = GetIrcUser(nickname);
-                    ChannelUser channeluser = GetChannelUser(channel, nickname);
+                    ChannelUser channeluser = GetChannelUser(channelname, nickname);
 
                     if (ircuser == null) {
 #if LOG4NET
@@ -1462,10 +1464,24 @@ namespace Meebey.SmartIrc4net
 
                     if (channeluser == null) {
 #if LOG4NET
-                        Logger.ChannelSyncing.Debug("creating ChannelUser: "+nickname+" for Channel: "+channel+" because he doesn't exist yet");
+                        Logger.ChannelSyncing.Debug("creating ChannelUser: "+nickname+" for Channel: "+channelname+" because he doesn't exist yet");
 #endif
-                        channeluser = new ChannelUser(channel, ircuser);
-                        GetChannel(channel).UnsafeUsers.Add(nickname.ToLower(), channeluser);
+                        channeluser = new ChannelUser(channelname, ircuser);
+                        Channel channel = GetChannel(channelname);
+                        
+                        channel.UnsafeUsers.Add(nickname.ToLower(), channeluser);
+                        if (op) {
+                            channel.UnsafeOps.Add(nickname.ToLower(), channeluser);
+#if LOG4NET
+                            Logger.ChannelSyncing.Debug("added op: "+nickname+" to: "+channelname);
+#endif
+                        }
+                        if (voice) {
+                            channel.UnsafeVoices.Add(nickname.ToLower(), channeluser);
+#if LOG4NET
+                            Logger.ChannelSyncing.Debug("added voice: "+nickname+" to: "+channelname);
+#endif
+                        }
                     }
 
                     channeluser.IsOp    = op;
@@ -1474,7 +1490,7 @@ namespace Meebey.SmartIrc4net
             }
             
             if (OnNames != null) {
-                OnNames(this, new NamesEventArgs(ircdata, channel, userlist));
+                OnNames(this, new NamesEventArgs(ircdata, channelname, userlist));
             }
             
             if (OnChannelActiveSynced != null) {
