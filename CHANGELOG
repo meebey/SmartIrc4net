@@ -6,7 +6,7 @@
  * $Date$
  */
 
-v0.3.0 (SVN r110)
+v0.3.0 (SVN r111)
 -------
 fixes:
 - fine tuned the "#ifdef LOG4NET" statements (thanks to prencher for noticing this
