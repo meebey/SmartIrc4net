@@ -38,7 +38,7 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class IrcConnection
     {
-        private string          _Version;
+        private string          _VersionNumber;
         private string          _VersionString;
         private string[]        _AddressList = {"localhost"};
         private int             _CurrentAddress = 0;
@@ -56,7 +56,8 @@ namespace Meebey.SmartIrc4net
         private int             _ConnectTries = 0;
         private bool            _AutoRetry     = false;
         private bool            _AutoReconnect = false;
-        private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-15");
+        private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-1");
+        //private Encoding        _Encoding = Encoding.ASCII;
         //private Encoding        _Encoding = Encoding.GetEncoding(1252);
         //private Encoding        _Encoding = Encoding.UTF8;
 
@@ -224,10 +225,10 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// The SmartIrc4net version number
         /// </summary>
-        public string Version
+        public string VersionNumber
         {
             get {
-                return _Version;
+                return _VersionNumber;
             }
         }
 
@@ -273,13 +274,13 @@ namespace Meebey.SmartIrc4net
             _ReadThread  = new ReadThread(this);
             _WriteThread = new WriteThread(this);
 
-            Assembly assembly = Assembly.GetAssembly(this.GetType());
-            AssemblyName assembly_name = assembly.GetName(false);
+            Assembly assm = Assembly.GetAssembly(this.GetType());
+            AssemblyName assm_name = assm.GetName(false);
 
-            AssemblyProductAttribute pr = (AssemblyProductAttribute)assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0];
+            AssemblyProductAttribute pr = (AssemblyProductAttribute)assm.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0];
 
-            _Version = assembly_name.Version.ToString();
-            _VersionString = pr.Product+" "+_Version;
+            _VersionNumber = assm_name.Version.ToString();
+            _VersionString = pr.Product+" "+_VersionNumber;
         }
 
         /// <overloads>this method has 2 overloads</overloads>
@@ -587,8 +588,7 @@ namespace Meebey.SmartIrc4net
         {
             private IrcConnection  _Connection;
             private Thread         _Thread;
-            // syncronized queue (thread safe)
-            private Queue       _Queue = Queue.Synchronized(new Queue());
+            private Queue          _Queue = Queue.Synchronized(new Queue());
 
             public Queue Queue
             {
@@ -746,7 +746,9 @@ namespace Meebey.SmartIrc4net
                 if (_HighCount > 0) {
                     string data = (string)((Queue)_Connection._SendBuffer[Priority.High]).Dequeue();
                     if (_Connection._WriteLine(data) == false) {
-                        // putting the message back into the queue if sending was not successful
+#if LOG4NET
+                        Logger.Queue.Warn("Sending data was not sucessful, data is requeued!");
+#endif
                         ((Queue)_Connection._SendBuffer[Priority.High]).Enqueue(data);
                     }
 
@@ -765,6 +767,9 @@ namespace Meebey.SmartIrc4net
                     (_AboveMediumSentCount < _AboveMediumThresholdCount)) {
                     string data = (string)((Queue)_Connection._SendBuffer[Priority.AboveMedium]).Dequeue();
                     if (_Connection._WriteLine(data) == false) {
+#if LOG4NET
+                        Logger.Queue.Warn("Sending data was not sucessful, data is requeued!");
+#endif
                         ((Queue)_Connection._SendBuffer[Priority.AboveMedium]).Enqueue(data);
                     }
                     _AboveMediumSentCount++;
@@ -783,6 +788,9 @@ namespace Meebey.SmartIrc4net
                     (_MediumSentCount < _MediumThresholdCount)) {
                     string data = (string)((Queue)_Connection._SendBuffer[Priority.Medium]).Dequeue();
                     if (_Connection._WriteLine(data) == false) {
+#if LOG4NET
+                        Logger.Queue.Warn("Sending data was not sucessful, data is requeued!");
+#endif
                         ((Queue)_Connection._SendBuffer[Priority.Medium]).Enqueue(data);
                     }
                     _MediumSentCount++;
@@ -801,6 +809,9 @@ namespace Meebey.SmartIrc4net
                     (_BelowMediumSentCount < _BelowMediumThresholdCount)) {
                     string data = (string)((Queue)_Connection._SendBuffer[Priority.BelowMedium]).Dequeue();
                     if (_Connection._WriteLine(data) == false) {
+#if LOG4NET
+                        Logger.Queue.Warn("Sending data was not sucessful, data is requeued!");
+#endif
                         ((Queue)_Connection._SendBuffer[Priority.BelowMedium]).Enqueue(data);
                     }
                     _BelowMediumSentCount++;
@@ -825,6 +836,9 @@ namespace Meebey.SmartIrc4net
 
                     string data = (string)((Queue)_Connection._SendBuffer[Priority.Low]).Dequeue();
                     if (_Connection._WriteLine(data) == false) {
+#if LOG4NET
+                        Logger.Queue.Warn("Sending data was not sucessful, data is requeued!");
+#endif
                         ((Queue)_Connection._SendBuffer[Priority.Low]).Enqueue(data);
                     }
 

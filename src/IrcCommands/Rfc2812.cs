@@ -58,6 +58,11 @@ namespace Meebey.SmartIrc4net
             return "USER "+username+" "+usermode.ToString()+" * :"+realname;
         }
 
+        public static string Oper(string name, string password)
+        {
+            return "OPER "+name+" "+password;
+        }
+        
         public static string Privmsg(string destination, string message)
         {
             return "PRIVMSG "+destination+" :"+message;
@@ -68,19 +73,49 @@ namespace Meebey.SmartIrc4net
             return "NOTICE "+destination+" :"+message;
         }
 
+        public static string Join(string channel, string key)
+        {
+            return "JOIN "+channel+" "+key;
+        }
+
+        public static string Join(string[] channels, string[] keys)
+        {
+            string channellist = String.Join(",", channels);
+            string keylist = String.Join(",", keys);
+            return "JOIN "+channellist+" "+keylist;
+        }
+        
         public static string Join(string channel)
         {
             return "JOIN "+channel;
         }
-
+        
+        public static string Join(string[] channels)
+        {
+            string channellist = String.Join(",", channels);
+            return "JOIN "+channellist;
+        }
+        
         public static string Part(string channel)
         {
             return "PART "+channel;
         }
 
-        public static string Part(string channel, string reason)
+        public static string Part(string[] channels)
         {
-            return "PART "+channel+" :"+reason;
+            string channellist = String.Join(",", channels);
+            return "PART "+channellist;
+        }
+        
+        public static string Part(string channel, string partmessage)
+        {
+            return "PART "+channel+" :"+partmessage;
+        }
+
+        public static string Part(string[] channels, string partmessage)
+        {
+            string channellist = String.Join(",", channels);
+            return "PART "+channellist+" :"+partmessage;
         }
 
         public static string Kick(string channel, string nickname)
@@ -88,9 +123,97 @@ namespace Meebey.SmartIrc4net
             return "KICK "+channel+" "+nickname;
         }
 
-        public static string Kick(string channel, string nickname, string reason)
+        public static string Kick(string channel, string nickname, string comment)
         {
-            return "KICK "+channel+" "+nickname+" :"+reason;
+            return "KICK "+channel+" "+nickname+" :"+comment;
+        }
+        
+        public static string Kick(string[] channels, string nickname)
+        {
+            string channellist = String.Join(",", channels);
+            return "KICK "+channellist+" "+nickname;
+        }
+
+        public static string Kick(string[] channels, string nickname, string comment)
+        {
+            string channellist = String.Join(",", channels);
+            return "KICK "+channellist+" "+nickname+" :"+comment;
+        }
+
+        public static string Kick(string channel, string[] nicknames)
+        {
+            string nicknamelist = String.Join(",", nicknames);
+            return "KICK "+channel+" "+nicknamelist;
+        }
+
+        public static string Kick(string channel, string[] nicknames, string comment)
+        {
+            string nicknamelist = String.Join(",", nicknames);
+            return "KICK "+channel+" "+nicknamelist+" :"+comment;
+        }
+
+        public static string Kick(string[] channels, string[] nicknames)
+        {
+            string channellist = String.Join(",", channels);
+            string nicknamelist = String.Join(",", nicknames);
+            return "KICK "+channellist+" "+nicknamelist;
+        }
+
+        public static string Kick(string[] channels, string[] nicknames, string comment)
+        {
+            string channellist = String.Join(",", channels);
+            string nicknamelist = String.Join(",", nicknames);
+            return "KICK "+channellist+" "+nicknamelist+" :"+comment;
+        }
+        
+        public static string Motd()
+        {
+            return "MOTD";
+        }
+
+        public static string Motd(string target)
+        {
+            return "MOTD "+target;
+        }
+
+        public static string Luser()
+        {
+            return "LUSER";
+        }
+
+        public static string Luser(string mask)
+        {
+            return "LUSER "+mask;
+        }
+
+        public static string Luser(string mask, string target)
+        {
+            return "LUSER "+mask+" "+target;
+        }
+        
+        public static string Version()
+        {
+            return "VERSION";
+        }
+
+        public static string Version(string target)
+        {
+            return "VERSION "+target;
+        }
+
+        public static string Stats()
+        {
+            return "STATS";
+        }
+
+        public static string Stats(string query)
+        {
+            return "STATS "+query;
+        }
+
+        public static string Stats(string query, string target)
+        {
+            return "STATS "+query+" "+target;
         }
 
         public static string List()
@@ -103,6 +226,23 @@ namespace Meebey.SmartIrc4net
             return "LIST "+channel;
         }
 
+        public static string List(string[] channels)
+        {
+            string channellist = String.Join(",", channels);
+            return "LIST "+channellist;
+        }
+        
+        public static string List(string channel, string target)
+        {
+            return "LIST "+channel+" "+target;
+        }
+
+        public static string List(string[] channels, string target)
+        {
+            string channellist = String.Join(",", channels);
+            return "LIST "+channellist+" "+target;
+        }
+        
         public static string Names()
         {
             return "NAMES";
@@ -113,6 +253,23 @@ namespace Meebey.SmartIrc4net
             return "NAMES "+channel;
         }
 
+        public static string Names(string[] channels)
+        {
+            string channellist = String.Join(",", channels);
+            return "NAMES "+channellist;
+        }
+        
+        public static string Names(string channel, string target)
+        {
+            return "NAMES "+channel+" "+target;
+        }
+        
+        public static string Names(string[] channels, string target)
+        {
+            string channellist = String.Join(",", channels);
+            return "NAMES "+channellist+" "+target;
+        }
+        
         public static string Topic(string channel)
         {
             return "TOPIC "+channel;
@@ -133,6 +290,11 @@ namespace Meebey.SmartIrc4net
             return "MODE "+target+" "+newmode;
         }
 
+        public static string Service(string nickname, string distribution, string info)
+        {
+            return "SERVICE "+nickname+" * "+distribution+" * * :"+info;
+        }
+        
         public static string Invite(string nickname, string channel)
         {
             return "INVITE "+nickname+" "+channel;
@@ -158,9 +320,14 @@ namespace Meebey.SmartIrc4net
             return "QUIT";
         }
 
-        public static string Quit(string reason)
+        public static string Quit(string quitmessage)
         {
-            return "QUIT :"+reason;
+            return "QUIT :"+quitmessage;
+        }
+        
+        public static string Squit(string server, string comment)
+        {
+            return "SQUIT "+server+" :"+comment;
         }
     }
 }

@@ -6,6 +6,9 @@
  * $Date$
  */
 
+- alle RFC befehle in Rfc klasse implmentieren
+- connection timeout detection (socket basis?)
+- DCC chat, file send/receive
 - Change strings[] IrcUser.JoinedChannels to Channel[]
 - Exception handling for Connection()
 - Documentation

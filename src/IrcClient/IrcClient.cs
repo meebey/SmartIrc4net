@@ -240,6 +240,7 @@ namespace Meebey.SmartIrc4net
             Logger.Main.Debug("IrcClient created");
 #endif
             OnReadLine        += new ReadLineEventHandler(_Worker);
+            OnDisconnected    += new EventHandler(_OnDisconnected);
         }
 
 #if LOG4NET
@@ -501,12 +502,17 @@ namespace Meebey.SmartIrc4net
             return data;
         }
         
-        private void _Worker(object sender, ReadLineEventArgs args)
+        private void _Worker(object sender, ReadLineEventArgs e)
         {
             // lets see if we have events or internal messagehandler for it
-            _HandleEvents(MessageParser(args.Line));
+            _HandleEvents(MessageParser(e.Line));
         }
 
+        private void _OnDisconnected(object sender, EventArgs e)
+        {
+            _SyncingCleanup();
+        }
+        
         private ReceiveType _GetMessageType(string rawline)
         {
             Match found;
@@ -531,11 +537,11 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.MyInfo:
                     case ReplyCode.Bounce:
                         return ReceiveType.Login;
-                    case ReplyCode.LUserClient:
-                    case ReplyCode.LUserOp:
-                    case ReplyCode.LUserUnknown:
-                    case ReplyCode.LUserMe:
-                    case ReplyCode.LUserChannels:
+                    case ReplyCode.LuserClient:
+                    case ReplyCode.LuserOp:
+                    case ReplyCode.LuserUnknown:
+                    case ReplyCode.LuserMe:
+                    case ReplyCode.LuserChannels:
                         return ReceiveType.Info;
                     case ReplyCode.MotdStart:
                     case ReplyCode.Motd:
@@ -689,6 +695,19 @@ namespace Meebey.SmartIrc4net
             Logger.MessageTypes.Warn("messagetype unknown: \""+rawline+"\"");
 #endif
             return ReceiveType.Unknown;
+        }
+        
+        private void _SyncingCleanup()
+        {
+            // lets clean it baby, powered by Mr. Proper
+#if LOG4NET
+            Logger.ChannelSyncing.Debug("Mr. Proper action, cleaning good...");
+#endif
+            _JoinedChannels.Clear();
+            if (ChannelSyncing) {
+                _Channels.Clear();
+                _IrcUsers.Clear();
+            }
         }
 
         private void _HandleEvents(IrcMessageData ircdata)
@@ -924,13 +943,9 @@ namespace Meebey.SmartIrc4net
         {
             string who = ircdata.Nick;
             string reason = ircdata.Message;
-
-            if (IsMe(ircdata.Nick)) {
-                foreach (string channel in _JoinedChannels) {
-                    _JoinedChannels.Remove(channel);
-                }
-            }
-
+            
+            // no need to handle if we quit, disconnect event will take care
+            
             if (ChannelSyncing) {
                 foreach (string channel in GetIrcUser(who).JoinedChannels) {
                     GetChannel(channel).UnsafeUsers.Remove(who.ToLower());
@@ -1375,6 +1390,9 @@ namespace Meebey.SmartIrc4net
                             nickname = user.Substring(1);
                         break;
                         case '%':
+                            nickname = user.Substring(1);
+                        break;
+                        case '~':
                             nickname = user.Substring(1);
                         break;
                         default:

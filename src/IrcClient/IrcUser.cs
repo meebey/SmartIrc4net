@@ -153,6 +153,7 @@ namespace Meebey.SmartIrc4net
                 result = new string[joinedchannels.Count];
                 joinedchannels.CopyTo(result, 0);
                 return result;
+                //return joinedchannels;
             }
         }
     }

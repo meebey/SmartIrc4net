@@ -82,6 +82,16 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.User(username, usermode, realname));
         }
 
+        public void Oper(string name, string password, Priority priority)
+        {
+            WriteLine(Rfc2812.Oper(name, password), priority);
+        }
+
+        public void Oper(string name, string password)
+        {
+            WriteLine(Rfc2812.Oper(name, password));
+        }
+
         public void Privmsg(string destination, string message, Priority priority)
         {
             WriteLine(Rfc2812.Privmsg(destination, message), priority);
@@ -112,6 +122,36 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Join(channel));
         }
 
+        public void Join(string[] channels, Priority priority)
+        {
+            WriteLine(Rfc2812.Join(channels), priority);
+        }
+        
+        public void Join(string[] channels)
+        {
+            WriteLine(Rfc2812.Join(channels));
+        }
+        
+        public void Join(string channel, string key, Priority priority)
+        {
+            WriteLine(Rfc2812.Join(channel, key), priority);
+        }
+
+        public void Join(string channel, string key)
+        {
+            WriteLine(Rfc2812.Join(channel, key));
+        }
+
+        public void Join(string[] channels, string[] keys, Priority priority)
+        {
+            WriteLine(Rfc2812.Join(channels, keys), priority);
+        }
+
+        public void Join(string[] channels, string[] keys)
+        {
+            WriteLine(Rfc2812.Join(channels, keys));
+        }
+
         public void Part(string channel, Priority priority)
         {
             WriteLine(Rfc2812.Part(channel), priority);
@@ -122,14 +162,34 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Part(channel));
         }
 
-        public void Part(string channel, string reason, Priority priority)
+        public void Part(string[] channels, Priority priority)
         {
-            WriteLine(Rfc2812.Part(channel, reason), priority);
+            WriteLine(Rfc2812.Part(channels), priority);
         }
 
-        public void Part(string channel, string reason)
+        public void Part(string[] channels)
         {
-            WriteLine(Rfc2812.Part(channel, reason));
+            WriteLine(Rfc2812.Part(channels));
+        }
+
+        public void Part(string channel, string partmessage, Priority priority)
+        {
+            WriteLine(Rfc2812.Part(channel, partmessage), priority);
+        }
+
+        public void Part(string channel, string partmessage)
+        {
+            WriteLine(Rfc2812.Part(channel, partmessage));
+        }
+
+        public void Part(string[] channels, string partmessage, Priority priority)
+        {
+            WriteLine(Rfc2812.Part(channels, partmessage), priority);
+        }
+
+        public void Part(string[] channels, string partmessage)
+        {
+            WriteLine(Rfc2812.Part(channels, partmessage));
         }
 
         public void Kick(string channel, string nickname, Priority priority)
@@ -142,16 +202,176 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Kick(channel, nickname));
         }
 
-        public void Kick(string channel, string nickname, string reason, Priority priority)
+        public void Kick(string[] channels, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Kick(channel, nickname, reason), priority);
+            WriteLine(Rfc2812.Kick(channels, nickname), priority);
         }
 
-        public void Kick(string channel, string nickname, string reason)
+        public void Kick(string[] channels, string nickname)
         {
-            WriteLine(Rfc2812.Kick(channel, nickname, reason));
+            WriteLine(Rfc2812.Kick(channels, nickname));
+        }
+        
+        public void Kick(string channel, string[] nicknames, Priority priority)
+        {
+            WriteLine(Rfc2812.Kick(channel, nicknames), priority);
         }
 
+        public void Kick(string channel, string[] nicknames)
+        {
+            WriteLine(Rfc2812.Kick(channel, nicknames));
+        }
+        
+        public void Kick(string[] channels, string[] nicknames, Priority priority)
+        {
+            WriteLine(Rfc2812.Kick(channels, nicknames), priority);
+        }
+
+        public void Kick(string[] channels, string[] nicknames)
+        {
+            WriteLine(Rfc2812.Kick(channels, nicknames));
+        }
+        
+        public void Kick(string channel, string nickname, string comment, Priority priority)
+        {
+            WriteLine(Rfc2812.Kick(channel, nickname, comment), priority);
+        }
+
+        public void Kick(string channel, string nickname, string comment)
+        {
+            WriteLine(Rfc2812.Kick(channel, nickname, comment));
+        }
+        
+        public void Kick(string[] channels, string nickname, string comment, Priority priority)
+        {
+            WriteLine(Rfc2812.Kick(channels, nickname, comment), priority);
+        }
+
+        public void Kick(string[] channels, string nickname, string comment)
+        {
+            WriteLine(Rfc2812.Kick(channels, nickname, comment));
+        }
+
+        public void Kick(string channel, string[] nicknames, string comment, Priority priority)
+        {
+            WriteLine(Rfc2812.Kick(channel, nicknames, comment), priority);
+        }
+
+        public void Kick(string channel, string[] nicknames, string comment)
+        {
+            WriteLine(Rfc2812.Kick(channel, nicknames, comment));
+        }
+
+        public void Kick(string[] channels, string[] nicknames, string comment, Priority priority)
+        {
+            WriteLine(Rfc2812.Kick(channels, nicknames, comment), priority);
+        }
+
+        public void Kick(string[] channels, string[] nicknames, string comment)
+        {
+            WriteLine(Rfc2812.Kick(channels, nicknames, comment));
+        }
+
+        public void Motd(Priority priority)
+        {
+            WriteLine(Rfc2812.Motd(), priority);
+        }
+
+        public void Motd()
+        {
+            WriteLine(Rfc2812.Motd());
+        }
+
+        public void Motd(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Motd(target), priority);
+        }
+
+        public void Motd(string target)
+        {
+            WriteLine(Rfc2812.Motd(target));
+        }
+
+        public void Luser(Priority priority)
+        {
+            WriteLine(Rfc2812.Luser(), priority);
+        }
+
+        public void Luser()
+        {
+            WriteLine(Rfc2812.Luser());
+        }
+
+        public void Luser(string mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Luser(mask), priority);
+        }
+
+        public void Luser(string mask)
+        {
+            WriteLine(Rfc2812.Luser(mask));
+        }
+
+        public void Luser(string mask, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Luser(mask, target), priority);
+        }
+
+        public void Luser(string mask, string target)
+        {
+            WriteLine(Rfc2812.Luser(mask, target));
+        }
+
+        public void Version(Priority priority)
+        {
+            WriteLine(Rfc2812.Version(), priority);
+        }
+
+        public void Version()
+        {
+            WriteLine(Rfc2812.Version());
+        }
+
+        public void Version(string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Version(target), priority);
+        }
+
+        public void Version(string target)
+        {
+            WriteLine(Rfc2812.Version(target));
+        }
+
+        public void Stats(Priority priority)
+        {
+            WriteLine(Rfc2812.Stats(), priority);
+        }
+
+        public void Stats()
+        {
+            WriteLine(Rfc2812.Stats());
+        }
+
+        public void Stats(string query, Priority priority)
+        {
+            WriteLine(Rfc2812.Stats(query), priority);
+        }
+
+        public void Stats(string query)
+        {
+            WriteLine(Rfc2812.Stats(query));
+        }
+        
+        public void Stats(string query, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Stats(query, target), priority);
+        }
+
+        public void Stats(string query, string target)
+        {
+            WriteLine(Rfc2812.Stats(query, target));
+        }
+        
         public void List(string channel, Priority priority)
         {
             WriteLine(Rfc2812.List(channel), priority);
@@ -162,6 +382,36 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.List(channel));
         }
 
+        public void List(string[] channels, Priority priority)
+        {
+            WriteLine(Rfc2812.List(channels), priority);
+        }
+
+        public void List(string[] channels)
+        {
+            WriteLine(Rfc2812.List(channels));
+        }
+
+        public void List(string channel, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.List(channel, target), priority);
+        }
+
+        public void List(string channel, string target)
+        {
+            WriteLine(Rfc2812.List(channel, target));
+        }
+
+        public void List(string[] channels, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.List(channels, target), priority);
+        }
+
+        public void List(string[] channels, string target)
+        {
+            WriteLine(Rfc2812.List(channels, target));
+        }
+
         public void Names(string channel, Priority priority)
         {
             WriteLine(Rfc2812.Names(channel), priority);
@@ -170,6 +420,36 @@ namespace Meebey.SmartIrc4net
         public void Names(string channel)
         {
             WriteLine(Rfc2812.Names(channel));
+        }
+
+        public void Names(string[] channels, Priority priority)
+        {
+            WriteLine(Rfc2812.Names(channels), priority);
+        }
+
+        public void Names(string[] channels)
+        {
+            WriteLine(Rfc2812.Names(channels));
+        }
+
+        public void Names(string channel, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Names(channel, target), priority);
+        }
+
+        public void Names(string channel, string target)
+        {
+            WriteLine(Rfc2812.Names(channel, target));
+        }
+
+        public void Names(string[] channels, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Names(channels, target), priority);
+        }
+
+        public void Names(string[] channels, string target)
+        {
+            WriteLine(Rfc2812.Names(channels, target));
         }
 
         public void Topic(string channel, Priority priority)
@@ -210,6 +490,16 @@ namespace Meebey.SmartIrc4net
         public void Mode(string target, string newmode)
         {
             WriteLine(Rfc2812.Mode(target, newmode));
+        }
+
+        public void Service(string nickname, string distribution, string info, Priority priority)
+        {
+            WriteLine(Rfc2812.Service(nickname, distribution, info), priority);
+        }
+
+        public void Service(string nickname, string distribution, string info)
+        {
+            WriteLine(Rfc2812.Service(nickname, distribution, info));
         }
 
         public void Op(string channel, string nickname, Priority priority)
@@ -342,14 +632,24 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Quit());
         }
 
-        public void Quit(string reason, Priority priority)
+        public void Quit(string quitmessage, Priority priority)
         {
-            WriteLine(Rfc2812.Quit(reason), priority);
+            WriteLine(Rfc2812.Quit(quitmessage), priority);
         }
 
-        public void Quit(string reason)
+        public void Quit(string quitmessage)
         {
-            WriteLine(Rfc2812.Quit(reason));
+            WriteLine(Rfc2812.Quit(quitmessage));
+        }
+
+        public void Squit(string server, string comment, Priority priority)
+        {
+            WriteLine(Rfc2812.Squit(server, comment), priority);
+        }
+
+        public void Squit(string server, string comment)
+        {
+            WriteLine(Rfc2812.Squit(server, comment));
         }
     }
 }
