@@ -1,8 +1,8 @@
 /**
- * $Id: IrcConnection.cs,v 1.6 2003/12/14 12:43:35 meebey Exp $
- * $Revision: 1.6 $
+ * $Id: IrcConnection.cs,v 1.7 2003/12/28 14:41:38 meebey Exp $
+ * $Revision: 1.7 $
  * $Author: meebey $
- * $Date: 2003/12/14 12:43:35 $
+ * $Date: 2003/12/28 14:41:38 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -28,28 +28,32 @@ using System.IO;
 using System.Text;
 using System.Collections;
 using System.Threading;
+using System.Reflection;
 using Meebey.SmartIrc4net.Delegates;
 
 namespace Meebey.SmartIrc4net
 {
     public class IrcConnection
     {
-        private string              _Address = "localhost";
-        private int                 _Port = 6667;
-        private StreamReader        _Reader;
-        private StreamWriter        _Writer;
-        private ReadThread          _ReadThread;
-        private WriteThread         _WriteThread;
-        private IrcTcpClient        _TcpClient;
-        private Hashtable           _SendBuffer = new Hashtable();
-        private int                 _SendDelay = 200;
-        private bool                _Registered = false;
-        private bool                _Connected = false;
-        private int                 _ConnectTries = 0;
-        private bool                _AutoRetry = false;
-        private bool                _AutoReconnect = false;
-        private bool                _ConnectionError = false;
-        public  Encoding            Encoding = Encoding.GetEncoding(1250);
+        private string          _Version;
+        private string          _VersionString;
+        private string[]        _AddressList = {"localhost"};
+        private int             _CurrentAddress = 0;
+        private int             _Port = 6667;
+        private StreamReader    _Reader;
+        private StreamWriter    _Writer;
+        private ReadThread      _ReadThread;
+        private WriteThread     _WriteThread;
+        private IrcTcpClient    _TcpClient;
+        private Hashtable       _SendBuffer = Hashtable.Synchronized(new Hashtable());
+        private int             _SendDelay = 200;
+        private bool            _Registered = false;
+        private bool            _Connected  = false;
+        private int             _ConnectTries = 0;
+        private bool            _AutoRetry     = false;
+        private bool            _AutoReconnect = false;
+        private bool            _ConnectionError = false;
+        private Encoding        _Encoding = Encoding.GetEncoding(1250);
 
         public event ReadLineEventHandler   OnReadLine;
         public event WriteLineEventHandler  OnWriteLine;
@@ -57,6 +61,41 @@ namespace Meebey.SmartIrc4net
         public event SimpleEventHandler     OnConnected;
         public event SimpleEventHandler     OnDisconnect;
         public event SimpleEventHandler     OnDisconnected;
+
+        protected bool ConnectionError
+        {
+            get {
+                lock(this) {
+                    return _ConnectionError;
+                }
+            }
+            set {
+                lock(this) {
+                    _ConnectionError = value;
+                }
+            }
+        }
+
+        public string Address
+        {
+            get {
+                return _AddressList[_CurrentAddress];
+            }
+        }
+
+        public string[] AddressList
+        {
+            get {
+                return _AddressList;
+            }
+        }
+
+        public int Port
+        {
+            get {
+                return _Port;
+            }
+        }
 
         public bool AutoReconnect
         {
@@ -116,17 +155,27 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        protected bool ConnectionError
+        public string Version
         {
             get {
-                lock(this) {
-                    return _ConnectionError;
-                }
+                return _Version;
+            }
+        }
+
+        public string VersionString
+        {
+            get {
+                return _VersionString;
+            }
+        }
+
+        public Encoding Encoding
+        {
+            get {
+                return _Encoding;
             }
             set {
-                lock(this) {
-                    _ConnectionError = value;
-                }
+                _Encoding = value;
             }
         }
 
@@ -143,9 +192,17 @@ namespace Meebey.SmartIrc4net
 
             _ReadThread  = new ReadThread(this);
             _WriteThread = new WriteThread(this);
+
+            Assembly assembly = Assembly.GetAssembly(this.GetType());
+            AssemblyName assembly_name = assembly.GetName(false);
+
+            AssemblyProductAttribute pr = (AssemblyProductAttribute)assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0];
+
+            _Version = assembly_name.Version.ToString();
+            _VersionString = pr.Product+" "+_Version;
         }
 
-        public bool Connect(string address, int port)
+        public bool Connect(string[] addresslist, int port)
         {
             if (_Connected != false) {
                 throw new Exception("already connected");
@@ -155,14 +212,14 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info("connecting...");
 #endif
             _ConnectTries++;
-            _Address = address;
+            _AddressList = addresslist;
             _Port = port;
 
             if (OnConnect != null) {
                 OnConnect();
             }
             try {
-                System.Net.IPAddress ip = System.Net.Dns.Resolve(address).AddressList[0];
+                System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
                 _TcpClient = new IrcTcpClient();
                 _TcpClient.Connect(ip, port);
                 if (OnConnected != null) {
@@ -205,20 +262,34 @@ namespace Meebey.SmartIrc4net
 #endif
                 if (_AutoRetry == true &&
                     _ConnectTries <= 3) {
-                    Reconnect();
+                    _NextAddress();
+                    if (Reconnect(false)) {
+                        return true;
+                    }
                 }
 
                 return false;
             }
         }
 
-        public virtual bool Reconnect()
+        public bool Connect(string address, int port)
+        {
+            return Connect(new string[] {address}, port);
+        }
+
+        // login parameter only for IrcClient needed
+        public virtual bool Reconnect(bool login)
         {
 #if LOG4NET
             Logger.Connection.Info("reconnecting...");
 #endif
             Disconnect();
-            return Connect(_Address, _Port);
+            return Connect(_AddressList, _Port);
+        }
+
+        public bool Reconnect()
+        {
+            return Reconnect(true);
         }
 
         public bool Disconnect()
@@ -335,6 +406,18 @@ namespace Meebey.SmartIrc4net
             return false;
         }
 
+        private void _NextAddress()
+        {
+            if (_CurrentAddress < _AddressList.Length) {
+                _CurrentAddress++;
+            } else {
+                _CurrentAddress = 0;
+            }
+#if LOG4NET
+            Logger.Connection.Info("set server to: "+Address);
+#endif
+        }
+
         private void _SimpleParser(string rawline)
         {
             string messagecode = "";
@@ -352,7 +435,7 @@ namespace Meebey.SmartIrc4net
 #endif
                         break;
                     }
-                } catch {
+                } catch (FormatException) {
                     // nothing
                 }
             } else {
