@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 // change them to the information which is associated with the assembly
 // you compile.
 
-[assembly: AssemblyTitle("SmartIrc4net examples/benchmark Bot")]
+[assembly: AssemblyTitle("SmartIrc4net examples/stresstest Bot")]
 [assembly: AssemblyDescription("IRC Bot for developing/testing SmartIrc4net")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]

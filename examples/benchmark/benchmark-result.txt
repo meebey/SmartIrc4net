@@ -1,0 +1,15 @@
+Benchmark was tested against saberhagen.freenode.net
+The benchmark was run about 10 times and the lowest (fastest) values was used.
+
+Net_SmartIRC (PHP)
+Jan 18 18:14:15 SmartIRC.php(841) benchmark time: 0.393995046616
+
+SmartIrc4net (C# on Mono)
+TcpClientList() took 0.273 sec
+IrcConnectionList() took 0.275 sec
+IrcClientList() took 0.298 sec
+
+SmartIrc4net (C# on MS .NET)
+TcpClientList() took 0.171 sec
+IrcConnectionList() took 0.265 sec
+IrcClientList() took 0.281 sec

@@ -1,0 +1,16 @@
+<Combine fileversion="1.0" name="stresstest" description="">
+  <StartMode startupentry="test" single="True">
+    <Execute entry="stresstest" type="None" />
+  </StartMode>
+  <Entries>
+    <Entry filename="./stresstest.prjx" />
+  </Entries>
+  <Configurations active="Debug">
+    <Configuration name="Release">
+      <Entry name="stresstest" configurationname="Debug" build="False" />
+    </Configuration>
+    <Configuration name="Debug">
+      <Entry name="stresstest" configurationname="Debug" build="False" />
+    </Configuration>
+  </Configurations>
+</Combine>
