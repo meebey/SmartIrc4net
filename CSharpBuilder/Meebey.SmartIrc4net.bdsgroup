@@ -1,21 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <PersonalityInfo>
-    <Option>
-      <Option Name="Personality" Type="String">Default.Personality</Option>
-      <Option Name="ProjectType" Type="String"></Option>
-      <Option Name="Version" Type="String">1.0</Option>
-      <Option Name="GUID" Type="String">{E30EC18A-2C32-4196-BA4F-87A4FB94B724}</Option>
-    </Option>
-  </PersonalityInfo>
-  <Default.Personality>
-    
-    
-    <Projects>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality" Type="String">Default.Personality</Option>
+			<Option Name="ProjectType" Type="String"></Option>
+			<Option Name="Version" Type="String">1.0</Option>
+			<Option Name="GUID" Type="String">{E30EC18A-2C32-4196-BA4F-87A4FB94B724}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
       <Projects Name="SmartIRC-sharp.dll" Type="String">SmartIRC-sharp.bdsproj</Projects>
       <Projects Name="test.exe" Type="String">..\examples\test\CSharpBuilder\test.bdsproj</Projects>
       <Projects Name="Targets" Type="String">SmartIRC-sharp.dll test.exe</Projects>
     </Projects>
-    <Dependencies/>
+    <Dependencies>
+      <Dependency GUID="{D1E3FC82-FC72-4BAD-B4DF-C3442EB0FE85}">
+        <Dependency GUID="{3DEB3B3B-47E6-4CD5-AB46-86AECECAA341}"/>
+      </Dependency>
+    </Dependencies>
   </Default.Personality>
 </BorlandProject>
