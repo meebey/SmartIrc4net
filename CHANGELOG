@@ -1,14 +1,15 @@
 /**
  * $Id$
- * $Revision: 1.1 $
+ * $Rev$
  * $Author$
  * $Date$
  */
 
-v0.0.1
+v0.2.0
 -------
 fixes:
 
 changes:
 
 new:
+ - first public release

@@ -1,40 +1,54 @@
 /**
  * $Id$
- * $Revision: 1.1 $
+ * $Rev$
  * $Author$
  * $Date$
  */
 
-SmartIRC#
+SmartIrc4net
 ----------------
 What is this?
-SmartIRC# is a C# class for communication with IRC networks, which
-conforms to the RFC 2812 (IRC Protocol). It's ported from SmartIRC (written in PHP).
+SmartIrc4net is a C# class for communication with IRC networks, which
+conforms to the RFC 2812 (IRC Protocol).
+It's orignally a port of SmartIRC (written in PHP),
+but it's much more now (I will backport it to PHP some day).
 It's an API that handles all IRC protocol messages and is designed for
 creating IRC bots, chats and show irc related info on webpages.
 
 Please report bugs to:
-http://sourceforge.net/tracker/?group_id=60664&atid=494859
+http://sourceforge.net/tracker/?group_id=114302&atid=667874
 
 Project Homepage:
-http://sourceforge.net/projects/phpsmartirc
+http://sourceforge.net/projects/smartirc4net
 
-files included in SmartIRC#
+files included in SmartIrc4net
 --------------------------
-SmartIRC#.cs
-The main class.
-
 FEATURES
-A full list of features that SmartIRC# includes
+A full list of features that SmartIrc4net includes
 
 CHANGELOG
 Listing of changes between all versions.
 
 README
-this file
+This file
 
 LICENSE
-The license of SmartIRC#.
+The license of SmartIrc4net.
 
 CREDITS
-Creditlist with people that work/help on SmartIRC#.
+Creditlist with people that work/help on SmartIrc4net.
+
+src/*.cs
+The SmartIrc4net sourcecode
+
+examples/
+Some examples how SmartIrc4net can be used.
+
+docs/
+Documentation of SmartIrc4net.
+
+CSharpBuilder/
+Project files for Borlands C# Builder.
+
+MonoDevelop/
+Project files for MonoDevelop.

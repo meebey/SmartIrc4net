@@ -1,11 +1,11 @@
 /**
  * $Id$
- * $Revision: 1.1 $
+ * $Rev$
  * $Author$
  * $Date$
  */
 
-This is the creditslist for SmartIRC#
+This is the creditslist for SmartIrc4net
 
 The fields are:
 (N) name
@@ -16,12 +16,12 @@ The fields are:
 (S) snail-mail address
 ---------------------------
 
-N: Mirco 'meebey' Bauer
-E: mail@meebey.net
+N: Mirco Bauer
+E: meebey@meebey.net
 E: meebey@php.net
 W: www.meebey.net
-P: 5051C9B9 / EF69 07A4 51AD 689E CF0C  767F CD9C 4C1A 5051 C9B9
-D: Project Maintainer
+P: EEF946C8 / ABE1 95E1 50A8 DBE7 809D  3F42 7127 E5AB EEF9 46C8
+D: Project Leader
 S: Kroonhorst 42
 S: 22549 Hamburg
 S: Germany

@@ -1,8 +1,9 @@
 /**
- * $Id: Rfc2812.cs,v 1.3 2003/11/27 23:29:16 meebey Exp $
- * $Revision: 1.3 $
- * $Author: meebey $
- * $Date: 2003/11/27 23:29:16 $
+ * $Id$
+ * $URL$
+ * $Rev$
+ * $Author$
+ * $Date$
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
