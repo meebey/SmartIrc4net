@@ -1,8 +1,8 @@
 /**
- * $Id: Logger.cs,v 1.3 2003/11/27 23:27:24 meebey Exp $
- * $Revision: 1.3 $
+ * $Id: Logger.cs,v 1.4 2003/12/14 12:44:34 meebey Exp $
+ * $Revision: 1.4 $
  * $Author: meebey $
- * $Date: 2003/11/27 23:27:24 $
+ * $Date: 2003/12/14 12:44:34 $
  *
  * Copyright (c) 2003 Mirco 'meebey' Bauer <mail@meebey.net> <http://www.meebey.net>
  * 
@@ -28,6 +28,7 @@ using System.Collections;
 
 namespace Meebey.SmartIrc4net
 {
+#if LOG4NET
     public class Logger
     {
         private static SortedList _LoggerList = new SortedList();
@@ -159,4 +160,5 @@ namespace Meebey.SmartIrc4net
             }
         }
     }
+#endif
 }
