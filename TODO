@@ -6,14 +6,12 @@
  * $Date$
  */
 
-- alle RFC befehle in Rfc klasse implmentieren
-- connection timeout detection (socket basis?)
+- passive channel sync
 - DCC chat, file send/receive
 - Change strings[] IrcUser.JoinedChannels to Channel[]
-- Exception handling for Connection()
 - Documentation
 - Timeout detection
 - Use async sockets
-- Create OnChannelSynced event
-- Exception Error Handling
+- Exception Error Handling (argument checking)
 - Create Debian Package
+X connection timeout detection (socket based?)

@@ -311,6 +311,10 @@ namespace Meebey.SmartIrc4net
             try {
                 System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
                 _TcpClient = new IrcTcpClient();
+                _TcpClient.NoDelay = true;
+                // set timeout to 6 minutes, after this the connection will be aborted
+                _TcpClient.ReceiveTimeout = 360000;
+                _TcpClient.SendTimeout = 360000;
                 _TcpClient.Connect(ip, port);
                 if (OnConnected != null) {
                     OnConnected(this, EventArgs.Empty);
