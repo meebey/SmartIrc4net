@@ -20,3 +20,5 @@ release: *.cs
 clean:
 	-rm -f bin/mono/debug/$(TARGET)
 	-rm -f bin/mono/release/$(TARGET)
+
+.PHONY: all debug release clean
