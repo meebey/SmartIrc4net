@@ -67,12 +67,16 @@ public class Test
             case "gc":
                 GC.Collect();
             break;
+            case "die":
+                Exit();
+            break;
         }
     }
 
     public static void OnError(object sender, ErrorEventArgs e)
     {
         System.Console.WriteLine("Error: "+e.ErrorMessage);
+        Exit();
     }
     
     public static void OnRawMessage(object sender, IrcEventArgs e)
@@ -97,6 +101,7 @@ public class Test
             irc.Connect(serverlist, port);
         } catch (ConnectionException e) {
             System.Console.WriteLine("couldn't connect! Reason: "+e.Message);
+            Exit();
         }
         
         try {
@@ -112,8 +117,10 @@ public class Test
             irc.Listen();
             irc.Disconnect();
         } catch (ConnectionException) {
+            Exit();
         } catch (Exception e) {
             System.Console.WriteLine("Error occurred! Reason: "+e.Message);
+            Exit();
         }
     }
     
@@ -122,5 +129,11 @@ public class Test
         while (true) {
             irc.WriteLine(System.Console.ReadLine());
         }
+    }
+    
+    public static void Exit()
+    {
+        System.Console.WriteLine("Exiting...");
+        System.Environment.Exit(0);
     }
 }
