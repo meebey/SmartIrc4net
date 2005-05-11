@@ -1659,7 +1659,11 @@ namespace Meebey.SmartIrc4net
         {
             if (ircdata.Type == ReceiveType.CtcpRequest) {
                 if (ircdata.Message.StartsWith("\x1"+"PING")) {
-                    SendMessage(SendType.CtcpReply, ircdata.Nick, "PING "+ircdata.Message.Substring(6, (ircdata.Message.Length-7)));
+		    if (ircdata.Message.Length > 7) {
+                        SendMessage(SendType.CtcpReply, ircdata.Nick, "PING "+ircdata.Message.Substring(6, (ircdata.Message.Length-7)));
+		    } else {
+                        SendMessage(SendType.CtcpReply, ircdata.Nick, "PING");
+		    }
                 } else if (ircdata.Message.StartsWith("\x1"+"VERSION")) {
                     string versionstring;
                     if (_CtcpVersion == null) {
