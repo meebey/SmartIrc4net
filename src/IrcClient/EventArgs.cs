@@ -34,7 +34,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
-    public class ActionEventArgs : IrcEventArgs 
+    public class ActionEventArgs : CtcpEventArgs
     {
         private string _ActionMessage;
         
@@ -45,9 +45,38 @@ namespace Meebey.SmartIrc4net
             }
         }
          
-        internal ActionEventArgs(IrcMessageData data, string actionmsg) : base(data)
+        internal ActionEventArgs(IrcMessageData data, string actionmsg) : base(data, "ACTION", actionmsg)
         {
             _ActionMessage = actionmsg;
+        }
+    }
+    
+    /// <summary>
+    ///
+    /// </summary>
+    public class CtcpEventArgs : IrcEventArgs
+    {
+        private string _CtcpCommand;
+        private string _CtcpParameter;
+        
+        public string CtcpCommand
+        {
+            get {
+                return _CtcpCommand;
+            }
+        }
+         
+        public string CtcpParameter
+        {
+            get {
+                return _CtcpParameter;
+            }
+        }
+         
+        internal CtcpEventArgs(IrcMessageData data, string ctcpcmd, string ctcpparam) : base(data)
+        {
+            _CtcpCommand = ctcpcmd;
+            _CtcpParameter = ctcpparam;
         }
     }
     
@@ -421,6 +450,35 @@ namespace Meebey.SmartIrc4net
         }
     }
 
+
+    /// <summary>
+    ///
+    /// </summary>
+    public class AwayEventArgs : IrcEventArgs
+    {
+        private string   _Who;
+        private string   _AwayMessage;
+        
+        public string Who
+        {
+            get {
+                return _Who;
+            }
+        }
+
+        public string AwayMessage
+        {
+            get {
+                return _AwayMessage;
+            }
+        }
+        
+        internal AwayEventArgs(IrcMessageData data, string who, string awaymessage) : base(data)
+        {
+            _Who = who;
+            _AwayMessage = awaymessage;
+        }
+    }
     /// <summary>
     ///
     /// </summary>

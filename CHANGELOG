@@ -6,6 +6,12 @@
  * $Date$
  */
 
+v0.4.0 (SVN rX)
+------
+fixes:
+- fixed null reference exception when CTCP PING contains no data
+  (thanks to Nick 'Zaf' Clifford, closes sf.net patch #1199630)
+
 v0.3.5 (SVN r184)
 ------
 fixes:

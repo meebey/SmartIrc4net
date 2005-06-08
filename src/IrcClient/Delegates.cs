@@ -29,6 +29,7 @@
 namespace Meebey.SmartIrc4net
 {
     public delegate void IrcEventHandler(object sender, IrcEventArgs e);
+    public delegate void CtcpEventHandler(object sender, CtcpEventArgs e);
     public delegate void ActionEventHandler(object sender, ActionEventArgs e);
     public delegate void ErrorEventHandler(object sender, ErrorEventArgs e);
     public delegate void PingEventHandler(object sender, PingEventArgs e);
@@ -49,6 +50,7 @@ namespace Meebey.SmartIrc4net
     public delegate void TopicChangeEventHandler(object sender, TopicChangeEventArgs e);
     public delegate void NickChangeEventHandler(object sender, NickChangeEventArgs e);
     public delegate void QuitEventHandler(object sender, QuitEventArgs e);
+    public delegate void AwayEventHandler(object sender, AwayEventArgs e);
     public delegate void WhoEventHandler(object sender, WhoEventArgs e);
     public delegate void MotdEventHandler(object sender, MotdEventArgs e);
 }
