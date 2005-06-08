@@ -1,0 +1,45 @@
+<Project name="SmartIrc4net" fileversion="2.0" language="C#" ctype="DotNetProject">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="DotNetProjectConfiguration">
+      <Output directory="../bin/mono/debug" assembly="Meebey.SmartIrc4net" />
+      <Build debugmode="True" target="Library" />
+      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" />
+      <CodeGeneration compiler="Csc" warninglevel="4" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" definesymbols="TRACE,DEBUG,LOG4NET" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+    <Configuration name="Release" ctype="DotNetProjectConfiguration">
+      <Output directory="../bin/mono/release" assembly="Meebey.SmartIrc4net" />
+      <Build debugmode="False" target="Library" />
+      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" />
+      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" mainclass="" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+  </Configurations>
+  <References>
+    <ProjectReference type="Assembly" localcopy="True" refto="../bin/log4net.dll" />
+  </References>
+  <DeploymentInformation strategy="File">
+    <excludeFiles />
+  </DeploymentInformation>
+  <Contents>
+    <File name="./src/Makefile" subtype="Code" buildaction="Nothing" />
+    <File name="./src/AssemblyInfo.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/Logger.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/Consts.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/EventArgs.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/Exceptions.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcConnection/IrcConnection.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcConnection/IrcTcpClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcConnection/Delegates.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcConnection/EventArgs.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcCommands/IrcCommands.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcCommands/Rfc2812.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/IrcClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/IrcMessageData.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/Delegates.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/EventArgs.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/IrcUser.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/Channel.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/NonRfcChannel.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/ChannelUser.cs" subtype="Code" buildaction="Compile" />
+    <File name="./src/IrcClient/NonRfcChannelUser.cs" subtype="Code" buildaction="Compile" />
+  </Contents>
+</Project>
