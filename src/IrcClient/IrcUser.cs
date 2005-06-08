@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -35,7 +35,11 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     /// <remarks>
     /// only used with channel sync
+    /// <seealso cref="IrcClient.ActiveChannelSyncing">
+    ///   IrcClient.ActiveChannelSyncing
+    /// </seealso>
     /// </remarks>
+    /// <threadsafety static="true" instance="true" />
     public class IrcUser
     {
         private IrcClient _IrcClient;
@@ -67,8 +71,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Nick
-        {
+        public string Nick {
             get {
                 return _Nick;
             }
@@ -83,8 +86,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Ident
-        {
+        public string Ident {
             get {
                 return _Ident;
             }
@@ -99,8 +101,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Host
-        {
+        public string Host {
             get {
                 return _Host;
             }
@@ -115,8 +116,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Realname
-        {
+        public string Realname {
             get {
                 return _Realname;
             }
@@ -131,8 +131,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public bool IsIrcOp
-        {
+        public bool IsIrcOp {
             get {
                 return _IsIrcOp;
             }
@@ -147,8 +146,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public bool IsAway
-        {
+        public bool IsAway {
             get {
                 return _IsAway;
             }
@@ -163,8 +161,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Server
-        {
+        public string Server {
             get {
                 return _Server;
             }
@@ -179,8 +176,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public int HopCount
-        {
+        public int HopCount {
             get {
                 return _HopCount;
             }
@@ -192,8 +188,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the list of channels the user has joined
         /// </summary>
-        public string[] JoinedChannels
-        {
+        public string[] JoinedChannels {
             get {
                 Channel          channel;
                 string[]         result;

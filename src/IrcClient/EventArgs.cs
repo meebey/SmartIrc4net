@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -38,8 +38,7 @@ namespace Meebey.SmartIrc4net
     {
         private string _ActionMessage;
         
-        public string ActionMessage
-        {
+        public string ActionMessage {
             get {
                 return _ActionMessage;
             }
@@ -59,15 +58,13 @@ namespace Meebey.SmartIrc4net
         private string _CtcpCommand;
         private string _CtcpParameter;
         
-        public string CtcpCommand
-        {
+        public string CtcpCommand {
             get {
                 return _CtcpCommand;
             }
         }
          
-        public string CtcpParameter
-        {
+        public string CtcpParameter {
             get {
                 return _CtcpParameter;
             }
@@ -87,8 +84,7 @@ namespace Meebey.SmartIrc4net
     {
         private string _ErrorMessage;
         
-        public string ErrorMessage
-        {
+        public string ErrorMessage {
             get {
                 return _ErrorMessage;
             }
@@ -107,8 +103,7 @@ namespace Meebey.SmartIrc4net
     {
         private string _MotdMessage;
         
-        public string MotdMessage
-        {
+        public string MotdMessage {
             get {
                 return _MotdMessage;
             }
@@ -127,8 +122,7 @@ namespace Meebey.SmartIrc4net
     {
         private string _PingData;
         
-        public string PingData
-        {
+        public string PingData {
             get {
                 return _PingData;
             }
@@ -150,29 +144,25 @@ namespace Meebey.SmartIrc4net
         private string _Whom;
         private string _KickReason;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
          
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }
         }
          
-        public string KickReason
-        {
+        public string KickReason {
             get {
                 return _KickReason;
             }
@@ -195,15 +185,13 @@ namespace Meebey.SmartIrc4net
         private string _Channel;
         private string _Who;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
@@ -224,15 +212,13 @@ namespace Meebey.SmartIrc4net
         private string   _Channel;
         private string[] _UserList;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string[] UserList
-        {
+        public string[] UserList {
             get {
                 return _UserList;
             }
@@ -253,15 +239,13 @@ namespace Meebey.SmartIrc4net
         private string   _Channel;
         private string   _Who;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
@@ -283,22 +267,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _PartMessage;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
          
-        public string PartMessage
-        {
+        public string PartMessage {
             get {
                 return _PartMessage;
             }
@@ -328,78 +309,67 @@ namespace Meebey.SmartIrc4net
         private string   _Server;
         private int      _HopCount;
 
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Nick
-        {
+        public string Nick {
             get {
                 return _Nick;
             }
         }
          
-        public string Ident
-        {
+        public string Ident {
             get {
                 return _Ident;
             }
         }
         
-        public string Host
-        {
+        public string Host {
             get {
                 return _Host;
             }
         }
         
-        public string Realname
-        {
+        public string Realname {
             get {
                 return _Realname;
             }
         }
         
-        public bool IsAway
-        {
+        public bool IsAway {
             get {
                 return _IsAway;
             }
         }
         
-        public bool IsOp
-        {
+        public bool IsOp {
             get {
                 return _IsOp;
             }
         }
         
-        public bool IsVoice
-        {
+        public bool IsVoice {
             get {
                 return _IsVoice;
             }
         }
         
-        public bool IsIrcOp
-        {
+        public bool IsIrcOp {
             get {
                 return _IsIrcOp;
             }
         }
         
-        public string Server
-        {
+        public string Server {
             get {
                 return _Server;
             }
         }
 
-        public int HopCount
-        {
+        public int HopCount {
             get {
                 return _HopCount;
             }
@@ -429,15 +399,13 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _QuitMessage;
         
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string QuitMessage
-        {
+        public string QuitMessage {
             get {
                 return _QuitMessage;
             }
@@ -459,15 +427,13 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _AwayMessage;
         
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string AwayMessage
-        {
+        public string AwayMessage{
             get {
                 return _AwayMessage;
             }
@@ -487,15 +453,13 @@ namespace Meebey.SmartIrc4net
         private string   _OldNickname;
         private string   _NewNickname;
         
-        public string OldNickname
-        {
+        public string OldNickname {
             get {
                 return _OldNickname;
             }
         }
 
-        public string NewNickname
-        {
+        public string NewNickname {
             get {
                 return _NewNickname;
             }
@@ -516,15 +480,13 @@ namespace Meebey.SmartIrc4net
         private string   _Channel;
         private string   _Topic;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Topic
-        {
+        public string Topic {
             get {
                 return _Topic;
             }
@@ -546,22 +508,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _NewTopic;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string NewTopic
-        {
+        public string NewTopic {
             get {
                 return _NewTopic;
             }
@@ -584,22 +543,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Hostmask;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Hostmask
-        {
+        public string Hostmask {
             get {
                 return _Hostmask;
             }
@@ -622,22 +578,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Hostmask;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Hostmask
-        {
+        public string Hostmask {
             get {
                 return _Hostmask;
             }
@@ -660,22 +613,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Whom;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }
@@ -698,22 +648,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Whom;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }
@@ -736,22 +683,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Whom;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }
@@ -774,22 +718,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Whom;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }
@@ -812,22 +753,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Whom;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }
@@ -850,22 +788,19 @@ namespace Meebey.SmartIrc4net
         private string   _Who;
         private string   _Whom;
         
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
         }
 
-        public string Who
-        {
+        public string Who {
             get {
                 return _Who;
             }
         }
 
-        public string Whom
-        {
+        public string Whom {
             get {
                 return _Whom;
             }

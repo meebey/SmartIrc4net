@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -35,17 +35,18 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// 
     /// </summary>
+    /// <threadsafety static="true" instance="true" />
     public class Channel
     {
         private string           _Name;
-        private string           _Key       = "";
+        private string           _Key       = string.Empty;
         private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private StringCollection _Bans      = new StringCollection();
-        private string           _Topic     = "";
-        private int              _UserLimit = 0;
-        private string           _Mode      = "";
+        private string           _Topic     = string.Empty;
+        private int              _UserLimit;
+        private string           _Mode      = string.Empty;
         private DateTime         _ActiveSyncStart;
         private DateTime         _ActiveSyncStop;
         private TimeSpan         _ActiveSyncTime;
@@ -71,8 +72,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Name
-        {
+        public string Name {
             get {
                 return _Name;
             }
@@ -82,8 +82,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Key
-        {
+        public string Key {
             get {
                 return _Key;
             }
@@ -96,8 +95,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Users
-        {
+        public Hashtable Users {
             get {
                 return (Hashtable)_Users.Clone();
             }
@@ -107,8 +105,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeUsers
-        {
+        internal Hashtable UnsafeUsers {
             get {
                 return _Users;
             }
@@ -118,8 +115,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Ops
-        {
+        public Hashtable Ops {
             get {
                 return (Hashtable)_Ops.Clone();
             }
@@ -129,8 +125,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeOps
-        {
+        internal Hashtable UnsafeOps {
             get {
                 return _Ops;
             }
@@ -140,8 +135,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Voices
-        {
+        public Hashtable Voices {
             get {
                 return (Hashtable)_Voices.Clone();
             }
@@ -151,8 +145,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeVoices
-        {
+        internal Hashtable UnsafeVoices {
             get {
                 return _Voices;
             }
@@ -162,8 +155,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public StringCollection Bans
-        {
+        public StringCollection Bans {
             get {
                 return _Bans;
             }
@@ -173,8 +165,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Topic
-        {
+        public string Topic {
             get {
                 return _Topic;
             }
@@ -187,8 +178,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public int UserLimit
-        {
+        public int UserLimit {
             get {
                 return _UserLimit;
             }
@@ -201,8 +191,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Mode
-        {
+        public string Mode {
             get {
                 return _Mode;
             }
@@ -215,8 +204,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public DateTime ActiveSyncStart
-        {
+        public DateTime ActiveSyncStart {
             get {
                 return _ActiveSyncStart;
             }
@@ -226,8 +214,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public DateTime ActiveSyncStop
-        {
+        public DateTime ActiveSyncStop {
             get {
                 return _ActiveSyncStop;
             }
@@ -241,8 +228,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public TimeSpan ActiveSyncTime
-        {
+        public TimeSpan ActiveSyncTime {
             get {
                 return _ActiveSyncTime;
             }

@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -34,9 +34,10 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// 
     /// </summary>
+    /// <threadsafety static="true" instance="true" />
     public class NonRfcChannel : Channel
     {
-        private Hashtable        _Halfops   = Hashtable.Synchronized(new Hashtable());
+        private Hashtable _Halfops = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         
         /// <summary>
         /// 
@@ -57,8 +58,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Halfops
-        {
+        public Hashtable Halfops {
             get {
                 return (Hashtable)_Halfops.Clone();
             }
@@ -68,8 +68,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeHalfops
-        {
+        internal Hashtable UnsafeHalfops {
             get {
                 return _Halfops;
             }

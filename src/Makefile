@@ -4,6 +4,7 @@ GACUTIL=gacutil
 LOG4NET_DLL=log4net.dll
 SMARTIRC_DLL=Meebey.SmartIrc4net.dll
 TARGET=$(SMARTIRC_DLL)
+DOC_TARGET=Meebey.SmartIrc4net.xml
 DEBUG_DEFINES=TRACE,DEBUG,LOG4NET
 	
 all: release
@@ -15,7 +16,7 @@ debug-stamp: *.cs */*.cs
 
 release: release-stamp
 release-stamp: *.cs */*.cs
-	$(CSC) /target:library /out:../bin/mono/release/$(TARGET) $^
+	$(CSC) /target:library /doc:../bin/mono/release/$(DOC_TARGET) /out:../bin/mono/release/$(TARGET) $^
 	touch release-stamp
 
 release-signed: release-signed-stamp

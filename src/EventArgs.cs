@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -34,6 +34,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
+    /// <threadsafety static="true" instance="true" />
     public class IrcEventArgs : EventArgs
     {
         private readonly IrcMessageData _Data;
@@ -41,8 +42,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        public IrcMessageData Data
-        {
+        public IrcMessageData Data {
             get {
                 return _Data;
             }

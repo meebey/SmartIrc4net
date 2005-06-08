@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -37,14 +37,15 @@ using System.Net.Sockets;
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
+    /// <threadsafety static="true" instance="true" />
     public class IrcConnection
     {
         private string          _VersionNumber;
         private string          _VersionString;
         private string[]        _AddressList = {"localhost"};
-        private int             _CurrentAddress = 0;
+        private int             _CurrentAddress;
         private int             _Port = 6667;
         private StreamReader    _Reader;
         private StreamWriter    _Writer;
@@ -53,13 +54,13 @@ namespace Meebey.SmartIrc4net
         private IrcTcpClient    _TcpClient;
         private Hashtable       _SendBuffer = Hashtable.Synchronized(new Hashtable());
         private int             _SendDelay = 200;
-        private bool            _IsRegistered = false;
-        private bool            _IsConnected  = false;
-        private bool            _IsConnectionError = false;
-        private int             _ConnectTries  = 0;
-        private bool            _AutoRetry     = false;
+        private bool            _IsRegistered;
+        private bool            _IsConnected;
+        private bool            _IsConnectionError;
+        private int             _ConnectTries;
+        private bool            _AutoRetry;
         private int             _AutoRetryDelay = 30;
-        private bool            _AutoReconnect = false;
+        private bool            _AutoReconnect;
         private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-1");
         //private Encoding        _Encoding = Encoding.ASCII;
         //private Encoding        _Encoding = Encoding.GetEncoding(1252);
@@ -99,11 +100,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// When a connection error is detected this property will return true
         /// </summary>
-        /// <remarks>
-        /// Thread-safe
-        /// </remarks
-        protected bool IsConnectionError
-        {
+        protected bool IsConnectionError {
             get {
                 lock (this) {
                     return _IsConnectionError;
@@ -117,30 +114,27 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// The current address of the connection
+        /// Gets the current address of the connection
         /// </summary>
-        public string Address
-        {
+        public string Address {
             get {
                 return _AddressList[_CurrentAddress];
             }
         }
 
         /// <summary>
-        /// The address list of the connection
+        /// Gets the address list of the connection
         /// </summary>
-        public string[] AddressList
-        {
+        public string[] AddressList {
             get {
                 return _AddressList;
             }
         }
 
         /// <summary>
-        /// Which port is used for the connection
+        /// Gets the used port of the connection
         /// </summary>
-        public int Port
-        {
+        public int Port {
             get {
                 return _Port;
             }
@@ -155,8 +149,7 @@ namespace Meebey.SmartIrc4net
         /// true, if the library should reconnect on lost connections
         /// false, if the library should not take care of it
         /// </value>
-        public bool AutoReconnect
-        {
+        public bool AutoReconnect {
             get {
                 return _AutoReconnect;
             }
@@ -180,8 +173,7 @@ namespace Meebey.SmartIrc4net
         /// true, if the library should retry to connect
         /// false, if the library should not retry
         /// </value>
-        public bool AutoRetry
-        {
+        public bool AutoRetry {
             get {
                 return _AutoRetry;
             }
@@ -201,8 +193,7 @@ namespace Meebey.SmartIrc4net
         /// Delay between retry attempts in Connect() in seconds.
         /// Default: 30
         /// </summary>
-        public int AutoRetryDelay
-        {
+        public int AutoRetryDelay {
             get {
                 return _AutoRetryDelay;
             }
@@ -216,8 +207,7 @@ namespace Meebey.SmartIrc4net
         /// message, given in milliseconds.
         /// Default: 200
         /// </summary>
-        public int SendDelay
-        {
+        public int SendDelay {
             get {
                 return _SendDelay;
             }
@@ -229,8 +219,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// On successful registration on the IRC network, this is set to true.
         /// </summary>
-        public bool IsRegistered
-        {
+        public bool IsRegistered {
             get {
                 return _IsRegistered;
             }
@@ -239,28 +228,25 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// On successful connect to the IRC server, this is set to true.
         /// </summary>
-        public bool IsConnected
-        {
+        public bool IsConnected {
             get {
                 return _IsConnected;
             }
         }
 
         /// <summary>
-        /// The SmartIrc4net version number
+        /// Gets the SmartIrc4net version number
         /// </summary>
-        public string VersionNumber
-        {
+        public string VersionNumber {
             get {
                 return _VersionNumber;
             }
         }
 
         /// <summary>
-        /// The full SmartIrc4net version
+        /// Gets the full SmartIrc4net version string
         /// </summary>
-        public string VersionString
-        {
+        public string VersionString {
             get {
                 return _VersionString;
             }
@@ -270,8 +256,7 @@ namespace Meebey.SmartIrc4net
         /// Encoding which is used for reading and writing to the socket
         /// Default: ISO-8859-1
         /// </summary>
-        public Encoding Encoding
-        {
+        public Encoding Encoding {
             get {
                 return _Encoding;
             }
@@ -284,8 +269,7 @@ namespace Meebey.SmartIrc4net
         /// Timeout in seconds for receiving data from the socket
         /// Default: 600
         /// </summary>
-        public int SocketReceiveTimeout
-        {
+        public int SocketReceiveTimeout {
             get {
                 return _SocketReceiveTimeout;
             }
@@ -298,8 +282,7 @@ namespace Meebey.SmartIrc4net
         /// Timeout in seconds for sending data to the socket
         /// Default: 600
         /// </summary>
-        public int SocketSendTimeout
-        {
+        public int SocketSendTimeout {
             get {
                 return _SocketSendTimeout;
             }
@@ -352,10 +335,10 @@ namespace Meebey.SmartIrc4net
         /// Connects to the specified server and port, when the connection fails
         /// the next server in the list will be used.
         /// </summary>
-        /// <param name="addresslist">List of servers to connect to</pararm>
-        /// <param name="port">Portnumber to connect to</pararm>
-        /// <exception cref="CouldNotConnectException">The connection failed</exceptio>
-        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exceptio>
+        /// <param name="addresslist">List of servers to connect to</param>
+        /// <param name="port">Portnumber to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
         public void Connect(string[] addresslist, int port)
         {
             if (_IsConnected) {
@@ -434,8 +417,8 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Connects to the specified server and port.
         /// </summary>
-        /// <param name="address">Server address to connect to</pararm>
-        /// <param name="port">Port number to connect to</pararm>
+        /// <param name="address">Server address to connect to</param>
+        /// <param name="port">Port number to connect to</param>
         public void Connect(string address, int port)
         {
             Connect(new string[] {address}, port);
@@ -695,8 +678,7 @@ namespace Meebey.SmartIrc4net
             private Thread         _Thread;
             private Queue          _Queue = Queue.Synchronized(new Queue());
 
-            public Queue Queue
-            {
+            public Queue Queue {
                 get {
                     return _Queue;
                 }

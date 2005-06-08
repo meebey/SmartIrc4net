@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -31,6 +31,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// This class contains an IRC message in a parsed form
     /// </summary>
+    /// <threadsafety static="true" instance="true" />
     public class IrcMessageData
     {
         private IrcClient   _Irc;
@@ -49,8 +50,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the IrcClient object the message originated from
         /// </summary>
-        public IrcClient Irc
-        {
+        public IrcClient Irc {
             get {
                 return _Irc;
             }
@@ -62,8 +62,7 @@ namespace Meebey.SmartIrc4net
         /// <example>
         /// nick!ident@host
         /// </example>
-        public string From
-        {
+        public string From {
             get {
                 return _From;
             }
@@ -72,8 +71,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the nickname of the user that sent the message
         /// </summary>
-        public string Nick
-        {
+        public string Nick {
             get {
                 return _Nick;
             }
@@ -82,8 +80,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the identity (username) of the user that sent the message
         /// </summary>
-        public string Ident
-        {
+        public string Ident {
             get {
                 return _Ident;
             }
@@ -92,8 +89,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the hostname of the user that sent the message
         /// </summary>
-        public string Host
-        {
+        public string Host {
             get {
                 return _Host;
             }
@@ -102,8 +98,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the channel the message originated from
         /// </summary>
-        public string Channel
-        {
+        public string Channel {
             get {
                 return _Channel;
             }
@@ -112,8 +107,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the message
         /// </summary>
-        public string Message
-        {
+        public string Message {
             get {
                 return _Message;
             }
@@ -122,8 +116,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the message as an array of strings (splitted by space)
         /// </summary>
-        public string[] MessageArray
-        {
+        public string[] MessageArray {
             get {
                 return _MessageArray;
             }
@@ -132,8 +125,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the raw message sent by the server
         /// </summary>
-        public string RawMessage
-        {
+        public string RawMessage {
             get {
                 return _RawMessage;
             }
@@ -142,8 +134,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the raw message sent by the server as array of strings (splitted by space)
         /// </summary>
-        public string[] RawMessageArray
-        {
+        public string[] RawMessageArray {
             get {
                 return _RawMessageArray;
             }
@@ -152,8 +143,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the message type
         /// </summary>
-        public ReceiveType Type
-        {
+        public ReceiveType Type {
             get {
                 return _Type;
             }
@@ -162,8 +152,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the message reply code
         /// </summary>
-        public ReplyCode ReplyCode
-        {
+        public ReplyCode ReplyCode {
             get {
                 return _ReplyCode;
             }

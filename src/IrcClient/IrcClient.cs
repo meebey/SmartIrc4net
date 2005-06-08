@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -36,6 +36,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// This layer is an event driven high-level API with all features you could need for IRC programming.
     /// </summary>
+    /// <threadsafety static="true" instance="true" />
     public class IrcClient : IrcCommands
     {
         private string           _Nickname                = string.Empty;
@@ -378,7 +379,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Connection parameters required to establish an server connection.
         /// </summary>
-        /// <param name="addresslist">The list of server hostnames.</pararm>
+        /// <param name="addresslist">The list of server hostnames.</param>
         /// <param name="port">The TCP port the server listens on.</param>
         public new void Connect(string[] addresslist, int port)
         {
@@ -389,7 +390,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="login">If the login data should be sent, after successful connect.</pararm>
+        /// <param name="login">If the login data should be sent, after successful connect.</param>
         /// <param name="channels">If the channels should be rejoined, after successful connect.</param>
         public void Reconnect(bool login, bool channels)
         {
@@ -501,7 +502,7 @@ namespace Meebey.SmartIrc4net
         /// Login parameters required identify with server connection
         /// </summary>
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users 'nick' name which may NOT contain spaces</param>
+        /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
         /// <param name="usermode">A numeric mode parameter.  
         /// Set to 0 to recieve wallops and be invisible. 
@@ -518,7 +519,7 @@ namespace Meebey.SmartIrc4net
         /// Login parameters required identify with server connection
         /// </summary>
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users 'nick' name which may NOT contain spaces</param>
+        /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
         /// <param name="usermode">A numeric mode parameter.  
         /// Set to 0 to recieve wallops and be invisible. 
@@ -533,7 +534,7 @@ namespace Meebey.SmartIrc4net
         /// Login parameters required identify with server connection
         /// </summary>
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users 'nick' name which may NOT contain spaces</param>
+        /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
         /// <param name="usermode">A numeric mode parameter.  
         /// Set to 0 to recieve wallops and be invisible. 
@@ -547,7 +548,7 @@ namespace Meebey.SmartIrc4net
         /// Login parameters required identify with server connection
         /// </summary>
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users 'nick' name which may NOT contain spaces</param>
+        /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
         public void Login(string nick, string realname)
         {
@@ -601,10 +602,10 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Retrieves user information
+        /// Returns user information
         /// </summary>
         /// <param name="nickname">The users 'nick' name which may NOT contain spaces</param>
-        /// <returns>SmartIrc ChannelUser object of requested nickname</returns>
+        /// <returns>IrcUser object of requested nickname</returns>
         public IrcUser GetIrcUser(string nickname)
         {
             if (nickname == null) {
@@ -615,15 +616,14 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Retrieves extended user information including channel status
+        /// Returns extended user information including channel information
         /// </summary>
         /// <param name="channelname">The name of the channel you wish to query</param>
-        /// Note: Meebey shouldnt this be channelname to keep it consistant with other methods?
         /// <param name="nickname">The users 'nick' name which may NOT contain spaces</param>
-        /// <returns>SmartIrc ChannelUser object of requested channel</returns>
-        public ChannelUser GetChannelUser(string channel, string nickname)
+        /// <returns>ChannelUser object of requested channelname/nickname</returns>
+        public ChannelUser GetChannelUser(string channelname, string nickname)
         {
-            if (channel == null) {
+            if (channelname == null) {
                 throw new System.ArgumentNullException("channel");
             }
 
@@ -631,9 +631,9 @@ namespace Meebey.SmartIrc4net
                 throw new System.ArgumentNullException("nickname");
             }
             
-            Channel ircchannel = GetChannel(channel);
-            if (ircchannel != null) {
-                return (ChannelUser)ircchannel.UnsafeUsers[nickname];
+            Channel channel = GetChannel(channelname);
+            if (channel != null) {
+                return (ChannelUser)channel.UnsafeUsers[nickname];
             } else {
                 return null;
             } 
@@ -643,7 +643,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <param name="channelname">The name of the channel you wish to query</param>
-        /// <returns>SmartIrc4net.Channel object of requested channel</returns>
+        /// <returns>Channel object of requested channel</returns>
         public Channel GetChannel(string channelname)
         {
             if (channelname == null) {
