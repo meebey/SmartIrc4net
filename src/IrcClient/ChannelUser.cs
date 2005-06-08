@@ -29,8 +29,11 @@
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
-    ///
+    /// This class manages the information of a user within a channel.
     /// </summary>
+    /// <remarks>
+    /// only used with channel sync
+    /// </remarks>
     public class ChannelUser
     {
         private string    _Channel;
@@ -57,9 +60,8 @@ namespace Meebey.SmartIrc4net
 #endif
 
         /// <summary>
-        /// 
+        /// Gets the channel name
         /// </summary>
-        /// <value> </value>
         public string Channel
         {
             get {
@@ -68,9 +70,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the server operator status of the user
         /// </summary>
-        /// <value> </value>
         public bool IsIrcOp
         {
             get {
@@ -79,9 +80,11 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the opped status of the user (+o)
         /// </summary>
-        /// <value> </value>
+        /// <remarks>
+        /// only used with channel sync
+        /// </remarks>
         public bool IsOp
         {
             get {
@@ -93,9 +96,11 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the voiced status of the user (+v)
         /// </summary>
-        /// <value> </value>
+        /// <remarks>
+        /// only used with channel sync
+        /// </remarks>
         public bool IsVoice
         {
             get {
@@ -107,9 +112,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the away status of the user
         /// </summary>
-        /// <value> </value>
         public bool IsAway
         {
             get {
@@ -118,9 +122,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the underlaying IrcUser object
         /// </summary>
-        /// <value> </value>
         public IrcUser IrcUser
         {
             get {
@@ -129,9 +132,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the nickname of the user
         /// </summary>
-        /// <value> </value>
         public string Nick
         {
             get {
@@ -140,9 +142,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the identity (username) of the user which is used by some IRC networks for authentication.
         /// </summary>
-        /// <value> </value>
         public string Ident
         {
             get {
@@ -151,9 +152,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the hostname of the user,
         /// </summary>
-        /// <value> </value>
         public string Host
         {
             get {
@@ -162,9 +162,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the supposed real name of the user.
         /// </summary>
-        /// <value> </value>
         public string Realname
         {
             get {
@@ -173,7 +172,7 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the server the user is connected to.
         /// </summary>
         /// <value> </value>
         public string Server
@@ -184,9 +183,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the count of hops between you and the user's server
         /// </summary>
-        /// <value> </value>
         public int HopCount
         {
             get {
@@ -195,9 +193,8 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Gets the list of channels the user has joined
         /// </summary>
-        /// <value> </value>
         public string[] JoinedChannels
         {
             get {

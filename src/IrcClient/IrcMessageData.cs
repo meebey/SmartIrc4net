@@ -29,7 +29,7 @@
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
-    ///
+    /// This class contains an IRC message in a parsed form
     /// </summary>
     public class IrcMessageData
     {
@@ -46,6 +46,9 @@ namespace Meebey.SmartIrc4net
         private ReceiveType _Type;
         private ReplyCode   _ReplyCode;
         
+        /// <summary>
+        /// Gets the IrcClient object the message originated from
+        /// </summary>
         public IrcClient Irc
         {
             get {
@@ -53,6 +56,12 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// Gets the combined nickname, identity and hostname of the user that sent the message
+        /// </summary>
+        /// <example>
+        /// nick!ident@host
+        /// </example>
         public string From
         {
             get {
@@ -60,6 +69,9 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// Gets the nickname of the user that sent the message
+        /// </summary>
         public string Nick
         {
             get {
@@ -67,6 +79,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets the identity (username) of the user that sent the message
+        /// </summary>
         public string Ident
         {
             get {
@@ -74,6 +89,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets the hostname of the user that sent the message
+        /// </summary>
         public string Host
         {
             get {
@@ -81,6 +99,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets the channel the message originated from
+        /// </summary>
         public string Channel
         {
             get {
@@ -88,6 +109,9 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// Gets the message
+        /// </summary>
         public string Message
         {
             get {
@@ -95,6 +119,9 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// Gets the message as an array of strings (splitted by space)
+        /// </summary>
         public string[] MessageArray
         {
             get {
@@ -102,6 +129,9 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// Gets the raw message sent by the server
+        /// </summary>
         public string RawMessage
         {
             get {
@@ -109,6 +139,9 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        /// <summary>
+        /// Gets the raw message sent by the server as array of strings (splitted by space)
+        /// </summary>
         public string[] RawMessageArray
         {
             get {
@@ -116,6 +149,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets the message type
+        /// </summary>
         public ReceiveType Type
         {
             get {
@@ -123,6 +159,9 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Gets the message reply code
+        /// </summary>
         public ReplyCode ReplyCode
         {
             get {
@@ -130,6 +169,19 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Constructor to create an instace of IrcMessageData
+        /// </summary>
+        /// <param name="ircclient">IrcClient the message originated from</param>
+        /// <param name="from">combined nickname, identity and host of the user that sent the message (nick!ident@host)</param>
+        /// <param name="nick">nickname of the user that sent the message</param>
+        /// <param name="ident">identity (username) of the userthat sent the message</param>
+        /// <param name="host">hostname of the user that sent the message</param>
+        /// <param name="channel">channel the message originated from</param>
+        /// <param name="message">message</param>
+        /// <param name="rawmessage">raw message sent by the server</param>
+        /// <param name="type">message type</param>
+        /// <param name="replycode">message reply code</param>
         public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode)
         {
             _Irc = ircclient;

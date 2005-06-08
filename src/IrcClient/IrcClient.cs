@@ -34,30 +34,30 @@ using System.Text.RegularExpressions;
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
-    ///
+    /// This layer is an event driven high-level API with all features you could need for IRC programming.
     /// </summary>
     public class IrcClient : IrcCommands
     {
         private string           _Nickname                = string.Empty;
         private string[]         _NicknameList;
-        private int              _CurrentNickname         = 0;
+        private int              _CurrentNickname;
         private string           _Realname                = string.Empty;
         private string           _Usermode                = string.Empty;
-        private int              _IUsermode               = 0;
+        private int              _IUsermode;
         private string           _Username                = string.Empty;
         private string           _Password                = string.Empty;
         private string           _CtcpVersion;
-        private bool             _ActiveChannelSyncing    = false;
-        private bool             _PassiveChannelSyncing   = false;
-        private bool             _AutoJoinOnInvite        = false;
-        private bool             _AutoRejoin              = false;
+        private bool             _ActiveChannelSyncing;
+        private bool             _PassiveChannelSyncing;
+        private bool             _AutoJoinOnInvite;
+        private bool             _AutoRejoin;
         private StringCollection _AutoRejoinChannels      = new StringCollection();
-        private bool             _AutoRejoinOnKick        = false;
-        private bool             _AutoRelogin             = false;
-        private bool             _SupportNonRfc           = false;
-        private bool             _SupportNonRfcLocked     = false;
+        private bool             _AutoRejoinOnKick;
+        private bool             _AutoRelogin;
+        private bool             _SupportNonRfc;
+        private bool             _SupportNonRfcLocked;
         private StringCollection _Motd                    = new StringCollection();
-        private bool             _MotdReceived            = false;
+        private bool             _MotdReceived;
         private Array            _ReplyCodes              = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels          = new StringCollection();
         private Hashtable        _Channels                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
@@ -121,17 +121,15 @@ namespace Meebey.SmartIrc4net
         public event CtcpEventHandler           OnCtcpReply;
 
         /// <summary>
-        /// Enables/disables the active channel sync feature
+        /// Enables/disables the active channel sync feature.
         /// </summary>
-        /// <value>true, to enable </value>
-        public bool ActiveChannelSyncing
-        {
+        public bool ActiveChannelSyncing {
             get {
                 return _ActiveChannelSyncing;
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("Active channel syncing enabled");
                 } else {
                     Logger.ChannelSyncing.Info("Active channel syncing disabled");
@@ -143,17 +141,15 @@ namespace Meebey.SmartIrc4net
 
         /*
         /// <summary>
-        /// Enables/disables the passive channel sync feature
+        /// Enables/disables the passive channel sync feature.
         /// </summary>
-        /// <value>true, to enable </value>
-        public bool PassiveChannelSyncing
-        {
+        public bool PassiveChannelSyncing {
             get {
                 return _PassiveChannelSyncing;
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("Passive channel syncing enabled");
                 } else {
                     Logger.ChannelSyncing.Info("Passive channel syncing disabled");
@@ -165,11 +161,9 @@ namespace Meebey.SmartIrc4net
         */
         
         /// <summary>
-        /// Sets the ctcp version that should be replied on ctcp version request
+        /// Sets the ctcp version that should be replied on ctcp version request.
         /// </summary>
-        /// <value> </value>
-        public string CtcpVersion
-        {
+        public string CtcpVersion {
             get {
                 return _CtcpVersion;
             }
@@ -179,16 +173,15 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Enables/disables auto joining of channels when invited
+        /// Enables/disables auto joining of channels when invited.
         /// </summary>
-        public bool AutoJoinOnInvite
-        {
+        public bool AutoJoinOnInvite {
             get {
                 return _AutoJoinOnInvite;
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("AutoJoinOnInvite enabled");
                 } else {
                     Logger.ChannelSyncing.Info("AutoJoinOnInvite disabled");
@@ -201,15 +194,13 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Enables/disables automatic rejoining of channels when a connection to the server is lost.
         /// </summary>
-        /// <value> </value>
-        public bool AutoRejoin
-        {
+        public bool AutoRejoin {
             get {
                 return _AutoRejoin;
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("AutoRejoin enabled");
                 } else {
                     Logger.ChannelSyncing.Info("AutoRejoin disabled");
@@ -220,17 +211,15 @@ namespace Meebey.SmartIrc4net
         }
         
         /// <summary>
-        /// Enables/disables auto rejoining of channels when kicked
+        /// Enables/disables auto rejoining of channels when kicked.
         /// </summary>
-        /// <value> </value>
-        public bool AutoRejoinOnKick
-        {
+        public bool AutoRejoinOnKick {
             get {
                 return _AutoRejoinOnKick;
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("AutoRejoinOnKick enabled");
                 } else {
                     Logger.ChannelSyncing.Info("AutoRejoinOnKick disabled");
@@ -241,17 +230,15 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Enables/disables auto relogin to the server after a reconnect.
         /// </summary>
-        /// <value> </value>
-        public bool AutoRelogin
-        {
+        public bool AutoRelogin {
             get {
                 return _AutoRelogin;
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("AutoRelogin enabled");
                 } else {
                     Logger.ChannelSyncing.Info("AutoRelogin disabled");
@@ -262,21 +249,19 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Enables/disables support for non rfc features
+        /// Enables/disables support for non rfc features.
         /// </summary>
-        /// <value> </value>
-        public bool SupportNonRfc
-        {
+        public bool SupportNonRfc {
             get {
                 return _SupportNonRfc;
             }
             set {
-#if LOG4NET
                 if (_SupportNonRfcLocked) {
                     return;
                 }
+#if LOG4NET
                 
-                if (value == true) {
+                if (value) {
                     Logger.ChannelSyncing.Info("SupportNonRfc enabled");
                 } else {
                     Logger.ChannelSyncing.Info("SupportNonRfc disabled");
@@ -287,98 +272,84 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// The user's nick name.
+        /// Gets the nickname of us.
         /// </summary>
-        /// <value> </value>
-        public string Nickname
-        {
+        public string Nickname {
             get {
                 return _Nickname;
             }
         }
         
         /// <summary>
-        /// The user's list of possible nick names. 
+        /// Gets the list of nicknames of us.
         /// </summary>
-        public string[] NicknameList
-        {
+        public string[] NicknameList {
             get {
                 return _NicknameList;
             }
         }
       
         /// <summary>
-        /// The user's 'real' name.
+        /// Gets the supposed real name of us.
         /// </summary>
-        /// <value> </value>
-        public string Realname
-        {
+        public string Realname {
             get {
                 return _Realname;
             }
         }
 
         /// <summary>
-        /// The user's machine logon name.
+        /// Gets the username for the server.
         /// </summary>
-        /// <value> </value>
-        public string Username
-        {
+        /// <remarks>
+        /// System username is set by default 
+        /// </remarks>
+        public string Username {
             get {
                 return _Username;
             }
         }
 
         /// <summary>
-        /// The user's alphanumeric mode mask
+        /// Gets the alphanumeric mode mask of us.
         /// </summary>
-        /// <value> </value>
-        public string Usermode
-        {
+        public string Usermode {
             get {
                 return _Usermode;
             }
         }
 
         /// <summary>
-        /// The user's numeric mode mask
+        /// Gets the numeric mode mask of us.
         /// </summary>
-        /// <value> </value>
-        public int IUsermode
-        {
+        public int IUsermode {
             get {
                 return _IUsermode;
             }
         }
 
         /// <summary>
-        /// The password for the server.
+        /// Gets the password for the server.
         /// </summary>
-        /// <value> </value>
-        public string Password
-        {
+        public string Password {
             get {
                 return _Password;
             }
         }
 
         /// <summary>
-        /// User's joined channels
+        /// Gets the list of channels we are joined.
         /// </summary>
-        /// <value> </value>
-        public StringCollection JoinedChannels
-        {
+        public StringCollection JoinedChannels {
             get {
                 return _JoinedChannels;
             }
         }
         
         /// <summary>
-        /// Server message of the day
+        /// Gets the server message of the day.
         /// </summary>
-        /// <value> </value>
-        public StringCollection Motd
-        {
+        public StringCollection Motd {
             get {
                 return _Motd;
             }
@@ -405,10 +376,10 @@ namespace Meebey.SmartIrc4net
 #endif
 
         /// <summary>
-        /// Connection parameters required to establish an server connection
+        /// Connection parameters required to establish an server connection.
         /// </summary>
-        /// <param name="addresslist">The list of server hostnames</pararm>
-        /// <param name="port">The TCP/IP port the server listens on.</param>
+        /// <param name="addresslist">The list of server hostnames.</pararm>
+        /// <param name="port">The TCP port the server listens on.</param>
         public new void Connect(string[] addresslist, int port)
         {
             _SupportNonRfcLocked = true;
@@ -418,8 +389,8 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="login">if the login data should be sent, after successful connect</pararm>
-        /// <param name="channels">if the channels should be rejoined, after successful connect</param>
+        /// <param name="login">If the login data should be sent, after successful connect.</pararm>
+        /// <param name="channels">If the channels should be rejoined, after successful connect.</param>
         public void Reconnect(bool login, bool channels)
         {
             if (channels) {
@@ -439,7 +410,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="login">if the login data should be sent after successful connect</param>
+        /// <param name="login">If the login data should be sent after successful connect.</param>
         public void Reconnect(bool login)
         {
             Reconnect(login, true);
@@ -452,8 +423,11 @@ namespace Meebey.SmartIrc4net
         /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
         /// <param name="usermode">A numeric mode parameter.  
-        /// Set to 0 to recieve wallops and be invisible. 
-        /// Set to 4 to be invisible and not receive wallops.</remark></param>        
+        ///   <remark>
+        ///     Set to 0 to recieve wallops and be invisible. 
+        ///     Set to 4 to be invisible and not receive wallops.
+        ///   </remark>
+        /// </param>
         /// <param name="username">The user's machine logon name</param>        
         /// <param name="password">The optional password can and MUST be set before any attempt to register
         ///  the connection is made.</param>        
