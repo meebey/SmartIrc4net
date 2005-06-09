@@ -387,9 +387,9 @@ namespace Meebey.SmartIrc4net
             base.Connect(addresslist, port);
         }
         
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <overloads>
+        /// Reconnects to the current server.
+        /// </overloads>
         /// <param name="login">If the login data should be sent, after successful connect.</param>
         /// <param name="channels">If the channels should be rejoined, after successful connect.</param>
         public void Reconnect(bool login, bool channels)
@@ -408,15 +408,12 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="login">If the login data should be sent after successful connect.</param>
+        /// <param name="login">If the login data should be sent, after successful connect.</param>
         public void Reconnect(bool login)
         {
             Reconnect(login, true);
         }
-        
+
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
