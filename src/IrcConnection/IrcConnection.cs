@@ -42,31 +42,37 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class IrcConnection
     {
-        private string          _VersionNumber;
-        private string          _VersionString;
-        private string[]        _AddressList = {"localhost"};
-        private int             _CurrentAddress;
-        private int             _Port = 6667;
-        private StreamReader    _Reader;
-        private StreamWriter    _Writer;
-        private ReadThread      _ReadThread;
-        private WriteThread     _WriteThread;
-        private IrcTcpClient    _TcpClient;
-        private Hashtable       _SendBuffer = Hashtable.Synchronized(new Hashtable());
-        private int             _SendDelay = 200;
-        private bool            _IsRegistered;
-        private bool            _IsConnected;
-        private bool            _IsConnectionError;
-        private int             _ConnectTries;
-        private bool            _AutoRetry;
-        private int             _AutoRetryDelay = 30;
-        private bool            _AutoReconnect;
-        private Encoding        _Encoding = Encoding.GetEncoding("ISO-8859-1");
-        //private Encoding        _Encoding = Encoding.ASCII;
-        //private Encoding        _Encoding = Encoding.GetEncoding(1252);
-        //private Encoding        _Encoding = Encoding.UTF8;
-        private int             _SocketReceiveTimeout  = 600;
-        private int             _SocketSendTimeout = 600;
+        private string           _VersionNumber;
+        private string           _VersionString;
+        private string[]         _AddressList = {"localhost"};
+        private int              _CurrentAddress;
+        private int              _Port = 6667;
+        private StreamReader     _Reader;
+        private StreamWriter     _Writer;
+        private ReadThread       _ReadThread;
+        private WriteThread      _WriteThread;
+        private IdleWorkerThread _IdleWorkerThread;
+        private IrcTcpClient     _TcpClient;
+        private Hashtable        _SendBuffer = Hashtable.Synchronized(new Hashtable());
+        private int              _SendDelay = 200;
+        private bool             _IsRegistered;
+        private bool             _IsConnected;
+        private bool             _IsConnectionError;
+        private int              _ConnectTries;
+        private bool             _AutoRetry;
+        private int              _AutoRetryDelay = 30;
+        private bool             _AutoReconnect;
+        private Encoding         _Encoding = Encoding.GetEncoding("ISO-8859-1");
+        //private Encoding         _Encoding = Encoding.ASCII;
+        //private Encoding         _Encoding = Encoding.GetEncoding(1252);
+        //private Encoding         _Encoding = Encoding.UTF8;
+        private int              _SocketReceiveTimeout  = 600;
+        private int              _SocketSendTimeout = 600;
+        private int              _IdleWorkerInterval = 60;
+        private int              _PingInterval = 60;
+        private int              _PingTimeout = 300;
+        private DateTime         _LastPing;
+        private DateTime         _LastPong;
 
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
@@ -96,6 +102,10 @@ namespace Meebey.SmartIrc4net
         /// Raised when the connection got into an error state
         /// </event>
         public event EventHandler           OnConnectionError;
+        /// <event cref="AutoConnectErrorEventHandler">
+        /// Raised when the connection got into an error state during auto connect loop
+        /// </event>
+        public event AutoConnectErrorEventHandler   OnAutoConnectError;
         
         /// <summary>
         /// When a connection error is detected this property will return true
@@ -292,6 +302,45 @@ namespace Meebey.SmartIrc4net
         }
         
         /// <summary>
+        /// Interval in seconds to run the idle worker
+        /// Default: 60
+        /// </summary>
+        public int IdleWorkerInterval {
+            get {
+                return _IdleWorkerInterval;
+            }
+            set {
+                _IdleWorkerInterval = value;
+            }
+        }
+
+        /// <summary>
+        /// Interval in seconds to send a PING
+        /// Default: 60
+        /// </summary>
+        public int PingInterval {
+            get {
+                return _PingInterval;
+            }
+            set {
+                _PingInterval = value;
+            }
+        }
+        
+        /// <summary>
+        /// Timeout in seconds for server response to a PING
+        /// Default: 600
+        /// </summary>
+        public int PingTimeout {
+            get {
+                return _PingTimeout;
+            }
+            set {
+                _PingTimeout = value;
+            }
+        }
+
+        /// <summary>
         /// Initializes the message queues, read and write thread
         /// </summary>
         public IrcConnection()
@@ -312,6 +361,7 @@ namespace Meebey.SmartIrc4net
 
             _ReadThread  = new ReadThread(this);
             _WriteThread = new WriteThread(this);
+            _IdleWorkerThread = new IdleWorkerThread(this);
 
             Assembly assm = Assembly.GetAssembly(this.GetType());
             AssemblyName assm_name = assm.GetName(false);
@@ -378,6 +428,7 @@ namespace Meebey.SmartIrc4net
                 // lets power up our threads
                 _ReadThread.Start();
                 _WriteThread.Start();
+                _IdleWorkerThread.Start();
                 
 #if LOG4NET
                 Logger.Connection.Info("connected");
@@ -396,12 +447,16 @@ namespace Meebey.SmartIrc4net
                     _TcpClient.Close();
                 }
                 _IsConnected = false;
-                IsConnectionError = true;
+                IsConnectionError = true; 
+                
 #if LOG4NET
                 Logger.Connection.Info("connection failed: "+e.Message);
 #endif
                 if (_AutoRetry &&
                     (_ConnectTries <= 3)) {
+                    if (OnAutoConnectError != null) {
+                        OnAutoConnectError(this, new AutoConnectErrorEventArgs(Address, Port, e));
+                    }
 #if LOG4NET
                     Logger.Connection.Debug("delaying new connect attempt for "+_AutoRetryDelay+" sec");
 #endif
@@ -632,22 +687,36 @@ namespace Meebey.SmartIrc4net
 
             if (rawline[0] == ':') {
                 messagecode = rawlineex[1];
+                
+                ReplyCode replycode = ReplyCode.Null;
                 try {
-                    ReplyCode replycode = (ReplyCode)int.Parse(messagecode);
-                    switch(replycode) {
+                    replycode = (ReplyCode)int.Parse(messagecode);
+                } catch (FormatException) {
+                }
+                
+                if (replycode != ReplyCode.Null) {
+                    switch (replycode) {
                         case ReplyCode.Welcome:
                             _IsRegistered = true;
 #if LOG4NET
                             Logger.Connection.Info("logged in");
 #endif
-                        break;
+                            break;
                     }
-                } catch (FormatException) {
-                    // nothing
+                } else {
+                    switch (rawlineex[1]) {
+                        case "PONG":
+                            _LastPong = DateTime.Now;
+                            TimeSpan diff = _LastPong - _LastPing;
+#if LOG4NET
+                            Logger.Connection.Debug("PONG received, took: "+diff.TotalMilliseconds+" ms");
+#endif
+                            break;
+                    }
                 }
             } else {
                 messagecode = rawlineex[0];
-                switch(messagecode) {
+                switch (messagecode) {
                     case "ERROR":
                         IsConnectionError = true;
                     break;
@@ -721,7 +790,7 @@ namespace Meebey.SmartIrc4net
                 try {
                     string data = "";
                     try {
-                        while ((_Connection.IsConnected == true) &&
+                        while (_Connection.IsConnected &&
                                ((data = _Connection._Reader.ReadLine()) != null)) {
                             _Queue.Enqueue(data);
 #if LOG4NET
@@ -754,18 +823,18 @@ namespace Meebey.SmartIrc4net
         {
             private IrcConnection  _Connection;
             private Thread         _Thread;
-            private int            _HighCount        = 0;
-            private int            _AboveMediumCount = 0;
-            private int            _MediumCount      = 0;
-            private int            _BelowMediumCount = 0;
-            private int            _LowCount         = 0;
-            private int            _AboveMediumSentCount = 0;
-            private int            _MediumSentCount      = 0;
-            private int            _BelowMediumSentCount = 0;
+            private int            _HighCount;
+            private int            _AboveMediumCount;
+            private int            _MediumCount;
+            private int            _BelowMediumCount;
+            private int            _LowCount;
+            private int            _AboveMediumSentCount;
+            private int            _MediumSentCount;
+            private int            _BelowMediumSentCount;
             private int            _AboveMediumThresholdCount = 4;
             private int            _MediumThresholdCount      = 2;
             private int            _BelowMediumThresholdCount = 1;
-            private int            _BurstCount = 0;
+            private int            _BurstCount;
 
             /// <summary>
             /// 
@@ -803,7 +872,7 @@ namespace Meebey.SmartIrc4net
 #endif
                 try {
                     try {
-                        while (_Connection.IsConnected == true) {
+                        while (_Connection.IsConnected) {
                             _CheckBuffer();
                             Thread.Sleep(_Connection._SendDelay);
                         }
@@ -825,6 +894,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
+            #region WARNING: complex scheduler, don't even think about changing it!
             // WARNING: complex scheduler, don't even think about changing it!
             private void _CheckBuffer()
             {
@@ -966,7 +1036,81 @@ namespace Meebey.SmartIrc4net
                 return true;
             }
             // END OF WARNING, below this you can read/change again ;)
+            #endregion
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class IdleWorkerThread
+        {
+            private IrcConnection   _Connection;
+            private Thread          _Thread;
+            private bool			_Initialized = false;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="connection"></param>
+            public IdleWorkerThread(IrcConnection connection)
+            {
+                _Connection = connection;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public void Start()
+            {
+                _Thread = new Thread(new ThreadStart(_Worker));
+                _Thread.Name = "IdleWorkerThread ("+_Connection.Address+":"+_Connection.Port+")";
+                _Thread.IsBackground = true;
+                _Thread.Start();
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public void Stop()
+            {
+                _Thread.Abort();
+            }
+
+            private void _Worker()
+            {
+#if LOG4NET
+                Logger.Socket.Debug("IdleWorkerThread started");
+#endif
+                try {
+                   while (_Connection.IsConnected ) {
+                       if (_Connection.IsRegistered) {
+                           DateTime now = DateTime.Now;
+                           TimeSpan last_ping_span = now - _Connection._LastPing;
+                           TimeSpan last_pong_span = now - _Connection._LastPong;
+                           if (last_ping_span.TotalSeconds < _Connection._PingTimeout || !_Initialized) {
+                               if (last_pong_span.TotalSeconds > _Connection._PingInterval || !_Initialized) {
+                                   _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
+                                   _Connection._LastPing = now;
+                                   _Connection._LastPong = _Connection._LastPing;
+                                   _Initialized = true;
+                               }
+                           } else {
+#if LOG4NET
+                               Logger.Socket.Warn("ping timeout, connection lost");
+#endif
+                               _Connection.IsConnectionError = true;
+                               break;
+                           }
+                       }
+                       Thread.Sleep(_Connection._IdleWorkerInterval);
+                   }
+                } catch (ThreadAbortException) {
+                    Thread.ResetAbort();
+#if LOG4NET
+                    Logger.Socket.Debug("IdleWorkerThread aborted");
+#endif
+                }
+            }
         }
     }
 }
-
