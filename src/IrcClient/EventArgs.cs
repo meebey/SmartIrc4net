@@ -137,6 +137,25 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
+    public class PongEventArgs : IrcEventArgs
+    {
+        private TimeSpan _Lag;
+        
+        public TimeSpan Lag {
+            get {
+                return _Lag;
+            }
+        }
+
+        internal PongEventArgs(IrcMessageData data, TimeSpan lag) : base(data)
+        {
+            _Lag = lag;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
     public class KickEventArgs : IrcEventArgs
     {
         private string _Channel;
@@ -813,4 +832,5 @@ namespace Meebey.SmartIrc4net
             _Whom = whom;
         }
     }
+
 }

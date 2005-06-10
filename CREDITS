@@ -30,6 +30,6 @@ S: Germany
 N: Benjamin Hall
 E: Benjamin.Hall@orcon.net.nz
 D: Several patches: AutoRejoinOnKick, AutoJoinOnInvite, NicknameList,
-   IdleWorkerThread, documentation
+   IdleWorkerThread, OnAutoConnectError, Lag, documentation
 S: Auckland
 S: New Zealand

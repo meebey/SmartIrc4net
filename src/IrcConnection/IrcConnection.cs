@@ -73,6 +73,7 @@ namespace Meebey.SmartIrc4net
         private int              _PingTimeout = 300;
         private DateTime         _LastPing;
         private DateTime         _LastPong;
+        private TimeSpan         _Lag;
 
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
@@ -337,6 +338,16 @@ namespace Meebey.SmartIrc4net
             }
             set {
                 _PingTimeout = value;
+            }
+        }
+
+        /// <summary>
+        /// Server lag
+        /// </summary>
+        public TimeSpan Lag 
+        {
+            get {
+                return _Lag;
             }
         }
 
@@ -707,9 +718,10 @@ namespace Meebey.SmartIrc4net
                     switch (rawlineex[1]) {
                         case "PONG":
                             _LastPong = DateTime.Now;
-                            TimeSpan diff = _LastPong - _LastPing;
+                            TimeSpan _Lag = _LastPong - _LastPing;
+
 #if LOG4NET
-                            Logger.Connection.Debug("PONG received, took: "+diff.TotalMilliseconds+" ms");
+                            Logger.Connection.Debug("PONG received, took: "+_Lag.TotalMilliseconds+" ms");
 #endif
                             break;
                     }

@@ -83,6 +83,7 @@ namespace Meebey.SmartIrc4net
 
         public event EventHandler               OnRegistered;
         public event PingEventHandler           OnPing;
+        public event PongEventHandler           OnPong;
         public event IrcEventHandler            OnRawMessage;
         public event ErrorEventHandler          OnError;
         public event IrcEventHandler            OnErrorMessage;
@@ -1101,6 +1102,9 @@ namespace Meebey.SmartIrc4net
                 case "MODE":
                     _Event_MODE(ircdata);
                 break;
+                case "PONG":
+                    _Event_PONG(ircdata);
+                break;
             }
 
             if (ircdata.ReplyCode != ReplyCode.Null) {
@@ -1473,6 +1477,17 @@ namespace Meebey.SmartIrc4net
 
             if (OnPing != null) {
                 OnPing(this, new PingEventArgs(ircdata, server));
+            }
+        }
+
+        /// <summary>
+        /// Event handler for PONG messages
+        /// </summary>
+        /// <param name="ircdata">Message data containing pong information</param>
+        private void _Event_PONG(IrcMessageData ircdata)     
+        {
+            if (OnPong != null) {
+                OnPong(this, new PongEventArgs(ircdata, ircdata.Irc.Lag));
             }
         }
 
@@ -1905,6 +1920,7 @@ namespace Meebey.SmartIrc4net
                 OnModeChange(this, new IrcEventArgs(ircdata));
             }
         }
+
 
         /// <summary>
         /// Event handler for channel mode reply messages
