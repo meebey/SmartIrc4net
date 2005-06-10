@@ -344,8 +344,7 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Server lag
         /// </summary>
-        public TimeSpan Lag 
-        {
+        public TimeSpan Lag {
             get {
                 return _Lag;
             }
@@ -718,7 +717,7 @@ namespace Meebey.SmartIrc4net
                     switch (rawlineex[1]) {
                         case "PONG":
                             _LastPong = DateTime.Now;
-                            TimeSpan _Lag = _LastPong - _LastPing;
+                            _Lag = _LastPong - _LastPing;
 
 #if LOG4NET
                             Logger.Connection.Debug("PONG received, took: "+_Lag.TotalMilliseconds+" ms");
