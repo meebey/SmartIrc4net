@@ -55,6 +55,7 @@ namespace Meebey.SmartIrc4net
         private StringCollection _AutoRejoinChannels      = new StringCollection();
         private bool             _AutoRejoinOnKick;
         private bool             _AutoRelogin;
+        private bool             _AutoNickHandling        = true;
         private bool             _SupportNonRfc;
         private bool             _SupportNonRfcLocked;
         private StringCollection _Motd                    = new StringCollection();
@@ -123,6 +124,7 @@ namespace Meebey.SmartIrc4net
 
         /// <summary>
         /// Enables/disables the active channel sync feature.
+        /// Default: false
         /// </summary>
         public bool ActiveChannelSyncing {
             get {
@@ -175,6 +177,7 @@ namespace Meebey.SmartIrc4net
 
         /// <summary>
         /// Enables/disables auto joining of channels when invited.
+        /// Default: false
         /// </summary>
         public bool AutoJoinOnInvite {
             get {
@@ -194,6 +197,7 @@ namespace Meebey.SmartIrc4net
 
         /// <summary>
         /// Enables/disables automatic rejoining of channels when a connection to the server is lost.
+        /// Default: false
         /// </summary>
         public bool AutoRejoin {
             get {
@@ -213,6 +217,7 @@ namespace Meebey.SmartIrc4net
         
         /// <summary>
         /// Enables/disables auto rejoining of channels when kicked.
+        /// Default: false
         /// </summary>
         public bool AutoRejoinOnKick {
             get {
@@ -232,6 +237,7 @@ namespace Meebey.SmartIrc4net
 
         /// <summary>
         /// Enables/disables auto relogin to the server after a reconnect.
+        /// Default: false
         /// </summary>
         public bool AutoRelogin {
             get {
@@ -250,7 +256,28 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        /// Enables/disables auto nick handling on nick collisions
+        /// Default: true
+        /// </summary>
+        public bool AutoNickHandling {
+            get {
+                return _AutoNickHandling;
+            }
+            set {
+#if LOG4NET
+                if (value) {
+                    Logger.ChannelSyncing.Info("AutoNickHandling enabled");
+                } else {
+                    Logger.ChannelSyncing.Info("AutoNickHandling disabled");
+                }
+#endif
+                _AutoNickHandling = value;
+            }
+        }
+        
+        /// <summary>
         /// Enables/disables support for non rfc features.
+        /// Default: false
         /// </summary>
         public bool SupportNonRfc {
             get {
@@ -1367,10 +1394,16 @@ namespace Meebey.SmartIrc4net
                         parametersEnumerator.MoveNext();
                         if (add) {
                             if (ActiveChannelSyncing) {
-                                channel.UserLimit = int.Parse(temp);
+                                try {
+                                    channel.UserLimit = int.Parse(temp);
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("stored user limit for: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("stored user limit for: "+ircdata.Channel);
 #endif
+                                } catch (FormatException) {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Error("could not parse user limit: "+temp+" channel: "+ircdata.Channel);
+#endif
+                                }
                             }
                         }
                         if (remove) {
@@ -2284,14 +2317,17 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Warn("nickname collision detected, changing nickname");
 #endif
-
+            if (!AutoNickHandling) {
+                return;
+            } 
+            
             string nickname;
             // if a nicklist has been given loop through the nicknames
             // if the upper limit of this list has been reached and still no nickname has registered
             // then generate a random nick
             if (_CurrentNickname == NicknameList.Length-1) {
                 Random rand = new Random();
-                int number = rand.Next();
+                int number = rand.Next(999);
                 if (Nickname.Length > 5) {
                     nickname = Nickname.Substring(0, 5)+number;
                 } else {
