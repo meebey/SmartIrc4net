@@ -34,7 +34,7 @@ docs: release
 	  -Title="SmartIrc4net API documentation" -SdkLinksOnWeb=true \
 	  -AssemblyVersionInfo=AssemblyVersion
       
-install: relase
+install: release
 	$(GACUTIL) -i ../bin/mono/release/$(SMARTIRC_DLL) -f -package SmartIrc4net
 
 clean:
