@@ -1,4 +1,4 @@
-/*
+
  * $Id$
  * $URL$
  * $Rev$
@@ -52,7 +52,7 @@ namespace Meebey.SmartIrc4net
         private bool             _PassiveChannelSyncing;
         private bool             _AutoJoinOnInvite;
         private bool             _AutoRejoin;
-        private StringCollection _AutoRejoinChannels      = new StringCollection();
+        private StringDictionary _AutoRejoinChannels      = new StringDictionary();
         private bool             _AutoRejoinOnKick;
         private bool             _AutoRelogin;
         private bool             _AutoNickHandling        = true;
@@ -143,14 +143,14 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /*
         /// <summary>
-        /// Enables/disables the passive channel sync feature.
+        /// Enables/disables the passive channel sync feature. Not implemented yet!
         /// </summary>
         public bool PassiveChannelSyncing {
             get {
                 return _PassiveChannelSyncing;
             }
+            /*
             set {
 #if LOG4NET
                 if (value) {
@@ -161,8 +161,8 @@ namespace Meebey.SmartIrc4net
 #endif
                 _PassiveChannelSyncing = value;
             }
+            */
         }
-        */
         
         /// <summary>
         /// Sets the ctcp version that should be replied on ctcp version request.
@@ -823,8 +823,19 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Storing channels for rejoin...");
 #endif
-            foreach (string channel in _JoinedChannels) {
-                _AutoRejoinChannels.Add(channel);
+            if (ActiveChannelSyncing || PassiveChannelSyncing) {
+                // store the key using channel sync
+                foreach (Channel channel in _Channels) {
+                    if (channel.Key.Length > 0) {
+                        _AutoRejoinChannels.Add(channel.Name, channel.Key);
+                    } else {
+                        _AutoRejoinChannels.Add(channel.Name, null);
+                    }
+                }
+            } else {
+                foreach (string channel in _JoinedChannels) {
+                    _AutoRejoinChannels.Add(channel, null);
+                }
             }
         }
         
@@ -833,8 +844,15 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Rejoining channels...");
 #endif
-            foreach(string channel in _AutoRejoinChannels) {
-                RfcJoin(channel, Priority.High);
+            foreach (DictionaryEntry de in _AutoRejoinChannels) {
+                // TODO: use string[] here instead of passing just one channel
+                string name = (string)de.Key;
+                string key = (string)de.Value;
+                if (key != null) {
+                    RfcJoin(name, key, Priority.High);
+                } else { 
+                    RfcJoin(name, Priority.High);
+                }
             }
             _AutoRejoinChannels.Clear();
         }
@@ -878,7 +896,7 @@ namespace Meebey.SmartIrc4net
                 // check if this replycode is known in the RFC
                 if (Array.IndexOf(_ReplyCodes, replycode) == -1) {
 #if LOG4NET
-                    Logger.MessageTypes.Warn("This IRC server ("+Address+") doesn't conform to the RFC 2812! ignoring unrecongzied replycode '"+replycode+"'");
+                    Logger.MessageTypes.Warn("This IRC server ("+Address+") doesn't conform to the RFC 2812! ignoring unrecognized replycode '"+replycode+"'");
 #endif
                     return ReceiveType.Unknown;
                 }
@@ -1880,7 +1898,7 @@ namespace Meebey.SmartIrc4net
             string inviter = ircdata.Nick;
             
             if (AutoJoinOnInvite) {
-                if (channel != "0") {
+                if (channel.Trim() != "0") {
                     RfcJoin(channel);
                 }
             }
@@ -2063,7 +2081,11 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                         Logger.ChannelSyncing.Debug("creating ChannelUser: "+nickname+" for Channel: "+channelname+" because he doesn't exist yet");
 #endif
-                        channeluser = new ChannelUser(channelname, ircuser);
+                        if (SupportNonRfc) {
+                            channeluser = new NonRfcChannelUser(channelname, ircuser);
+                        } else {
+                            channeluser = new ChannelUser(channelname, ircuser);
+                        }
                         Channel channel = GetChannel(channelname);
                         
                         channel.UnsafeUsers.Add(nickname, channeluser);

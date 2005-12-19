@@ -166,7 +166,7 @@ namespace Meebey.SmartIrc4net
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.Connection.Info("AutoReconnect enabled");
                 } else {
                     Logger.Connection.Info("AutoReconnect disabled");
@@ -190,7 +190,7 @@ namespace Meebey.SmartIrc4net
             }
             set {
 #if LOG4NET
-                if (value == true) {
+                if (value) {
                     Logger.Connection.Info("AutoRetry enabled");
                 } else {
                     Logger.Connection.Info("AutoRetry disabled");
@@ -654,7 +654,7 @@ namespace Meebey.SmartIrc4net
 
         private bool _WriteLine(string data)
         {
-            if (IsConnected == true) {
+            if (IsConnected) {
                 try {
                     _Writer.Write(data+"\r\n");
                     _Writer.Flush();
@@ -920,11 +920,11 @@ namespace Meebey.SmartIrc4net
                 _BelowMediumCount = ((Queue)_Connection._SendBuffer[Priority.BelowMedium]).Count;
                 _LowCount         = ((Queue)_Connection._SendBuffer[Priority.Low]).Count;
 
-                if ((_CheckHighBuffer() == true) &&
-                    (_CheckAboveMediumBuffer() == true) &&
-                    (_CheckMediumBuffer() == true) &&
-                    (_CheckBelowMediumBuffer() == true) &&
-                    (_CheckLowBuffer() == true)) {
+                if (_CheckHighBuffer() &&
+                    _CheckAboveMediumBuffer() &&
+                    _CheckMediumBuffer() &&
+                    _CheckBelowMediumBuffer() &&
+                    _CheckLowBuffer()) {
                     // everything is sent, resetting all counters
                     _AboveMediumSentCount = 0;
                     _MediumSentCount      = 0;

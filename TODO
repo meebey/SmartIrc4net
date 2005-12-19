@@ -6,6 +6,7 @@
  * $Date$
  */
 
+- Reconnect() / StoreRejoinChannels() should remember channel keys too!
 - add IrcNetwork property, which is guessed by default or passed with Connect()
 - Documentation
 - passive channel sync

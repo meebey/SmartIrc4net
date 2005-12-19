@@ -11,6 +11,12 @@ v0.4.0 (SVN rX)
 fixes:
 - fixed null reference exception when CTCP PING contains no data
   (thanks to Nick 'Zaf' Clifford, closes sf.net patch #1199630)
+- fixed NonRfcSupport, it didn't check for NonRfcSupport in _Event_RPL_NAMREPLY
+  (thanks to the anonymous poster on the sf.net forum for reporting this)
+
+new:
+- reconnect handling will now store/use keys if ActiveChannelSyncing and
+  AutoRejoin is activated.
 
 v0.3.5 (SVN r184)
 ------
