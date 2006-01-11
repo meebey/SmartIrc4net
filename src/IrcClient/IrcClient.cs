@@ -1,4 +1,4 @@
-
+/*
  * $Id$
  * $URL$
  * $Rev$
@@ -53,6 +53,7 @@ namespace Meebey.SmartIrc4net
         private bool             _AutoJoinOnInvite;
         private bool             _AutoRejoin;
         private StringDictionary _AutoRejoinChannels      = new StringDictionary();
+        private bool             _AutoRejoinChannelsWithKeys;
         private bool             _AutoRejoinOnKick;
         private bool             _AutoRelogin;
         private bool             _AutoNickHandling        = true;
@@ -825,16 +826,17 @@ namespace Meebey.SmartIrc4net
 #endif
             if (ActiveChannelSyncing || PassiveChannelSyncing) {
                 // store the key using channel sync
-                foreach (Channel channel in _Channels) {
+                foreach (Channel channel in _Channels.Values) {
                     if (channel.Key.Length > 0) {
                         _AutoRejoinChannels.Add(channel.Name, channel.Key);
+                        _AutoRejoinChannelsWithKeys = true;
                     } else {
-                        _AutoRejoinChannels.Add(channel.Name, null);
+                        _AutoRejoinChannels.Add(channel.Name, "nokey");
                     }
                 }
             } else {
                 foreach (string channel in _JoinedChannels) {
-                    _AutoRejoinChannels.Add(channel, null);
+                    _AutoRejoinChannels.Add(channel, "nokey");
                 }
             }
         }
@@ -844,16 +846,21 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Rejoining channels...");
 #endif
-            foreach (DictionaryEntry de in _AutoRejoinChannels) {
-                // TODO: use string[] here instead of passing just one channel
-                string name = (string)de.Key;
-                string key = (string)de.Value;
-                if (key != null) {
-                    RfcJoin(name, key, Priority.High);
-                } else { 
-                    RfcJoin(name, Priority.High);
-                }
+            int chan_count = _AutoRejoinChannels.Count;
+            
+            string[] names = new string[chan_count];
+            _AutoRejoinChannels.Values.CopyTo(names, 0);
+            
+            if (_AutoRejoinChannelsWithKeys) {
+                string[] keys = new string[chan_count];
+                _AutoRejoinChannels.Keys.CopyTo(keys, 0);
+                
+                RfcJoin(names, keys, Priority.High);
+            } else { 
+                RfcJoin(names, Priority.High);
             }
+                
+            _AutoRejoinChannelsWithKeys = false;
             _AutoRejoinChannels.Clear();
         }
         

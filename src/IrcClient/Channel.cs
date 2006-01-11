@@ -39,14 +39,14 @@ namespace Meebey.SmartIrc4net
     public class Channel
     {
         private string           _Name;
-        private string           _Key       = string.Empty;
+        private string           _Key       = String.Empty;
         private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private StringCollection _Bans      = new StringCollection();
-        private string           _Topic     = string.Empty;
+        private string           _Topic     = String.Empty;
         private int              _UserLimit;
-        private string           _Mode      = string.Empty;
+        private string           _Mode      = String.Empty;
         private DateTime         _ActiveSyncStart;
         private DateTime         _ActiveSyncStop;
         private TimeSpan         _ActiveSyncTime;

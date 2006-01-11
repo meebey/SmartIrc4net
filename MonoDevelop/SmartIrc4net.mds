@@ -1,14 +1,14 @@
 <Combine name="SmartIrc4net" fileversion="2.0">
   <Configurations active="Debug">
     <Configuration name="Release" ctype="CombineConfiguration">
-      <Entry build="False" name="SmartIrc4net" />
-      <Entry build="False" name="Test" />
-      <Entry build="False" name="Benchmark" />
+      <Entry configuration="Release" build="False" name="SmartIrc4net" />
+      <Entry configuration="Release" build="False" name="Test" />
+      <Entry configuration="Release" build="False" name="Benchmark" />
     </Configuration>
     <Configuration name="Debug" ctype="CombineConfiguration">
-      <Entry build="False" name="SmartIrc4net" />
-      <Entry build="False" name="Test" />
-      <Entry build="False" name="Benchmark" />
+      <Entry configuration="Debug" build="False" name="SmartIrc4net" />
+      <Entry configuration="Debug" build="False" name="Test" />
+      <Entry configuration="Debug" build="False" name="Benchmark" />
     </Configuration>
   </Configurations>
   <StartMode startupentry="SmartIrc4net" single="False">
