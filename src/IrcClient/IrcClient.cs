@@ -849,11 +849,11 @@ namespace Meebey.SmartIrc4net
             int chan_count = _AutoRejoinChannels.Count;
             
             string[] names = new string[chan_count];
-            _AutoRejoinChannels.Values.CopyTo(names, 0);
+            _AutoRejoinChannels.Keys.CopyTo(names, 0);
             
             if (_AutoRejoinChannelsWithKeys) {
                 string[] keys = new string[chan_count];
-                _AutoRejoinChannels.Keys.CopyTo(keys, 0);
+                _AutoRejoinChannels.Values.CopyTo(keys, 0);
                 
                 RfcJoin(names, keys, Priority.High);
             } else { 

@@ -71,10 +71,10 @@ namespace Meebey.SmartIrc4net
         private int              _IdleWorkerInterval = 60;
         private int              _PingInterval = 60;
         private int              _PingTimeout = 300;
-        private DateTime         _LastPing;
-        private DateTime         _LastPong;
+        private DateTime         _LastPingSent;
+        private DateTime         _LastPongReceived;
         private TimeSpan         _Lag;
-
+        
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
         /// </event>
@@ -716,8 +716,9 @@ namespace Meebey.SmartIrc4net
                 } else {
                     switch (rawlineex[1]) {
                         case "PONG":
-                            _LastPong = DateTime.Now;
-                            _Lag = _LastPong - _LastPing;
+                            DateTime now = DateTime.Now;
+                            _LastPongReceived = now;
+                            _Lag = now - _LastPingSent;
 
 #if LOG4NET
                             Logger.Connection.Debug("PONG received, took: "+_Lag.TotalMilliseconds+" ms");
@@ -1057,7 +1058,6 @@ namespace Meebey.SmartIrc4net
         {
             private IrcConnection   _Connection;
             private Thread          _Thread;
-            private bool			_Initialized = false;
 
             /// <summary>
             /// 
@@ -1073,6 +1073,10 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Start()
             {
+                DateTime now = DateTime.Now;
+                _Connection._LastPingSent = now;
+                _Connection._LastPongReceived = now;
+                
                 _Thread = new Thread(new ThreadStart(_Worker));
                 _Thread.Name = "IdleWorkerThread ("+_Connection.Address+":"+_Connection.Port+")";
                 _Thread.IsBackground = true;
@@ -1096,15 +1100,16 @@ namespace Meebey.SmartIrc4net
                    while (_Connection.IsConnected ) {
                        if (_Connection.IsRegistered) {
                            DateTime now = DateTime.Now;
-                           TimeSpan last_ping_span = now - _Connection._LastPing;
-                           TimeSpan last_pong_span = now - _Connection._LastPong;
-                           if (last_ping_span.TotalSeconds < _Connection._PingTimeout || !_Initialized) {
-                               if (last_pong_span.TotalSeconds > _Connection._PingInterval || !_Initialized) {
+                           int last_ping_sent = (int)(now - _Connection._LastPingSent).TotalSeconds;
+                           int last_pong_rcvd = (int)(now - _Connection._LastPongReceived).TotalSeconds;
+                           // determins if the resoponse time is ok
+                           if (last_ping_sent < _Connection._PingTimeout) {
+                               // determines if it need to send another ping yet
+                               if (last_pong_rcvd > _Connection._PingInterval) {
                                    _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
-                                   _Connection._LastPing = now;
-                                   _Connection._LastPong = _Connection._LastPing;
-                                   _Initialized = true;
-                               }
+                                   _Connection._LastPingSent = now;
+                                   _Connection._LastPongReceived = now;
+                               } // else connection is fine, just continue
                            } else {
 #if LOG4NET
                                Logger.Socket.Warn("ping timeout, connection lost");
