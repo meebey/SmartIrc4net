@@ -7,7 +7,8 @@ SMARTIRC_DLL=Meebey.SmartIrc4net.dll
 TARGET=$(SMARTIRC_DLL)
 XML_DOC_TARGET=Meebey.SmartIrc4net.xml
 DEBUG_DEFINES=TRACE,DEBUG,LOG4NET
-NDOC=$(CLI) ../../ndoc/bin/mono/1.0/NDocConsole.exe
+#NDOC=$(CLI) ../../ndoc/bin/mono/1.0/NDocConsole.exe
+NDOC=ndoc-console
 NDOC_TARGET_DIR=../docs/html
 
 all: release

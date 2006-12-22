@@ -47,6 +47,7 @@ namespace Meebey.SmartIrc4net
         private int              _IUsermode;
         private string           _Username                = string.Empty;
         private string           _Password                = string.Empty;
+        private bool             _IsAway;
         private string           _CtcpVersion;
         private bool             _ActiveChannelSyncing;
         private bool             _PassiveChannelSyncing;
@@ -358,6 +359,15 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Returns if we are away on this connection
+        /// </summary>
+        public bool IsAway {
+            get {
+                return _IsAway;
+            }
+        }
+        
         /// <summary>
         /// Gets the password for the server.
         /// </summary>
@@ -876,6 +886,8 @@ namespace Meebey.SmartIrc4net
                 _IrcUsers.Clear();
             }
             
+            _IsAway = false;
+            
             _MotdReceived = false;
             _Motd.Clear();
         }
@@ -1252,43 +1264,62 @@ namespace Meebey.SmartIrc4net
                     case 'o':
                         temp = (string)parametersEnumerator.Current;
                         parametersEnumerator.MoveNext();
+                        
                         if (add) {
                             if (ActiveChannelSyncing) {
-                                // update the op list
-                                try {
-                                    channel.UnsafeOps.Add(temp, GetIrcUser(temp));
+                                // sanity check
+                                if (GetChannelUser(ircdata.Channel, temp) != null) {
+                                    // update the op list
+                                    try {
+                                        channel.UnsafeOps.Add(temp, GetIrcUser(temp));
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
+                                        Logger.ChannelSyncing.Debug("added op: "+temp+" to: "+ircdata.Channel);
 #endif
-                                } catch (ArgumentException) {
+                                    } catch (ArgumentException) {
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("duplicate op: "+temp+" in: "+ircdata.Channel+" not added");
+                                        Logger.ChannelSyncing.Debug("duplicate op: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                    }
+                                    
+                                    // update the user op status
+                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
+                                    cuser.IsOp = true;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("set op status: " + temp + " for: "+ircdata.Channel);
+#endif
+                                } else {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
 #endif
                                 }
-                                
-                                // update the user op status
-                                GetChannelUser(ircdata.Channel, temp).IsOp = true;
-#if LOG4NET
-                                Logger.ChannelSyncing.Debug("set op status: "+temp+" for: "+ircdata.Channel);
-#endif
                             }
+                            
                             if (OnOp != null) {
                                 OnOp(this, new OpEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         if (remove) {
                             if (ActiveChannelSyncing) {
-                                // update the op list
-                                channel.UnsafeOps.Remove(temp);
+                                // sanity check
+                                if (GetChannelUser(ircdata.Channel, temp) != null) {
+                                    // update the op list
+                                    channel.UnsafeOps.Remove(temp);
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("removed op: "+temp+" from: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("removed op: "+temp+" from: "+ircdata.Channel);
 #endif
-                                // update the user op status
-                                GetChannelUser(ircdata.Channel, temp).IsOp = false;
+                                    // update the user op status
+                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
+                                    cuser.IsOp = false;
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("unset op status: "+temp+" for: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("unset op status: " + temp + " for: "+ircdata.Channel);
 #endif
+                                } else {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                }
                             }
+                            
                             if (OnDeop != null) {
                                 OnDeop(this, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
@@ -1298,43 +1329,62 @@ namespace Meebey.SmartIrc4net
                         if (SupportNonRfc) {
                             temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
+                            
                             if (add) {
                                 if (ActiveChannelSyncing) {
-                                    // update the halfop list
-                                    try {
-                                        ((NonRfcChannel)channel).UnsafeHalfops.Add(temp, GetIrcUser(temp));
+                                    // sanity check
+                                    if (GetChannelUser(ircdata.Channel, temp) != null) {
+                                        // update the halfop list
+                                        try {
+                                            ((NonRfcChannel)channel).UnsafeHalfops.Add(temp, GetIrcUser(temp));
 #if LOG4NET
-                                        Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
+                                            Logger.ChannelSyncing.Debug("added halfop: "+temp+" to: "+ircdata.Channel);
 #endif
-                                    } catch (ArgumentException) {
+                                        } catch (ArgumentException) {
 #if LOG4NET
-                                        Logger.ChannelSyncing.Debug("duplicate halfop: "+temp+" in: "+ircdata.Channel+" not added");
+                                            Logger.ChannelSyncing.Debug("duplicate halfop: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                        }
+                                        
+                                        // update the user halfop status
+                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
+                                        cuser.IsHalfop = true;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("set halfop status: " + temp + " for: "+ircdata.Channel);
+#endif
+                                    } else {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
 #endif
                                     }
-                                    
-                                    // update the user halfop status
-                                    ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = true;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("set halfop status: "+temp+" for: "+ircdata.Channel);
-#endif
                                 }
+                                
                                 if (OnHalfop != null) {
                                     OnHalfop(this, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                                 }
                             }
                             if (remove) {
                                 if (ActiveChannelSyncing) {
-                                    // update the halfop list
-                                    ((NonRfcChannel)channel).UnsafeHalfops.Remove(temp);
+                                    // sanity check
+                                    if (GetChannelUser(ircdata.Channel, temp) != null) {
+                                        // update the halfop list
+                                        ((NonRfcChannel)channel).UnsafeHalfops.Remove(temp);
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed halfop: "+temp+" from: "+ircdata.Channel);
+                                        Logger.ChannelSyncing.Debug("removed halfop: "+temp+" from: "+ircdata.Channel);
 #endif
-                                    // update the user halfop status
-                                    ((NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp)).IsHalfop = false;
+                                        // update the user halfop status
+                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
+                                        cuser.IsHalfop = false;
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("unset halfop status: "+temp+" for: "+ircdata.Channel);
+                                        Logger.ChannelSyncing.Debug("unset halfop status: " + temp + " for: "+ircdata.Channel);
 #endif
+                                    } else {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                    }
                                 }
+                                
                                 if (OnDehalfop != null) {
                                     OnDehalfop(this, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                                 }
@@ -1344,43 +1394,62 @@ namespace Meebey.SmartIrc4net
                     case 'v':
                         temp = (string)parametersEnumerator.Current;
                         parametersEnumerator.MoveNext();
+                        
                         if (add) {
                             if (ActiveChannelSyncing) {
-                                // update the voice list
-                                try {
-                                    channel.UnsafeVoices.Add(temp, GetIrcUser(temp));
+                                // sanity check
+                                if (GetChannelUser(ircdata.Channel, temp) != null) {
+                                    // update the voice list
+                                    try {
+                                        channel.UnsafeVoices.Add(temp, GetIrcUser(temp));
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
+                                        Logger.ChannelSyncing.Debug("added voice: "+temp+" to: "+ircdata.Channel);
 #endif
-                                } catch (ArgumentException) {
+                                    } catch (ArgumentException) {
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("duplicate voice: "+temp+" in: "+ircdata.Channel+" not added");
+                                        Logger.ChannelSyncing.Debug("duplicate voice: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                    }
+                                    
+                                    // update the user voice status
+                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
+                                    cuser.IsVoice = true;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("set voice status: " + temp + " for: "+ircdata.Channel);
+#endif
+                                } else {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
 #endif
                                 }
-                                
-                                // update the user voice status
-                                GetChannelUser(ircdata.Channel, temp).IsVoice = true;
-#if LOG4NET
-                                Logger.ChannelSyncing.Debug("set voice status: "+temp+" for: "+ircdata.Channel);
-#endif
                             }
+                            
                             if (OnVoice != null) {
                                 OnVoice(this, new VoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         if (remove) {
                             if (ActiveChannelSyncing) {
-                                // update the voice list
-                                channel.UnsafeVoices.Remove(temp);
+                                // sanity check
+                                if (GetChannelUser(ircdata.Channel, temp) != null) {
+                                    // update the voice list
+                                    channel.UnsafeVoices.Remove(temp);
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("removed voice: "+temp+" from: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("removed voice: "+temp+" from: "+ircdata.Channel);
 #endif
-                                // update the user voice status
-                                GetChannelUser(ircdata.Channel, temp).IsVoice = false;
+                                    // update the user voice status
+                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
+                                    cuser.IsVoice = false;
 #if LOG4NET
-                                Logger.ChannelSyncing.Debug("unset voice status: "+temp+" for: "+ircdata.Channel);
+                                    Logger.ChannelSyncing.Debug("unset voice status: " + temp + " for: "+ircdata.Channel);
 #endif
+                                } else {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                }
                             }
+                            
                             if (OnDevoice != null) {
                                 OnDevoice(this, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
@@ -2177,6 +2246,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="ircdata">Message data containing unaway reply information</param>
         private void _Event_RPL_UNAWAY(IrcMessageData ircdata)
         {
+            _IsAway = false;
+            
             if (OnUnAway != null) {
                 OnUnAway(this, new IrcEventArgs(ircdata));
             }
@@ -2188,6 +2259,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="ircdata">Message data containing nowaway reply information</param>
         private void _Event_RPL_NOWAWAY(IrcMessageData ircdata)
         {
+            _IsAway = true;
+
             if (OnNowAway != null) {
                 OnNowAway(this, new IrcEventArgs(ircdata));
             }

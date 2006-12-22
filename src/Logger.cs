@@ -74,13 +74,15 @@ namespace Meebey.SmartIrc4net
             
             _Init = true;
             
+            /*
             FileInfo fi = new FileInfo("SmartIrc4net_log.config");
             if (fi.Exists) {
                     log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
             } else {
                 log4net.Config.BasicConfigurator.Configure();
             }
-
+            */
+            
             _LoggerList[LogCategory.Main]           = log4net.LogManager.GetLogger("MAIN");
             _LoggerList[LogCategory.Socket]         = log4net.LogManager.GetLogger("SOCKET");
             _LoggerList[LogCategory.Queue]          = log4net.LogManager.GetLogger("QUEUE");

@@ -62,7 +62,8 @@ namespace Meebey.SmartIrc4net
         private bool             _AutoRetry;
         private int              _AutoRetryDelay = 30;
         private bool             _AutoReconnect;
-        private Encoding         _Encoding = Encoding.GetEncoding("ISO-8859-1");
+        private Encoding         _Encoding = Encoding.Default;
+        //private Encoding         _Encoding = Encoding.GetEncoding("ISO-8859-1");
         //private Encoding         _Encoding = Encoding.ASCII;
         //private Encoding         _Encoding = Encoding.GetEncoding(1252);
         //private Encoding         _Encoding = Encoding.UTF8;
@@ -355,7 +356,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public IrcConnection()
         {
-#if LOG4NET        
+#if LOG4NET
             Logger.Init();
             Logger.Main.Debug("IrcConnection created");
 #endif
@@ -386,7 +387,6 @@ namespace Meebey.SmartIrc4net
         ~IrcConnection()
         {
             Logger.Main.Debug("IrcConnection destroyed");
-            log4net.LogManager.Shutdown();
         }
 #endif
         
@@ -425,8 +425,16 @@ namespace Meebey.SmartIrc4net
                 _TcpClient.SendTimeout = _SocketSendTimeout*1000;
                 _TcpClient.Connect(ip, port);
                 
-                _Reader = new StreamReader(_TcpClient.GetStream(), Encoding);
-                _Writer = new StreamWriter(_TcpClient.GetStream(), Encoding);
+                _Reader = new StreamReader(_TcpClient.GetStream(), _Encoding);
+                _Writer = new StreamWriter(_TcpClient.GetStream(), _Encoding);
+                
+                if (_Encoding.GetPreamble().Length > 0) {
+                    // HACK: we have an encoding that has some kind of preamble
+                    // like UTF-8 has a BOM, this will confuse the IRCd!
+                    // Thus we send a \r\n so the IRCd can safely ignore that
+                    // garbage.
+                    _Writer.WriteLine();
+                }
 
                 // Connection was succeful, reseting the connect counter
                 _ConnectTries = 0;

@@ -1,16 +1,17 @@
-<Combine name="SmartIrc4net" fileversion="2.0">
+<Combine name="SmartIrc4net" fileversion="2.0" outputpath="./build/bin/">
   <Configurations active="Debug">
     <Configuration name="Release" ctype="CombineConfiguration">
-      <Entry configuration="Release" build="False" name="SmartIrc4net" />
-      <Entry configuration="Release" build="False" name="Test" />
-      <Entry configuration="Release" build="False" name="Benchmark" />
+      <Entry build="True" name="SmartIrc4net" configuration="Release" />
+      <Entry build="True" name="Test" configuration="Release" />
+      <Entry build="True" name="Benchmark" configuration="Release" />
     </Configuration>
     <Configuration name="Debug" ctype="CombineConfiguration">
-      <Entry configuration="Debug" build="False" name="SmartIrc4net" />
-      <Entry configuration="Debug" build="False" name="Test" />
-      <Entry configuration="Debug" build="False" name="Benchmark" />
+      <Entry build="True" name="SmartIrc4net" configuration="Debug" />
+      <Entry build="True" name="Test" configuration="Debug" />
+      <Entry build="True" name="Benchmark" configuration="Debug" />
     </Configuration>
   </Configurations>
+  <DeployTargets />
   <StartMode startupentry="SmartIrc4net" single="False">
     <Execute type="None" entry="SmartIrc4net" />
     <Execute type="Execute" entry="Test" />

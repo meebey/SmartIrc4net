@@ -64,10 +64,9 @@ public class Test
                 // hashtable key and nickname 
                 string nickname_list = "";
                 nickname_list += "Users: ";
-                IDictionaryEnumerator it = channel.Users.GetEnumerator();
-                while(it.MoveNext()) {
-                    string      key         = (string)it.Key;
-                    ChannelUser channeluser = (ChannelUser)it.Value;
+                foreach (DictionaryEntry de in channel.Users) {
+                    string      key         = (string)de.Key;
+                    ChannelUser channeluser = (ChannelUser)de.Value;
                     nickname_list += "(";
                     if (channeluser.IsOp) {
                         nickname_list += "@";
@@ -113,6 +112,9 @@ public class Test
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "Main";
+        
+        // UTF-8 test
+        irc.Encoding = System.Text.Encoding.UTF8;
         
         // wait time between messages, we can set this lower on own irc servers
         irc.SendDelay = 200;
