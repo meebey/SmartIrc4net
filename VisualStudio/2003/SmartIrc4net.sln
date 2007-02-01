@@ -3,15 +3,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartIrc4net", "SmartIrc4ne
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark", "..\examples\benchmark\VisualStudio\benchmark.csproj", "{CC896253-BC49-4868-B4B4-014BEBE8B826}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark", "..\..\examples\benchmark\VisualStudio\2003\benchmark.csproj", "{CC896253-BC49-4868-B4B4-014BEBE8B826}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "..\examples\test\VisualStudio\test.csproj", "{95AB3A7C-889E-4560-A717-4AC220353D81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "..\..\examples\test\VisualStudio\2003\test.csproj", "{95AB3A7C-889E-4560-A717-4AC220353D81}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stresstest", "..\examples\stresstest\VisualStudio\stresstest.csproj", "{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stresstest", "..\..\examples\stresstest\VisualStudio\2003\stresstest.csproj", "{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject

@@ -36,7 +36,7 @@
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "false"
-                    OutputPath = "..\bin\net\debug\"
+                    OutputPath = "..\..\bin\debug\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -56,7 +56,7 @@
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "true"
-                    OutputPath = "..\bin\net\release\"
+                    OutputPath = "..\..\bin\release\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -69,127 +69,132 @@
                     AssemblyName = "System"
                     HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
-            </References>
+                <Reference
+                    Name = "log4net"
+                    AssemblyName = "log4net"
+                    HintPath = "..\..\bin\log4net.dll"
+                />
+		</References>
         </Build>
         <Files>
             <Include>
                 <File
                     RelPath = "AssemblyInfo.cs"
-                    Link = "..\src\AssemblyInfo.cs"
+                    Link = "..\..\src\AssemblyInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Consts.cs"
-                    Link = "..\src\Consts.cs"
+                    Link = "..\..\src\Consts.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "EventArgs.cs"
-                    Link = "..\src\EventArgs.cs"
+                    Link = "..\..\src\EventArgs.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Exceptions.cs"
-                    Link = "..\src\Exceptions.cs"
+                    Link = "..\..\src\Exceptions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Logger.cs"
-                    Link = "..\src\Logger.cs"
+                    Link = "..\..\src\Logger.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\Channel.cs"
-                    Link = "..\src\IrcClient\Channel.cs"
+                    Link = "..\..\src\IrcClient\Channel.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\ChannelUser.cs"
-                    Link = "..\src\IrcClient\ChannelUser.cs"
+                    Link = "..\..\src\IrcClient\ChannelUser.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\Delegates.cs"
-                    Link = "..\src\IrcClient\Delegates.cs"
+                    Link = "..\..\src\IrcClient\Delegates.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\EventArgs.cs"
-                    Link = "..\src\IrcClient\EventArgs.cs"
+                    Link = "..\..\src\IrcClient\EventArgs.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\IrcClient.cs"
-                    Link = "..\src\IrcClient\IrcClient.cs"
+                    Link = "..\..\src\IrcClient\IrcClient.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\IrcMessageData.cs"
-                    Link = "..\src\IrcClient\IrcMessageData.cs"
+                    Link = "..\..\src\IrcClient\IrcMessageData.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\IrcUser.cs"
-                    Link = "..\src\IrcClient\IrcUser.cs"
+                    Link = "..\..\src\IrcClient\IrcUser.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\NonRfcChannel.cs"
-                    Link = "..\src\IrcClient\NonRfcChannel.cs"
+                    Link = "..\..\src\IrcClient\NonRfcChannel.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcClient\NonRfcChannelUser.cs"
-                    Link = "..\src\IrcClient\NonRfcChannelUser.cs"
+                    Link = "..\..\src\IrcClient\NonRfcChannelUser.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcCommands\IrcCommands.cs"
-                    Link = "..\src\IrcCommands\IrcCommands.cs"
+                    Link = "..\..\src\IrcCommands\IrcCommands.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcCommands\Rfc2812.cs"
-                    Link = "..\src\IrcCommands\Rfc2812.cs"
+                    Link = "..\..\src\IrcCommands\Rfc2812.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcConnection\Delegates.cs"
-                    Link = "..\src\IrcConnection\Delegates.cs"
+                    Link = "..\..\src\IrcConnection\Delegates.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcConnection\EventArgs.cs"
-                    Link = "..\src\IrcConnection\EventArgs.cs"
+                    Link = "..\..\src\IrcConnection\EventArgs.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcConnection\IrcConnection.cs"
-                    Link = "..\src\IrcConnection\IrcConnection.cs"
+                    Link = "..\..\src\IrcConnection\IrcConnection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "IrcConnection\IrcTcpClient.cs"
-                    Link = "..\src\IrcConnection\IrcTcpClient.cs"
+                    Link = "..\..\src\IrcConnection\IrcTcpClient.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

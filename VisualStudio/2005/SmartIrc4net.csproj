@@ -1,0 +1,173 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{19607F57-B521-4477-9DE0-F0D9B1A68BC7}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Meebey.SmartIrc4net</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SmartIrc4net</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\bin\debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE;LOG4NET</DefineConstants>
+    <DocumentationFile>Meebey.SmartIrc4net.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\bin\release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>
+    </DefineConstants>
+    <DocumentationFile>Meebey.SmartIrc4net.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.0.30714, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\bin\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\Consts.cs">
+      <Link>Consts.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\EventArgs.cs">
+      <Link>EventArgs.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\Exceptions.cs">
+      <Link>Exceptions.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\Channel.cs">
+      <Link>IrcClient\Channel.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\ChannelUser.cs">
+      <Link>IrcClient\ChannelUser.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\Delegates.cs">
+      <Link>IrcClient\Delegates.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\EventArgs.cs">
+      <Link>IrcClient\EventArgs.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\IrcClient.cs">
+      <Link>IrcClient\IrcClient.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\IrcMessageData.cs">
+      <Link>IrcClient\IrcMessageData.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\IrcUser.cs">
+      <Link>IrcClient\IrcUser.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\NonRfcChannel.cs">
+      <Link>IrcClient\NonRfcChannel.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcClient\NonRfcChannelUser.cs">
+      <Link>IrcClient\NonRfcChannelUser.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcCommands\IrcCommands.cs">
+      <Link>IrcCommands\IrcCommands.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcCommands\Rfc2812.cs">
+      <Link>IrcCommands\Rfc2812.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcConnection\Delegates.cs">
+      <Link>IrcConnection\Delegates.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcConnection\EventArgs.cs">
+      <Link>IrcConnection\EventArgs.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcConnection\IrcConnection.cs">
+      <Link>IrcConnection\IrcConnection.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\IrcConnection\IrcTcpClient.cs">
+      <Link>IrcConnection\IrcTcpClient.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\..\src\Logger.cs">
+      <Link>Logger.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
