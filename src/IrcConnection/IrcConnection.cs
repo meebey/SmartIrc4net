@@ -63,10 +63,6 @@ namespace Meebey.SmartIrc4net
         private int              _AutoRetryDelay = 30;
         private bool             _AutoReconnect;
         private Encoding         _Encoding = Encoding.Default;
-        //private Encoding         _Encoding = Encoding.GetEncoding("ISO-8859-1");
-        //private Encoding         _Encoding = Encoding.ASCII;
-        //private Encoding         _Encoding = Encoding.GetEncoding(1252);
-        //private Encoding         _Encoding = Encoding.UTF8;
         private int              _SocketReceiveTimeout  = 600;
         private int              _SocketSendTimeout = 600;
         private int              _IdleWorkerInterval = 60;
@@ -266,7 +262,7 @@ namespace Meebey.SmartIrc4net
 
         /// <summary>
         /// Encoding which is used for reading and writing to the socket
-        /// Default: ISO-8859-1
+        /// Default: encoding of the system
         /// </summary>
         public Encoding Encoding {
             get {
@@ -343,7 +339,7 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Server lag
+        /// Latency between client and the server
         /// </summary>
         public TimeSpan Lag {
             get {
@@ -456,10 +452,16 @@ namespace Meebey.SmartIrc4net
                 }
             } catch (Exception e) {
                 if (_Reader != null) {
-                    _Reader.Close();
+                    try {
+                        _Reader.Close();
+                    } catch (ObjectDisposedException) {
+                    }
                 }
                 if (_Writer != null) {
-                    _Writer.Close();
+                    try {
+                        _Writer.Close();
+                    } catch (ObjectDisposedException) {
+                    }
                 }
                 if (_TcpClient != null) {
                     _TcpClient.Close();
@@ -471,14 +473,14 @@ namespace Meebey.SmartIrc4net
                 Logger.Connection.Info("connection failed: "+e.Message);
 #endif
                 if (_AutoRetry &&
-                    (_ConnectTries <= 3)) {
+                    _ConnectTries <= 3) {
                     if (OnAutoConnectError != null) {
                         OnAutoConnectError(this, new AutoConnectErrorEventArgs(Address, Port, e));
                     }
 #if LOG4NET
                     Logger.Connection.Debug("delaying new connect attempt for "+_AutoRetryDelay+" sec");
 #endif
-                    Thread.Sleep(_AutoRetryDelay*1000);
+                    Thread.Sleep(_AutoRetryDelay * 1000);
                     _NextAddress();
                     Connect(_AddressList, _Port);
                 } else {
@@ -606,13 +608,13 @@ namespace Meebey.SmartIrc4net
                 // block till the queue has data, but bail out on connection error
                 while (IsConnected &&
                        !IsConnectionError &&
-                       (_ReadThread.Queue.Count == 0)) {
+                       _ReadThread.Queue.Count == 0) {
                     Thread.Sleep(10);
                 }
             }
 
             if (IsConnected &&
-                (_ReadThread.Queue.Count > 0)) {
+                _ReadThread.Queue.Count > 0) {
                 data = (string)(_ReadThread.Queue.Dequeue());
             }
 
@@ -626,7 +628,7 @@ namespace Meebey.SmartIrc4net
             }
 
             if (IsConnectionError &&
-                (OnConnectionError != null)) {
+                OnConnectionError != null) {
                 OnConnectionError(this, EventArgs.Empty);
             }
             
@@ -669,6 +671,12 @@ namespace Meebey.SmartIrc4net
                 } catch (IOException) {
 #if LOG4NET
                     Logger.Socket.Warn("sending data failed, connection lost");
+#endif
+                    IsConnectionError = true;
+                    return false;
+                } catch (ObjectDisposedException) {
+#if LOG4NET
+                    Logger.Socket.Warn("sending data failed (stream error), connection lost");
 #endif
                     IsConnectionError = true;
                     return false;
@@ -799,7 +807,10 @@ namespace Meebey.SmartIrc4net
             public void Stop()
             {
                 _Thread.Abort();
-                _Connection._Reader.Close();
+                try {
+                    _Connection._Reader.Close();
+                } catch (ObjectDisposedException) {
+                }
             }
 
             private void _Worker()
@@ -882,7 +893,10 @@ namespace Meebey.SmartIrc4net
             public void Stop()
             {
                 _Thread.Abort();
-                _Connection._Writer.Close();
+                try {
+                    _Connection._Writer.Close();
+                } catch (ObjectDisposedException) {
+                }
             }
 
             private void _Worker()
