@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}"
+        ProjectGuid = "{CC896253-BC49-4868-B4B4-014BEBE8B826}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "stresstest"
+                AssemblyName = "benchmark"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -18,9 +18,9 @@
                 OutputType = "Exe"
                 PreBuildEvent = ""
                 PostBuildEvent = ""
-                RootNamespace = "stresstest"
+                RootNamespace = "benchmark"
                 RunPostBuildEvent = "OnBuildSuccess"
-                StartupObject = ""
+                StartupObject = "Benchmark"
             >
                 <Config
                     Name = "Debug"
@@ -36,7 +36,7 @@
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "false"
-                    OutputPath = "..\..\..\bin\net\debug\"
+                    OutputPath = "..\..\..\..\bin\debug\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -56,7 +56,7 @@
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "true"
-                    OutputPath = "..\..\..\bin\net\release\"
+                    OutputPath = "..\..\..\..\bin\release\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
@@ -72,7 +72,7 @@
                 <Reference
                     Name = "Meebey.SmartIrc4net"
                     AssemblyName = "Meebey.SmartIrc4net"
-                    HintPath = "..\..\..\bin\net\release\Meebey.SmartIrc4net.dll"
+                    HintPath = "..\..\..\..\bin\release\Meebey.SmartIrc4net.dll"
                 />
             </References>
         </Build>
@@ -80,13 +80,13 @@
             <Include>
                 <File
                     RelPath = "AssemblyInfo.cs"
-                    Link = "..\AssemblyInfo.cs"
+                    Link = "..\..\AssemblyInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "stresstest.cs"
-                    Link = "..\stresstest.cs"
+                    RelPath = "benchmark.cs"
+                    Link = "..\..\benchmark.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

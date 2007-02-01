@@ -1,4 +1,4 @@
-<Combine name="SmartIrc4net" fileversion="2.0" outputpath="./build/bin/">
+<Combine name="SmartIrc4net" fileversion="2.0">
   <Configurations active="Debug">
     <Configuration name="Release" ctype="CombineConfiguration">
       <Entry build="True" name="SmartIrc4net" configuration="Release" />
