@@ -40,7 +40,9 @@ namespace Meebey.SmartIrc4net
     /// 
     /// </summary>
     /// <threadsafety static="true" instance="true" />
+    /*
     public class IrcProperties
     {
     }
+    */
 }
