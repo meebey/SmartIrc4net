@@ -15,32 +15,32 @@ all: release
 
 debug: debug-stamp
 debug-stamp: $(SOURCE_FILES)
-	$(CSC) /debug /define:$(DEBUG_DEFINES) /target:library /r:bin/$(LOG4NET_DLL) /out:bin/mono/debug/$(TARGET) $^
+	$(CSC) /debug /define:$(DEBUG_DEFINES) /target:library /r:bin/$(LOG4NET_DLL) /out:bin/debug/$(TARGET) $^
 	touch debug-stamp
 
 release: release-stamp
 release-stamp: $(SOURCE_FILES)
-	$(CSC) /target:library /doc:bin/mono/release/$(XML_DOC_TARGET) /out:bin/mono/release/$(TARGET) $^
+	$(CSC) /target:library /doc:bin/release/$(XML_DOC_TARGET) /out:bin/release/$(TARGET) $^
 	touch release-stamp
 
 release-signed: release-signed-stamp
 release-signed-stamp: $(SOURCE_FILES)
-	$(CSC) /target:library /define:DELAY_SIGN /out:bin/mono/release/$(TARGET) $^
-	$(CSS) -R bin/mono/release/$(TARGET) ../SmartIrc4net.snk
+	$(CSC) /target:library /define:DELAY_SIGN /out:bin/net-1.1/release/$(TARGET) $^
+	$(CSS) -R bin/net-1.1/release/$(TARGET) ../SmartIrc4net.snk
 	touch release-signed-stamp
 
 docs: release
-	$(NDOC) bin/mono/release/$(SMARTIRC_DLL) \
+	$(NDOC) bin/release/$(SMARTIRC_DLL) \
 	  -documenter=MSDN -OutputTarget=Web -OutputDirectory=$(NDOC_TARGET_DIR) \
 	  -Title="SmartIrc4net API documentation" -SdkLinksOnWeb=true \
 	  -AssemblyVersionInfo=AssemblyVersion
 
 install: release
-	$(GACUTIL) -i bin/mono/release/$(SMARTIRC_DLL) -f -package SmartIrc4net
+	$(GACUTIL) -i bin/release/$(SMARTIRC_DLL) -f -package SmartIrc4net
 
 clean:
-	-rm -f bin/mono/debug/$(TARGET)
-	-rm -f bin/mono/release/$(TARGET)
+	-rm -f bin/debug/$(TARGET)
+	-rm -f bin/release/$(TARGET)
 	-rm -f debug-stamp
 	-rm -f release-stamp
 	-rm -f release-signed-stamp
