@@ -6,7 +6,7 @@
  * $Date$
  */
 
-v0.4.0 (SVN r226)
+v0.4.0 (SVN r266)
 ------
 fixes:
 - fixed null reference exception when CTCP PING contains no data
