@@ -40,6 +40,7 @@ install: release
 
 clean:
 	-rm -f bin/debug/$(TARGET)
+	-rm -f bin/debug/$(TARGET).mdb
 	-rm -f bin/release/$(TARGET)
 	-rm -f debug-stamp
 	-rm -f release-stamp
