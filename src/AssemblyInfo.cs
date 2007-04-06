@@ -45,7 +45,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("qNETp")]
 [assembly: AssemblyProduct("SmartIrc4net")]
-[assembly: AssemblyCopyright("2003-2005 (C) Mirco Bauer <meebey@meebey.net>")]
+[assembly: AssemblyCopyright("2003-2007 (C) Mirco Bauer <meebey@meebey.net>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

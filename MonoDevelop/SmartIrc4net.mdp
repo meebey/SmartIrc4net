@@ -1,5 +1,5 @@
 <Project name="SmartIrc4net" fileversion="2.0" language="C#" clr-version="Net_1_1" ctype="DotNetProject">
-  <Configurations active="Release">
+  <Configurations active="Debug">
     <Configuration name="Debug" ctype="DotNetProjectConfiguration">
       <Output directory="../bin/mono/debug" assembly="Meebey.SmartIrc4net" />
       <Build debugmode="True" target="Library" />

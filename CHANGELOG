@@ -13,10 +13,55 @@ fixes:
   (thanks to Nick 'Zaf' Clifford, closes sf.net patch #1199630)
 - fixed NonRfcSupport, it didn't check for NonRfcSupport in _Event_RPL_NAMREPLY
   (thanks to the anonymous poster on the sf.net forum for reporting this)
+- added sanity checks to the mode change parser in IrcClient._InterpretChannelMode(),
+  otherwise some nasty IRCd servers might break us.
+- catch ObjectDisposedExceptions in connection handling code.
 
 new:
+- IrcConnection now uses an active pinger to better detect network problems,
+  by default every 60 seconds a ping will be send to the server, if it
+  doesn't respond the class will disconnect or reconnect depending on
+  the IrcConnection.AutoReconnect property.
+- added IrcConnection.OnAutoConnectError event, raised when there is a problem
+  with the connection, it passes in AutoConnectErrorEventArgs which server and port
+  was used and which exception was thrown, this way application can display and
+  handle connection errors.
 - reconnect handling will now store/use keys if ActiveChannelSyncing and
   AutoRejoin is activated.
+- UTF-8 support
+  now you can set IrcConnection.Encoding = Encoding.UTF8 and all messages send
+  and receives will be encoded/decoded to/from UTF-8
+- added lots of documentation stabs
+- added IrcClient.IsAway property.
+- added IrcClient.OnAway, IrcClient.OnAway, IrcClient.OnUnAway and IrcClient.OnNowAway events.
+- added IrcClient.OnPong event.
+- added IrcClient.AutoJoinOnInvite property, if enabled and the class receives an
+  invite it will join that channel automatic (don't worry it will not join "0").
+- added IrcClient.AutoRejoinOnKick property, if enabled and the class was in a
+  channel and got kicked, it will try to rejoin that channel.
+- added IrcClient.AutoNickHandling property, now you can deactivate the
+  automatic nick change when a nick collision happens, so you can handle
+  it on your application instead.
+- added IrcCLient.NicknameList property, set in Login() call, will try the
+  different nicks when the nick was already used, in order.
+- added IrcClient.Login() overload for passing a nickname list.
+- added some documentation.
+- added IrcConnection.Lag property, indicates how much lag is between the
+  IRCd server and the IRC client.
+- added VisualStudio 2005 project files.
+
+changes:
+- IrcConnection.Encoding now uses the system encoding as default!
+  So you might have to set it to Encoding.GetEncoding("ISO-8859-1") manually.
+- IrcClient.Reconnect() now stores channel keys too for rejoining them.
+- IrcClient.OnCtcpRequest and IrcClient.OnCtcpReply events now passes parsed
+  CTCP data as CtcpEventArgs.
+- Removed log4net initialization, as this can conflict with applications using log4net.
+  If you need debug output, use the debug build and add this code to your application:
+  log4net.Config.BasicConfigurator.Configure();
+  or if you want the old config style with a config file:
+  FileInfo fi = new FileInfo("SmartIrc4net_log.config");
+  log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
 
 v0.3.5 (SVN r184)
 ------
