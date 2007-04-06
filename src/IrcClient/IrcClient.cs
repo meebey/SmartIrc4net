@@ -1794,7 +1794,7 @@ namespace Meebey.SmartIrc4net
                     if (_CtcpVersion == null) {
                         versionstring = VersionString;
                     } else {
-                        versionstring = _CtcpVersion+" | using "+VersionString;
+                        versionstring = _CtcpVersion;
                     }
                     SendMessage(SendType.CtcpReply, ircdata.Nick, "VERSION "+versionstring);
                 } else if (ircdata.Message.StartsWith("\x1"+"CLIENTINFO")) {

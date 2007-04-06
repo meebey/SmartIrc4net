@@ -62,6 +62,8 @@ changes:
   or if you want the old config style with a config file:
   FileInfo fi = new FileInfo("SmartIrc4net_log.config");
   log4net.Config.DOMConfigurator.ConfigureAndWatch(fi);
+- When IrcClient.CtcpVersion is set, the library will no longer advertise
+  itself in CTCP VERSION replies.
 
 v0.3.5 (SVN r184)
 ------
