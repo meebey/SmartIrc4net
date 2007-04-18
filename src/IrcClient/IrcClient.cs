@@ -820,12 +820,17 @@ namespace Meebey.SmartIrc4net
         
         private void _OnConnectionError(object sender, EventArgs e)
         {
-            // AutoReconnect is handled in IrcConnection._OnConnectionError
-            if (AutoRelogin) {
-                Login(_NicknameList, Realname, IUsermode, Username, Password);
-            }
-            if (AutoRejoin) {
-                _RejoinChannels();
+            try {
+                // AutoReconnect is handled in IrcConnection._OnConnectionError
+                if (AutoReconnect && AutoRelogin) {
+                    Login(_NicknameList, Realname, IUsermode, Username, Password);
+                }
+                if (AutoReconnect && AutoRejoin) {
+                    _RejoinChannels();
+                }
+            } catch (NotConnectedException) {
+                // HACK: this is hacky, we don't know if the Reconnect was actually successful
+                // means sending IRC commands without a connection throws NotConnectedExceptions 
             }
         }
         
@@ -834,6 +839,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Storing channels for rejoin...");
 #endif
+            _AutoRejoinChannels.Clear();
             if (ActiveChannelSyncing || PassiveChannelSyncing) {
                 // store the key using channel sync
                 foreach (Channel channel in _Channels.Values) {

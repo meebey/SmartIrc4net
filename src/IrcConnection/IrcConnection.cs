@@ -58,6 +58,7 @@ namespace Meebey.SmartIrc4net
         private bool             _IsRegistered;
         private bool             _IsConnected;
         private bool             _IsConnectionError;
+        private bool             _IsDisconnecting;
         private int              _ConnectTries;
         private bool             _AutoRetry;
         private int              _AutoRetryDelay = 30;
@@ -121,6 +122,19 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        protected bool IsDisconnecting {
+            get {
+                lock (this) {
+                    return _IsDisconnecting;
+                }
+            }
+            set {
+                lock (this) {
+                    _IsDisconnecting = value;
+                }
+            }
+        }
+        
         /// <summary>
         /// Gets the current address of the connection
         /// </summary>
@@ -538,12 +552,16 @@ namespace Meebey.SmartIrc4net
             if (OnDisconnecting != null) {
                 OnDisconnecting(this, EventArgs.Empty);
             }
-
+            
+            IsDisconnecting = true;
+            
             _ReadThread.Stop();
             _WriteThread.Stop();
             _TcpClient.Close();
             _IsConnected = false;
             _IsRegistered = false;
+            
+            IsDisconnecting = false;
             
             if (OnDisconnected != null) {
                 OnDisconnected(this, EventArgs.Empty);
@@ -628,6 +646,7 @@ namespace Meebey.SmartIrc4net
             }
 
             if (IsConnectionError &&
+                !IsDisconnecting &&
                 OnConnectionError != null) {
                 OnConnectionError(this, EventArgs.Empty);
             }
@@ -666,7 +685,7 @@ namespace Meebey.SmartIrc4net
         {
             if (IsConnected) {
                 try {
-                    _Writer.Write(data+"\r\n");
+                    _Writer.Write(data + "\r\n");
                     _Writer.Flush();
                 } catch (IOException) {
 #if LOG4NET
