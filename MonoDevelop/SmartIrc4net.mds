@@ -11,7 +11,6 @@
       <Entry build="False" name="Benchmark" configuration="Debug" />
     </Configuration>
   </Configurations>
-  <DeployTargets />
   <StartMode startupentry="SmartIrc4net" single="False">
     <Execute type="None" entry="SmartIrc4net" />
     <Execute type="Execute" entry="Test" />

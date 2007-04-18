@@ -13,7 +13,6 @@
       <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" mainclass="" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
   </Configurations>
-  <DeployTargets />
   <Contents>
     <File name="./src/Makefile" subtype="Code" buildaction="Nothing" />
     <File name="./src/AssemblyInfo.cs" subtype="Code" buildaction="Compile" />
