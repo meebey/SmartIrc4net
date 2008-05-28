@@ -33,6 +33,9 @@ using System.Collections;
 using System.Threading;
 using System.Reflection;
 using System.Net.Sockets;
+#if NET_2_0
+using System.Net.Security;
+#endif
 
 namespace Meebey.SmartIrc4net
 {
@@ -47,6 +50,9 @@ namespace Meebey.SmartIrc4net
         private string[]         _AddressList = {"localhost"};
         private int              _CurrentAddress;
         private int              _Port = 6667;
+#if NET_2_0        
+        private bool             _UseSsl;
+#endif
         private StreamReader     _Reader;
         private StreamWriter     _Writer;
         private ReadThread       _ReadThread;
@@ -287,6 +293,26 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+#if NET_2_0        
+        /// <summary>
+        /// Enables/disables using SSL for the connection
+        /// Default: false
+        /// </summary>
+        public bool UseSsl {
+            get {
+                return _UseSsl;
+            }
+            set {
+                _UseSsl = value;
+                if (value) {
+                    _Port = 6697;
+                } else {
+                    _Port = 6667;
+                }
+            }
+        }
+#endif
+
         /// <summary>
         /// Timeout in seconds for receiving data from the socket
         /// Default: 600
@@ -412,7 +438,7 @@ namespace Meebey.SmartIrc4net
         public void Connect(string[] addresslist, int port)
         {
             if (_IsConnected) {
-                throw new AlreadyConnectedException("Already connected to: "+Address+":"+Port);
+                throw new AlreadyConnectedException("Already connected to: " + Address + ":" + Port);
             }
 
 #if LOG4NET
@@ -435,8 +461,18 @@ namespace Meebey.SmartIrc4net
                 _TcpClient.SendTimeout = _SocketSendTimeout*1000;
                 _TcpClient.Connect(ip, port);
                 
-                _Reader = new StreamReader(_TcpClient.GetStream(), _Encoding);
-                _Writer = new StreamWriter(_TcpClient.GetStream(), _Encoding);
+                Stream stream = _TcpClient.GetStream();
+#if NET_2_0
+                if (_UseSsl) {
+                    SslStream sslStream = new SslStream(stream, false, delegate {
+                        return true;
+                    });
+                    sslStream.AuthenticateAsClient(Address);
+                    stream = sslStream;
+                }
+#endif
+                _Reader = new StreamReader(stream, _Encoding);
+                _Writer = new StreamWriter(stream, _Encoding);
                 
                 if (_Encoding.GetPreamble().Length > 0) {
                     // HACK: we have an encoding that has some kind of preamble
@@ -510,7 +546,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="port">Port number to connect to</param>
         public void Connect(string address, int port)
         {
-            Connect(new string[] {address}, port);
+            Connect(new string[] { address }, port);
         }
 
         /// <summary>
@@ -862,6 +898,10 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.Socket.Debug("ReadThread aborted");
 #endif
+                } catch (Exception ex) {
+#if LOG4NET
+                    Logger.Socket.Error(ex);
+#endif
                 }
             }
         }
@@ -943,6 +983,10 @@ namespace Meebey.SmartIrc4net
                     Thread.ResetAbort();
 #if LOG4NET
                     Logger.Socket.Debug("WriteThread aborted");
+#endif
+                } catch (Exception ex) {
+#if LOG4NET
+                    Logger.Socket.Error(ex);
 #endif
                 }
             }
@@ -1166,8 +1210,11 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.Socket.Debug("IdleWorkerThread aborted");
 #endif
+                } catch (Exception ex) {
+#if LOG4NET
+                    Logger.Socket.Error(ex);
+#endif
                 }
-            }
         }
     }
 }
