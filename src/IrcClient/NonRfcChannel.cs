@@ -60,7 +60,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Halfops {
             get {
-                return (Hashtable)_Halfops.Clone();
+                return (Hashtable) _Halfops.Clone();
             }
         }
 

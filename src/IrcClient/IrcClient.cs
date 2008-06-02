@@ -757,7 +757,7 @@ namespace Meebey.SmartIrc4net
             }
             type = _GetMessageType(rawline);
             if (colonpos != -1) {
-                message = line.Substring(colonpos+1);
+                message = line.Substring(colonpos + 1);
             }
 
             switch (type) {
@@ -802,6 +802,29 @@ namespace Meebey.SmartIrc4net
                                        );
 #endif
             return data;
+        }
+        
+        protected virtual IrcUser CreateIrcUser(string nickname)
+        {
+             return new IrcUser(nickname, this);
+        }
+        
+        protected virtual Channel CreateChannel(string name)
+        {
+            if (_SupportNonRfc) {
+                return new NonRfcChannel(name);
+            } else {
+                return new Channel(name);
+            }
+        }
+        
+        protected virtual ChannelUser CreateChannelUser(string channel, IrcUser ircUser)
+        {
+            if (_SupportNonRfc) {
+                return new NonRfcChannelUser(channel, ircUser);
+            } else {
+                return new ChannelUser(channel, ircUser);
+            }
         }
         
         private void _Worker(object sender, ReadLineEventArgs e)
@@ -1542,15 +1565,17 @@ namespace Meebey.SmartIrc4net
                         default:
                             if (add) {
                                 if (ActiveChannelSyncing) {
-                                    channel.Mode += mode[i];
+                                    if (channel.Mode.IndexOf(mode[i]) == -1) {
+                                        channel.Mode += mode[i];
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("added channel mode ("+mode[i]+") for: "+ircdata.Channel);
+                                        Logger.ChannelSyncing.Debug("added channel mode ("+mode[i]+") for: "+ircdata.Channel);
 #endif
+                                    }
                                 }
                             }
                             if (remove) {
                                 if (ActiveChannelSyncing) {
-                                    channel.Mode = channel.Mode.Replace(mode[i], new char());
+                                    channel.Mode = channel.Mode.Replace(mode[i].ToString(), String.Empty);
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("removed channel mode ("+mode[i]+") for: "+ircdata.Channel);
 #endif
@@ -1561,8 +1586,7 @@ namespace Meebey.SmartIrc4net
                 }
         }
         
-        // <internal messagehandler>
-
+#region Internal Messagehandlers
         /// <summary>
         /// Event handler for ping messages
         /// </summary>
@@ -1627,11 +1651,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.ChannelSyncing.Debug("joining channel: "+channelname);
 #endif
-                    if (SupportNonRfc) {
-                        channel = new NonRfcChannel(channelname);
-                    } else {
-                        channel = new Channel(channelname);
-                    }
+                    channel = CreateChannel(channelname);
                     _Channels.Add(channelname, channel);
                     // request channel mode
                     RfcMode(channelname);
@@ -1658,12 +1678,7 @@ namespace Meebey.SmartIrc4net
                     _IrcUsers.Add(who, ircuser);
                 }
 
-                ChannelUser channeluser;
-                if (SupportNonRfc) {
-                    channeluser = new NonRfcChannelUser(channelname, ircuser);
-                } else {
-                    channeluser = new ChannelUser(channelname, ircuser);
-                }
+                ChannelUser channeluser = CreateChannelUser(channelname, ircuser);
                 channel.UnsafeUsers.Add(who, channeluser);
             }
 
@@ -1914,8 +1929,15 @@ namespace Meebey.SmartIrc4net
         private void _Event_NICK(IrcMessageData ircdata)
         {
             string oldnickname = ircdata.Nick;
-            string newnickname = ircdata.Message;
-
+            //string newnickname = ircdata.Message;
+            // the colon in the NICK message is optional, thus we can't rely on Message
+            string newnickname = ircdata.RawMessageArray[2];
+            
+            // so let's strip the colon if it's there
+            if (newnickname.StartsWith(":")) {
+                newnickname = newnickname.Substring(1);
+            }
+            
             if (IsMe(ircdata.Nick)) {
                 // nickname change is your own
                 _Nickname = newnickname;
@@ -2030,6 +2052,9 @@ namespace Meebey.SmartIrc4net
         {
             if (ActiveChannelSyncing &&
                 IsJoined(ircdata.Channel)) {
+                // reset stored mode first, as this is the complete mode
+                Channel chan = GetChannel(ircdata.Channel);
+                chan.Mode = String.Empty;
                 string mode = ircdata.RawMessageArray[4];
                 string parameter = String.Join(" ", ircdata.RawMessageArray, 5, ircdata.RawMessageArray.Length-5);
                 _InterpretChannelMode(ircdata, mode, parameter);
@@ -2163,11 +2188,8 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                         Logger.ChannelSyncing.Debug("creating ChannelUser: "+nickname+" for Channel: "+channelname+" because he doesn't exist yet");
 #endif
-                        if (SupportNonRfc) {
-                            channeluser = new NonRfcChannelUser(channelname, ircuser);
-                        } else {
-                            channeluser = new ChannelUser(channelname, ircuser);
-                        }
+
+                        channeluser = CreateChannelUser(channelname, ircuser);
                         Channel channel = GetChannel(channelname);
                         
                         channel.UnsafeUsers.Add(nickname, channeluser);
@@ -2463,7 +2485,6 @@ namespace Meebey.SmartIrc4net
             // change the nickname
             RfcNick(nickname, Priority.Critical);
         }
-
-        // </internal messagehandler>
+#endregion
     }
 }
