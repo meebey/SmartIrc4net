@@ -862,6 +862,10 @@ namespace Meebey.SmartIrc4net
             public void Stop()
             {
                 _Thread.Abort();
+                // make sure we close the stream after the thread is gone, else
+                // the thread will think the connection is broken!
+                _Thread.Join();
+                
                 try {
                     _Connection._Reader.Close();
                 } catch (ObjectDisposedException) {
@@ -952,6 +956,10 @@ namespace Meebey.SmartIrc4net
             public void Stop()
             {
                 _Thread.Abort();
+                // make sure we close the stream after the thread is gone, else
+                // the thread will think the connection is broken!
+                _Thread.Join();
+                
                 try {
                     _Connection._Writer.Close();
                 } catch (ObjectDisposedException) {
@@ -971,7 +979,7 @@ namespace Meebey.SmartIrc4net
                         }
                     } catch (IOException e) {
 #if LOG4NET
-                        Logger.Socket.Warn("IOException: "+e.Message);
+                        Logger.Socket.Warn("IOException: " + e.Message);
 #endif
                     } finally {
 #if LOG4NET
@@ -1215,6 +1223,7 @@ namespace Meebey.SmartIrc4net
                     Logger.Socket.Error(ex);
 #endif
                 }
+            }
         }
     }
 }
