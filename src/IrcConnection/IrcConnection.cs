@@ -895,7 +895,11 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                         Logger.Socket.Warn("connection lost");
 #endif
-                        _Connection.IsConnectionError = true;
+                        // only flag this as connection error if we are not
+                        // cleanly disconnecting
+                        if (!_Connection.IsDisconnecting) {
+                            _Connection.IsConnectionError = true;
+                        }
                     }
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
@@ -985,7 +989,11 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                         Logger.Socket.Warn("connection lost");
 #endif
-                        _Connection.IsConnectionError = true;
+                        // only flag this as connection error if we are not
+                        // cleanly disconnecting
+                        if (!_Connection.IsDisconnecting) {
+                            _Connection.IsConnectionError = true;
+                        }
                     }
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
