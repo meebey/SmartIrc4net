@@ -26,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+using System;
+
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
@@ -768,17 +770,29 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <param name="priority"></param>
+        [Obsolete("use RfcLusers(Priority) instead")]
         public void RfcLuser(Priority priority)
         {
-            WriteLine(Rfc2812.Luser(), priority);
+            RfcLusers(priority);
         }
 
+        public void RfcLusers(Priority priority)
+        {
+            WriteLine(Rfc2812.Lusers(), priority);
+        }
+        
         /// <summary>
         /// 
         /// </summary>
+        [Obsolete("use RfcLusers() instead")]
         public void RfcLuser()
         {
-            WriteLine(Rfc2812.Luser());
+            RfcLusers();
+        }
+
+        public void RfcLusers()
+        {
+            WriteLine(Rfc2812.Lusers());
         }
 
         /// <summary>
@@ -786,29 +800,47 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="priority"></param>
+        [Obsolete("use RfcLusers(string, Priority) instead")]
         public void RfcLuser(string mask, Priority priority)
         {
-            WriteLine(Rfc2812.Luser(mask), priority);
+            RfcLusers(mask, priority);
+        }
+
+        public void RfcLusers(string mask, Priority priority)
+        {
+            WriteLine(Rfc2812.Lusers(mask), priority);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mask"></param>
+        [Obsolete("use RfcLusers(string) instead")]
         public void RfcLuser(string mask)
         {
-            WriteLine(Rfc2812.Luser(mask));
+            RfcLusers(mask);
         }
 
+        public void RfcLusers(string mask)
+        {
+            WriteLine(Rfc2812.Lusers(mask));
+        }
+        
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="target"></param>
         /// <param name="priority"></param>
+        [Obsolete("use RfcLusers(string, string, Priority) instead")]
         public void RfcLuser(string mask, string target, Priority priority)
         {
-            WriteLine(Rfc2812.Luser(mask, target), priority);
+            RfcLusers(mask, target, priority);
+        }
+
+        public void RfcLusers(string mask, string target, Priority priority)
+        {
+            WriteLine(Rfc2812.Lusers(mask, target), priority);
         }
 
         /// <summary>
@@ -816,11 +848,17 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="target"></param>
+        [Obsolete("use RfcLusers(string, string) instead")]
         public void RfcLuser(string mask, string target)
         {
-            WriteLine(Rfc2812.Luser(mask, target));
+            RfcLusers(mask, target);
         }
 
+        public void RfcLusers(string mask, string target)
+        {
+            WriteLine(Rfc2812.Lusers(mask, target));
+        }
+        
         /// <summary>
         /// 
         /// </summary>

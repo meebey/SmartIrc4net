@@ -198,21 +198,39 @@ namespace Meebey.SmartIrc4net
             return "MOTD "+target;
         }
 
+        [Obsolete("use Lusers() method instead")]
         public static string Luser()
         {
-            return "LUSER";
+            return Lusers();
         }
 
+        public static string Lusers()
+        {
+            return "LUSERS";
+        }
+        
+        [Obsolete("use Lusers(string) method instead")]
         public static string Luser(string mask)
+        {
+            return Lusers(mask);
+        }
+
+        public static string Lusers(string mask)
         {
             return "LUSER "+mask;
         }
 
+        [Obsolete("use Lusers(string, string) method instead")]
         public static string Luser(string mask, string target)
+        {
+            return Lusers(mask, target);
+        }
+        
+        public static string Lusers(string mask, string target)
         {
             return "LUSER "+mask+" "+target;
         }
-        
+
         public static string Version()
         {
             return "VERSION";
