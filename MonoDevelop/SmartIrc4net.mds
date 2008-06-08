@@ -1,14 +1,14 @@
 <Combine name="SmartIrc4net" fileversion="2.0">
   <Configurations active="Debug">
     <Configuration name="Release" ctype="CombineConfiguration">
-      <Entry build="False" name="SmartIrc4net" configuration="Release" />
-      <Entry build="False" name="Test" configuration="Release" />
-      <Entry build="False" name="Benchmark" configuration="Release" />
+      <Entry build="True" name="SmartIrc4net" configuration="Release" />
+      <Entry build="True" name="Test" configuration="Release" />
+      <Entry build="True" name="Benchmark" configuration="Release" />
     </Configuration>
     <Configuration name="Debug" ctype="CombineConfiguration">
-      <Entry build="False" name="SmartIrc4net" configuration="Debug" />
-      <Entry build="False" name="Test" configuration="Debug" />
-      <Entry build="False" name="Benchmark" configuration="Debug" />
+      <Entry build="True" name="SmartIrc4net" configuration="Debug" />
+      <Entry build="True" name="Test" configuration="Debug" />
+      <Entry build="True" name="Benchmark" configuration="Debug" />
     </Configuration>
   </Configurations>
   <StartMode startupentry="SmartIrc4net" single="False">
@@ -17,7 +17,7 @@
     <Execute type="None" entry="Benchmark" />
   </StartMode>
   <Entries>
-    <Entry filename="./SmartIrc4net.mdp" />
+    <Entry filename="SmartIrc4net.mdp" />
     <Entry filename="../examples/test/MonoDevelop/test.mdp" />
     <Entry filename="../examples/benchmark/MonoDevelop/benchmark.mdp" />
   </Entries>
