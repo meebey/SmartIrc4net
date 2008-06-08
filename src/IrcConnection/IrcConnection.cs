@@ -49,7 +49,7 @@ namespace Meebey.SmartIrc4net
         private string           _VersionString;
         private string[]         _AddressList = {"localhost"};
         private int              _CurrentAddress;
-        private int              _Port = 6667;
+        private int              _Port;
 #if NET_2_0        
         private bool             _UseSsl;
 #endif
@@ -304,11 +304,6 @@ namespace Meebey.SmartIrc4net
             }
             set {
                 _UseSsl = value;
-                if (value) {
-                    _Port = 6697;
-                } else {
-                    _Port = 6667;
-                }
             }
         }
 #endif
@@ -441,10 +436,11 @@ namespace Meebey.SmartIrc4net
                 throw new AlreadyConnectedException("Already connected to: " + Address + ":" + Port);
             }
 
-#if LOG4NET
-            Logger.Connection.Info("connecting...");
-#endif
             _ConnectTries++;
+#if LOG4NET
+            Logger.Connection.Info(String.Format("connecting... (attempt: {0})",
+                                                 _ConnectTries));
+#endif
             _AddressList = (string[])addresslist.Clone();
             _Port = port;
 
@@ -457,8 +453,8 @@ namespace Meebey.SmartIrc4net
                 _TcpClient.NoDelay = true;
                 _TcpClient.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                 // set timeout, after this the connection will be aborted
-                _TcpClient.ReceiveTimeout = _SocketReceiveTimeout*1000;
-                _TcpClient.SendTimeout = _SocketSendTimeout*1000;
+                _TcpClient.ReceiveTimeout = _SocketReceiveTimeout * 1000;
+                _TcpClient.SendTimeout = _SocketSendTimeout * 1000;
                 _TcpClient.Connect(ip, port);
                 
                 Stream stream = _TcpClient.GetStream();
@@ -801,8 +797,9 @@ namespace Meebey.SmartIrc4net
                 messagecode = rawlineex[0];
                 switch (messagecode) {
                     case "ERROR":
-                        IsConnectionError = true;
-                    break;
+                        // FIXME: handle server errors differently than connection errors!
+                        //IsConnectionError = true;
+                        break;
                 }
             }
         }
