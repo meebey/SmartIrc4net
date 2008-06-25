@@ -50,6 +50,7 @@ namespace Meebey.SmartIrc4net
         private DateTime         _ActiveSyncStart;
         private DateTime         _ActiveSyncStop;
         private TimeSpan         _ActiveSyncTime;
+        private bool             _IsSycned;
         
         /// <summary>
         /// 
@@ -231,6 +232,15 @@ namespace Meebey.SmartIrc4net
         public TimeSpan ActiveSyncTime {
             get {
                 return _ActiveSyncTime;
+            }
+        }
+
+        public bool IsSycned {
+            get {
+                return _IsSycned;
+            }
+            set {
+                _IsSycned = value;
             }
         }
     }

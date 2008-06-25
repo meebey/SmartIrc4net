@@ -782,6 +782,12 @@ namespace Meebey.SmartIrc4net
                     channel = linear[4];
                 break;
             }
+            
+            switch (replycode) {
+                case ReplyCode.ErrorNoChannelModes:
+                    channel = linear[3];
+                    break;
+            }
 
             if ((channel != null) &&
                 (channel[0] == ':')) {
@@ -1177,49 +1183,52 @@ namespace Meebey.SmartIrc4net
                 switch (ircdata.ReplyCode) {
                     case ReplyCode.Welcome:
                         _Event_RPL_WELCOME(ircdata);
-                    break;
+                        break;
                     case ReplyCode.Topic:
                         _Event_RPL_TOPIC(ircdata);
-                    break;
+                        break;
                     case ReplyCode.NoTopic:
                         _Event_RPL_NOTOPIC(ircdata);
-                    break;
+                        break;
                     case ReplyCode.NamesReply:
                         _Event_RPL_NAMREPLY(ircdata);
-                    break;
+                        break;
                     case ReplyCode.EndOfNames:
                         _Event_RPL_ENDOFNAMES(ircdata);
-                    break;
+                        break;
                     case ReplyCode.WhoReply:
                         _Event_RPL_WHOREPLY(ircdata);
-                    break;
+                        break;
                     case ReplyCode.ChannelModeIs:
                         _Event_RPL_CHANNELMODEIS(ircdata);
-                    break;
+                        break;
                     case ReplyCode.BanList:
                         _Event_RPL_BANLIST(ircdata);
-                    break;
+                        break;
                     case ReplyCode.EndOfBanList:
                         _Event_RPL_ENDOFBANLIST(ircdata);
-                    break;
+                        break;
+                    case ReplyCode.ErrorNoChannelModes:
+                        _Event_ERR_NOCHANMODES(ircdata);
+                        break;
                     case ReplyCode.Motd:
                         _Event_RPL_MOTD(ircdata);
-                    break;
+                        break;
                     case ReplyCode.EndOfMotd:
                         _Event_RPL_ENDOFMOTD(ircdata);
-                    break;
+                        break;
                     case ReplyCode.Away:
                         _Event_RPL_AWAY(ircdata);
-                    break;
+                        break;
                     case ReplyCode.UnAway:
                         _Event_RPL_UNAWAY(ircdata);
-                    break;
+                        break;
                     case ReplyCode.NowAway:
                         _Event_RPL_NOWAWAY(ircdata);
-                    break;
+                        break;
                     case ReplyCode.ErrorNicknameInUse:
                         _Event_ERR_NICKNAMEINUSE(ircdata);
-                    break;
+                        break;
                 }
             }
             
@@ -2432,7 +2441,37 @@ namespace Meebey.SmartIrc4net
             if (ActiveChannelSyncing &&
                 IsJoined(channelname)) {
                 Channel channel = GetChannel(channelname);
+                if (channel.IsSycned) {
+                    // only fire the event once
+                    return;
+                }
+                
                 channel.ActiveSyncStop = DateTime.Now;
+                channel.IsSycned = true;
+#if LOG4NET
+                Logger.ChannelSyncing.Debug("active synced: "+channelname+
+                    " (in "+channel.ActiveSyncTime.TotalSeconds+" sec)");
+#endif
+                if (OnChannelActiveSynced != null) {
+                    OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
+                }
+            }
+        }
+        
+        // MODE +b might return ERR_NOCHANMODES for mode-less channels (like +chan) 
+        private void _Event_ERR_NOCHANMODES(IrcMessageData ircdata)
+        {
+            string channelname = ircdata.RawMessageArray[3];
+            if (ActiveChannelSyncing &&
+                IsJoined(channelname)) {
+                Channel channel = GetChannel(channelname);
+                if (channel.IsSycned) {
+                    // only fire the event once
+                    return;
+                }
+                
+                channel.ActiveSyncStop = DateTime.Now;
+                channel.IsSycned = true;
 #if LOG4NET
                 Logger.ChannelSyncing.Debug("active synced: "+channelname+
                     " (in "+channel.ActiveSyncTime.TotalSeconds+" sec)");

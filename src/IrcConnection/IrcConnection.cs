@@ -823,6 +823,9 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         private class ReadThread
         {
+#if LOG4NET
+            private static readonly log4net.ILog _Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+#endif
             private IrcConnection  _Connection;
             private Thread         _Thread;
             private Queue          _Queue = Queue.Synchronized(new Queue());
@@ -858,11 +861,24 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Stop()
             {
+#if LOG4NET
+                _Logger.Debug("Stop()");
+#endif
+                
+#if LOG4NET
+                _Logger.Debug("Stop(): aborting thread...");
+#endif
                 _Thread.Abort();
                 // make sure we close the stream after the thread is gone, else
                 // the thread will think the connection is broken!
+#if LOG4NET
+                _Logger.Debug("Stop(): joining thread...");
+#endif
                 _Thread.Join();
                 
+#if LOG4NET
+                _Logger.Debug("Stop(): closing reader...");
+#endif
                 try {
                     _Connection._Reader.Close();
                 } catch (ObjectDisposedException) {
@@ -956,6 +972,10 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Stop()
             {
+#if LOG4NET
+                Logger.Connection.Debug("Stopping WriteThread...");
+#endif
+                
                 _Thread.Abort();
                 // make sure we close the stream after the thread is gone, else
                 // the thread will think the connection is broken!
