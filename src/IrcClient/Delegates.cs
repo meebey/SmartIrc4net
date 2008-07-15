@@ -36,6 +36,7 @@ namespace Meebey.SmartIrc4net
     public delegate void KickEventHandler(object sender, KickEventArgs e);
     public delegate void JoinEventHandler(object sender, JoinEventArgs e);
     public delegate void NamesEventHandler(object sender, NamesEventArgs e);
+    public delegate void ListEventHandler(object sender, ListEventArgs e);
     public delegate void PartEventHandler(object sender, PartEventArgs e);
     public delegate void InviteEventHandler(object sender, InviteEventArgs e);
     public delegate void OpEventHandler(object sender, OpEventArgs e);

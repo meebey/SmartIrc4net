@@ -27,9 +27,11 @@
  */
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
@@ -66,6 +68,8 @@ namespace Meebey.SmartIrc4net
         private StringCollection _JoinedChannels          = new StringCollection();
         private Hashtable        _Channels                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _IrcUsers                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private List<ListChannelInfo> _ListChannelInfos;
+        private AutoResetEvent   _ListChannelInfosReceivedEvent;
         private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
@@ -91,6 +95,7 @@ namespace Meebey.SmartIrc4net
         public event IrcEventHandler            OnErrorMessage;
         public event JoinEventHandler           OnJoin;
         public event NamesEventHandler          OnNames;
+        public event ListEventHandler           OnList;
         public event PartEventHandler           OnPart;
         public event QuitEventHandler           OnQuit;
         public event KickEventHandler           OnKick;
@@ -704,6 +709,26 @@ namespace Meebey.SmartIrc4net
             return channels;
         }
         
+        /// <summary>
+        /// Fetches a fresh list of all available channels that match the passed filter
+        /// </summary>
+        /// <returns>List of ListChannelInfo</returns>
+        public IList<ListChannelInfo> GetChannelInfos(string filter)
+        {
+            List<ListChannelInfo> list = new List<ListChannelInfo>();
+            _ListChannelInfos = list;
+            _ListChannelInfosReceivedEvent = new AutoResetEvent(false);
+            
+            // request list
+            RfcList(filter);
+            // wait till we have the complete list
+            _ListChannelInfosReceivedEvent.WaitOne();
+            
+            _ListChannelInfosReceivedEvent = null;
+            _ListChannelInfos = null;
+            return list;
+        }
+        
         public IrcMessageData MessageParser(string rawline)
         {
             string         line;
@@ -784,6 +809,8 @@ namespace Meebey.SmartIrc4net
             }
             
             switch (replycode) {
+                case ReplyCode.List:
+                case ReplyCode.ListEnd:
                 case ReplyCode.ErrorNoChannelModes:
                     channel = linear[3];
                     break;
@@ -1196,6 +1223,12 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.EndOfNames:
                         _Event_RPL_ENDOFNAMES(ircdata);
                         break;
+                    case ReplyCode.List:
+                        _Event_RPL_LIST(ircdata);
+                        break;
+                    case ReplyCode.ListEnd:
+                        _Event_RPL_LISTEND(ircdata);
+                        break;
                     case ReplyCode.WhoReply:
                         _Event_RPL_WHOREPLY(ircdata);
                         break;
@@ -1225,6 +1258,9 @@ namespace Meebey.SmartIrc4net
                         break;
                     case ReplyCode.NowAway:
                         _Event_RPL_NOWAWAY(ircdata);
+                        break;
+                    case ReplyCode.TryAgain:
+                        _Event_RPL_TRYAGAIN(ircdata);
                         break;
                     case ReplyCode.ErrorNicknameInUse:
                         _Event_ERR_NICKNAMEINUSE(ircdata);
@@ -2232,6 +2268,48 @@ namespace Meebey.SmartIrc4net
             
             if (OnNames != null) {
                 OnNames(this, new NamesEventArgs(ircdata, channelname, userlist));
+            }
+        }
+        
+        /// <summary>
+        /// Event handler for list reply messages
+        /// </summary>
+        /// <param name="ircdata">Message data containing name reply information</param>
+        private void _Event_RPL_LIST(IrcMessageData ircdata)
+        {
+            string channelName = ircdata.Channel;
+            int userCount = Int32.Parse(ircdata.RawMessageArray[4]);
+            string topic = ircdata.Message;
+            
+            ListChannelInfo info = null;
+            if (OnList != null || _ListChannelInfos != null) {
+                info = new ListChannelInfo(channelName, userCount, topic);
+            }
+            
+            if (_ListChannelInfos != null) {
+                _ListChannelInfos.Add(info);
+            }
+            
+            if (OnList != null) {
+                OnList(this, new ListEventArgs(ircdata, info));
+            }
+        }
+        
+        /// <summary>
+        /// Event handler for end of list reply messages
+        /// </summary>
+        /// <param name="ircdata">Message data containing name reply information</param>
+        private void _Event_RPL_LISTEND(IrcMessageData ircdata)
+        {
+            if (_ListChannelInfosReceivedEvent != null) {
+                _ListChannelInfosReceivedEvent.Set();
+            }
+        }
+        
+        private void _Event_RPL_TRYAGAIN(IrcMessageData ircdata)
+        {
+            if (_ListChannelInfosReceivedEvent != null) {
+                _ListChannelInfosReceivedEvent.Set();
             }
         }
         

@@ -253,6 +253,25 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     ///
     /// </summary>
+    public class ListEventArgs : IrcEventArgs
+    {
+        private ListChannelInfo f_ListChannelInfo;
+        
+        public ListChannelInfo ListChannelInfo {
+            get {
+                return f_ListChannelInfo;
+            }
+        }
+
+        internal ListEventArgs(IrcMessageData data, ListChannelInfo channelInfo) : base(data)
+        {
+            f_ListChannelInfo = channelInfo;
+        }
+    }
+    
+    /// <summary>
+    ///
+    /// </summary>
     public class InviteEventArgs : IrcEventArgs
     {
         private string   _Channel;
