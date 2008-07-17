@@ -255,17 +255,17 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class ListEventArgs : IrcEventArgs
     {
-        private ListChannelInfo f_ListChannelInfo;
+        private ChannelInfo f_ListInfo;
         
-        public ListChannelInfo ListChannelInfo {
+        public ChannelInfo ListInfo {
             get {
-                return f_ListChannelInfo;
+                return f_ListInfo;
             }
         }
 
-        internal ListEventArgs(IrcMessageData data, ListChannelInfo channelInfo) : base(data)
+        internal ListEventArgs(IrcMessageData data, ChannelInfo listInfo) : base(data)
         {
-            f_ListChannelInfo = channelInfo;
+            f_ListInfo = listInfo;
         }
     }
     
@@ -330,102 +330,100 @@ namespace Meebey.SmartIrc4net
             _PartMessage = partmessage;
         }
     }
+    
     /// <summary>
     ///
     /// </summary>
     public class WhoEventArgs : IrcEventArgs
     {
-        private string   _Channel;
-        private string   _Nick;
-        private string   _Ident;
-        private string   _Host;
-        private string   _Realname;
-        private bool     _IsAway;
-        private bool     _IsOp;
-        private bool     _IsVoice;
-        private bool     _IsIrcOp;
-        private string   _Server;
-        private int      _HopCount;
+        private WhoInfo f_WhoInfo;
 
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Channel {
             get {
-                return _Channel;
+                return f_WhoInfo.Channel;
             }
         }
 
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Nick {
             get {
-                return _Nick;
+                return f_WhoInfo.Nick;
             }
         }
          
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Ident {
             get {
-                return _Ident;
+                return f_WhoInfo.Ident;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Host {
             get {
-                return _Host;
+                return f_WhoInfo.Host;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Realname {
             get {
-                return _Realname;
+                return f_WhoInfo.Realname;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsAway {
             get {
-                return _IsAway;
+                return f_WhoInfo.IsAway;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsOp {
             get {
-                return _IsOp;
+                return f_WhoInfo.IsOp;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsVoice {
             get {
-                return _IsVoice;
+                return f_WhoInfo.IsVoice;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsIrcOp {
             get {
-                return _IsIrcOp;
+                return f_WhoInfo.IsIrcOp;
             }
         }
         
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Server {
             get {
-                return _Server;
+                return f_WhoInfo.Server;
             }
         }
 
+        [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public int HopCount {
             get {
-                return _HopCount;
+                return f_WhoInfo.HopCount;
+            }
+        }
+        
+        public WhoInfo WhoInfo {
+            get {
+                return f_WhoInfo;
             }
         }
 
-        internal WhoEventArgs(IrcMessageData data, string channel, string nick, string ident, string host, string realname, bool away, bool op, bool voice, bool ircop, string server, int hopcount) : base(data)
+        internal WhoEventArgs(IrcMessageData data, WhoInfo whoInfo) : base(data)
         {
-            _Channel = channel;
-            _Nick = nick;
-            _Ident = ident;
-            _Host = host;
-            _Realname = realname;
-            _IsAway = away;
-            _IsOp = op;
-            _IsVoice = voice;
-            _IsIrcOp = ircop;
-            _Server = server;
-            _HopCount = hopcount;
+            f_WhoInfo = whoInfo;
         }
     }
     

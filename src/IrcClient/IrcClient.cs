@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2008 Mirco Bauer <meebey@meebey.net>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -68,8 +68,15 @@ namespace Meebey.SmartIrc4net
         private StringCollection _JoinedChannels          = new StringCollection();
         private Hashtable        _Channels                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _IrcUsers                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private List<ListChannelInfo> _ListChannelInfos;
-        private AutoResetEvent   _ListChannelInfosReceivedEvent;
+        private List<ChannelInfo> _ChannelList;
+        private Object            _ChannelListSyncRoot = new Object();
+        private AutoResetEvent    _ChannelListReceivedEvent;
+        private List<WhoInfo>    _WhoList;
+        private Object           _WhoListSyncRoot = new Object();
+        private AutoResetEvent   _WhoListReceivedEvent;
+        private List<BanInfo>    _BanList;
+        private Object           _BanListSyncRoot = new Object();
+        private AutoResetEvent   _BanListReceivedEvent;
         private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
@@ -399,6 +406,12 @@ namespace Meebey.SmartIrc4net
                 return _Motd;
             }
         }
+
+        public object BanListSyncRoot {
+            get {
+                return _BanListSyncRoot;
+            }
+        }
         
         /// <summary>
         /// This class manages the connection server and provides access to all the objects needed to send and receive messages.
@@ -710,22 +723,71 @@ namespace Meebey.SmartIrc4net
         }
         
         /// <summary>
-        /// Fetches a fresh list of all available channels that match the passed filter
+        /// Fetches a fresh list of all available channels that match the passed mask
         /// </summary>
-        /// <returns>List of ListChannelInfo</returns>
-        public IList<ListChannelInfo> GetChannelInfos(string filter)
+        /// <returns>List of ListInfo</returns>
+        public IList<ChannelInfo> GetChannelList(string mask)
         {
-            List<ListChannelInfo> list = new List<ListChannelInfo>();
-            _ListChannelInfos = list;
-            _ListChannelInfosReceivedEvent = new AutoResetEvent(false);
+            List<ChannelInfo> list = new List<ChannelInfo>();
+            lock (_ChannelListSyncRoot) {
+                _ChannelList = list;
+                _ChannelListReceivedEvent = new AutoResetEvent(false);
+                
+                // request list
+                RfcList(mask);
+                // wait till we have the complete list
+                _ChannelListReceivedEvent.WaitOne();
+                
+                _ChannelListReceivedEvent = null;
+                _ChannelList = null;
+            }
             
-            // request list
-            RfcList(filter);
-            // wait till we have the complete list
-            _ListChannelInfosReceivedEvent.WaitOne();
+            return list;
+        }
+        
+        /// <summary>
+        /// Fetches a fresh list of users that matches the passed mask
+        /// </summary>
+        /// <returns>List of ListInfo</returns>
+        public IList<WhoInfo> GetWhoList(string mask)
+        {
+            List<WhoInfo> list = new List<WhoInfo>();
+            lock (_WhoListSyncRoot) {
+                _WhoList = list;
+                _WhoListReceivedEvent = new AutoResetEvent(false);
+                
+                // request list
+                RfcWho(mask);
+                // wait till we have the complete list
+                _WhoListReceivedEvent.WaitOne();
+                
+                _WhoListReceivedEvent = null;
+                _WhoList = null;
+            }
             
-            _ListChannelInfosReceivedEvent = null;
-            _ListChannelInfos = null;
+            return list;
+        }
+        
+        /// <summary>
+        /// Fetches a fresh ban list of the specified channel
+        /// </summary>
+        /// <returns>List of ListInfo</returns>
+        public IList<BanInfo> GetBanList(string channel)
+        {
+            List<BanInfo> list = new List<BanInfo>();
+            lock (_BanListSyncRoot) {
+                _BanList = list;
+                _BanListReceivedEvent = new AutoResetEvent(false);
+                
+                // request list
+                Ban(channel);
+                // wait till we have the complete list
+                _BanListReceivedEvent.WaitOne();
+                
+                _BanListReceivedEvent = null;
+                _BanList = null;
+            }
+            
             return list;
         }
         
@@ -1231,6 +1293,9 @@ namespace Meebey.SmartIrc4net
                         break;
                     case ReplyCode.WhoReply:
                         _Event_RPL_WHOREPLY(ircdata);
+                        break;
+                    case ReplyCode.EndOfWho:
+                        _Event_RPL_ENDOFWHO(ircdata);
                         break;
                     case ReplyCode.ChannelModeIs:
                         _Event_RPL_CHANNELMODEIS(ircdata);
@@ -1852,9 +1917,9 @@ namespace Meebey.SmartIrc4net
                 if (ircdata.Message.StartsWith("\x1"+"PING")) {
                     if (ircdata.Message.Length > 7) {
                         SendMessage(SendType.CtcpReply, ircdata.Nick, "PING "+ircdata.Message.Substring(6, (ircdata.Message.Length-7)));
-        		    } else {
+                    } else {
                         SendMessage(SendType.CtcpReply, ircdata.Nick, "PING");
-        		    }
+                    }
                 } else if (ircdata.Message.StartsWith("\x1"+"VERSION")) {
                     string versionstring;
                     if (_CtcpVersion == null) {
@@ -1876,7 +1941,7 @@ namespace Meebey.SmartIrc4net
                     break;
                 case ReceiveType.ChannelAction:
                     if (OnChannelAction != null) {
-                        string action = ircdata.Message.Substring(7, ircdata.Message.Length-8);
+                        string action = ircdata.Message.Substring(8, ircdata.Message.Length - 9);
                         OnChannelAction(this, new ActionEventArgs(ircdata, action));
                     }
                     break;
@@ -1887,7 +1952,7 @@ namespace Meebey.SmartIrc4net
                     break;
                 case ReceiveType.QueryAction:
                     if (OnQueryAction != null) {
-                        string action = ircdata.Message.Substring(7, ircdata.Message.Length-8);
+                        string action = ircdata.Message.Substring(8, ircdata.Message.Length - 9);
                         OnQueryAction(this, new ActionEventArgs(ircdata, action));
                     }
                     break;
@@ -2127,10 +2192,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// Event handler for topic reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing topic information</param>
         private void _Event_RPL_TOPIC(IrcMessageData ircdata)
         {
             string topic   = ircdata.Message;
@@ -2149,10 +2210,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// Event handler for topic reply messages == null
-        /// </summary>
-        /// <param name="ircdata">Message data containing topic information</param>
         private void _Event_RPL_NOTOPIC(IrcMessageData ircdata)
         {
             string channel = ircdata.Channel;
@@ -2170,10 +2227,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// Event handler for name reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing name reply information</param>
         private void _Event_RPL_NAMREPLY(IrcMessageData ircdata)
         {
             string   channelname  = ircdata.Channel;
@@ -2271,23 +2324,19 @@ namespace Meebey.SmartIrc4net
             }
         }
         
-        /// <summary>
-        /// Event handler for list reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing name reply information</param>
         private void _Event_RPL_LIST(IrcMessageData ircdata)
         {
             string channelName = ircdata.Channel;
             int userCount = Int32.Parse(ircdata.RawMessageArray[4]);
             string topic = ircdata.Message;
             
-            ListChannelInfo info = null;
-            if (OnList != null || _ListChannelInfos != null) {
-                info = new ListChannelInfo(channelName, userCount, topic);
+            ChannelInfo info = null;
+            if (OnList != null || _ChannelList != null) {
+                info = new ChannelInfo(channelName, userCount, topic);
             }
             
-            if (_ListChannelInfos != null) {
-                _ListChannelInfos.Add(info);
+            if (_ChannelList != null) {
+                _ChannelList.Add(info);
             }
             
             if (OnList != null) {
@@ -2295,28 +2344,31 @@ namespace Meebey.SmartIrc4net
             }
         }
         
-        /// <summary>
-        /// Event handler for end of list reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing name reply information</param>
         private void _Event_RPL_LISTEND(IrcMessageData ircdata)
         {
-            if (_ListChannelInfosReceivedEvent != null) {
-                _ListChannelInfosReceivedEvent.Set();
+            if (_ChannelListReceivedEvent != null) {
+                _ChannelListReceivedEvent.Set();
             }
         }
         
         private void _Event_RPL_TRYAGAIN(IrcMessageData ircdata)
         {
-            if (_ListChannelInfosReceivedEvent != null) {
-                _ListChannelInfosReceivedEvent.Set();
+            if (_ChannelListReceivedEvent != null) {
+                _ChannelListReceivedEvent.Set();
             }
         }
         
-        /// <summary>
-        /// Event handler for end of names reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing end of names reply information</param>
+        /*
+        // BUG: RFC2812 says LIST and WHO might return ERR_TOOMANYMATCHES which
+        // is not defined :(
+        private void _Event_ERR_TOOMANYMATCHES(IrcMessageData ircdata)
+        {
+            if (_ListInfosReceivedEvent != null) {
+                _ListInfosReceivedEvent.Set();
+            }
+        }
+        */
+        
         private void _Event_RPL_ENDOFNAMES(IrcMessageData ircdata)
         {
             string channelname = ircdata.RawMessageArray[3];
@@ -2331,10 +2383,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// Event handler for away messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing away reply information</param>
         private void _Event_RPL_AWAY(IrcMessageData ircdata)
         {
             string who = ircdata.RawMessageArray[3];
@@ -2355,10 +2403,6 @@ namespace Meebey.SmartIrc4net
             }
         }
         
-        /// <summary>
-        /// Event handler for unaway messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing unaway reply information</param>
         private void _Event_RPL_UNAWAY(IrcMessageData ircdata)
         {
             _IsAway = false;
@@ -2368,10 +2412,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// Event handler for nowaway messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing nowaway reply information</param>
         private void _Event_RPL_NOWAWAY(IrcMessageData ircdata)
         {
             _IsAway = true;
@@ -2381,54 +2421,16 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <summary>
-        /// Event handler for who reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing who reply information</param>
         private void _Event_RPL_WHOREPLY(IrcMessageData ircdata)
         {
-            string channel  = ircdata.Channel;
-            string ident    = ircdata.RawMessageArray[4];
-            string host     = ircdata.RawMessageArray[5];
-            string server   = ircdata.RawMessageArray[6];
-            string nick     = ircdata.RawMessageArray[7];
-            string usermode = ircdata.RawMessageArray[8];
-            string realname = ircdata.Message.Substring(2);
-            int    hopcount = 0;
-            string temp     = ircdata.RawMessageArray[9].Substring(1);
-            try {
-                hopcount = int.Parse(temp);
-            } catch (FormatException) {
-#if LOG4NET
-                Logger.MessageParser.Warn("couldn't parse (as int): '"+temp+"'");
-#endif
+            WhoInfo info = WhoInfo.Parse(ircdata);
+            string channel = info.Channel;
+            string nick = info.Nick;
+            
+            if (_WhoList != null) {
+                _WhoList.Add(info);
             }
-
-            bool op = false;
-            bool voice = false;
-            bool ircop = false;
-            bool away = false;
-            int usermodelength = usermode.Length;
-            for (int i = 0; i < usermodelength; i++) {
-                switch (usermode[i]) {
-                    case 'H':
-                        away = false;
-                    break;
-                    case 'G':
-                        away = true;
-                    break;
-                    case '@':
-                        op = true;
-                    break;
-                    case '+':
-                        voice = true;
-                    break;
-                    case '*':
-                        ircop = true;
-                    break;
-                }
-            }
-
+            
             if (ActiveChannelSyncing &&
                 IsJoined(channel)) {
                 // checking the irc and channel user I only do for sanity!
@@ -2453,14 +2455,14 @@ namespace Meebey.SmartIrc4net
                     Logger.ChannelSyncing.Debug("updating userinfo (from whoreply) for user: "+nick+" channel: "+channel);
 #endif
 
-                    ircuser.Ident    = ident;
-                    ircuser.Host     = host;
-                    ircuser.Server   = server;
-                    ircuser.Nick     = nick;
-                    ircuser.HopCount = hopcount;
-                    ircuser.Realname = realname;
-                    ircuser.IsAway   = away;
-                    ircuser.IsIrcOp  = ircop;
+                    ircuser.Ident    = info.Ident;
+                    ircuser.Host     = info.Host;
+                    ircuser.Server   = info.Server;
+                    ircuser.Nick     = info.Nick;
+                    ircuser.HopCount = info.HopCount;
+                    ircuser.Realname = info.Realname;
+                    ircuser.IsAway   = info.IsAway;
+                    ircuser.IsIrcOp  = info.IsIrcOp;
                 
                     switch (channel[0]) {
                         case '#':
@@ -2471,8 +2473,8 @@ namespace Meebey.SmartIrc4net
                             // see RFC 1459 and RFC 2812, it must return a channelname
                             // we use this channel info when possible...
                             if (channeluser != null) {
-                                channeluser.IsOp    = op;
-                                channeluser.IsVoice = voice;
+                                channeluser.IsOp    = info.IsOp;
+                                channeluser.IsVoice = info.IsVoice;
                             }
                         break;
                     }
@@ -2480,14 +2482,17 @@ namespace Meebey.SmartIrc4net
             }
             
             if (OnWho != null) {
-                OnWho(this, new WhoEventArgs(ircdata, channel, nick, ident, host, realname, away, op, voice, ircop, server, hopcount));
+                OnWho(this, new WhoEventArgs(ircdata, info));
             }
         }
         
-        /// <summary>
-        /// Event handler for mesage of the day reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing mesage of the day information</param>
+        private void _Event_RPL_ENDOFWHO(IrcMessageData ircdata)
+        {
+            if (_WhoListReceivedEvent != null) {
+                _WhoListReceivedEvent.Set();
+            }
+        }
+        
         private void _Event_RPL_MOTD(IrcMessageData ircdata)
         {
             if (!_MotdReceived) {
@@ -2499,23 +2504,39 @@ namespace Meebey.SmartIrc4net
             }
         }
         
-        /// <summary>
-        /// Event handler for end of mesage of the day reply messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing end of mesage of the day information</param>
         private void _Event_RPL_ENDOFMOTD(IrcMessageData ircdata)
         {
             _MotdReceived = true;
         }
         
-        // TODO, need to sync with the banlist!
         private void _Event_RPL_BANLIST(IrcMessageData ircdata)
         {
+            string channelname = ircdata.Channel;
+            
+            BanInfo info = BanInfo.Parse(ircdata);            
+            if (_BanList != null) {
+                _BanList.Add(info);
+            }
+            
+            if (ActiveChannelSyncing &&
+                IsJoined(channelname)) {
+                Channel channel = GetChannel(channelname);
+                if (channel.IsSycned) {
+                    return;
+                }
+                
+                channel.Bans.Add(info.Mask);
+            }
         }
         
         private void _Event_RPL_ENDOFBANLIST(IrcMessageData ircdata)
         {
             string channelname = ircdata.Channel;
+            
+            if (_BanListReceivedEvent != null) {
+                _BanListReceivedEvent.Set();
+            }
+            
             if (ActiveChannelSyncing &&
                 IsJoined(channelname)) {
                 Channel channel = GetChannel(channelname);
@@ -2560,10 +2581,6 @@ namespace Meebey.SmartIrc4net
             }
         }
         
-        /// <summary>
-        /// Event handler for error messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing error information</param>
         private void _Event_ERR(IrcMessageData ircdata)
         {
             if (OnErrorMessage != null) {
@@ -2571,10 +2588,6 @@ namespace Meebey.SmartIrc4net
             }
         }
         
-        /// <summary>
-        /// Event handler for nickname in use error messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing nickname in use error information</param>
         private void _Event_ERR_NICKNAMEINUSE(IrcMessageData ircdata)
         {
 #if LOG4NET

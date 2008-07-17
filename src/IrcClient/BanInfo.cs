@@ -26,15 +26,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 using System;
 
 namespace Meebey.SmartIrc4net
 {
-    public class ListChannelInfo
+    public class BanInfo
     {
         private string   f_Channel;
-        private int      f_UserCount;
-        private string   f_Topic;
+        private string   f_Mask;
         
         public string Channel {
             get {
@@ -42,23 +42,23 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        public int UserCount {
+        public string Mask {
             get {
-                return f_UserCount;
+                return f_Mask;
             }
         }
         
-        public string Topic {
-            get {
-                return f_Topic;
-            }
-        }
-        
-        internal ListChannelInfo(string channel, int userCount, string topic)
+        private BanInfo()
         {
-            f_Channel = channel;
-            f_UserCount = userCount;
-            f_Topic = topic;
+        }
+        
+        public static BanInfo Parse(IrcMessageData data)
+        {
+            BanInfo info = new BanInfo();
+            // :magnet.oftc.net 367 meebey #smuxi test!test@test meebey!~meebey@e176002059.adsl.alicedsl.de 1216309801..
+            info.f_Channel = data.RawMessageArray[3];
+            info.f_Mask= data.RawMessageArray[4];
+            return info;
         }
     }
 }

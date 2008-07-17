@@ -378,6 +378,11 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public TimeSpan Lag {
             get {
+                if (_LastPingSent > _LastPongReceived) {
+                    // there is an outstanding ping, thus we don't have a current lag value
+                    return DateTime.Now - _LastPingSent; 
+                }
+                
                 return _Lag;
             }
         }
@@ -788,7 +793,7 @@ namespace Meebey.SmartIrc4net
                             _Lag = now - _LastPingSent;
 
 #if LOG4NET
-                            Logger.Connection.Debug("PONG received, took: "+_Lag.TotalMilliseconds+" ms");
+                            Logger.Connection.Debug("PONG received, took: " + _Lag.TotalMilliseconds + " ms");
 #endif
                             break;
                     }
@@ -1215,29 +1220,43 @@ namespace Meebey.SmartIrc4net
                 Logger.Socket.Debug("IdleWorkerThread started");
 #endif
                 try {
-                   while (_Connection.IsConnected ) {
-                       if (_Connection.IsRegistered) {
-                           DateTime now = DateTime.Now;
-                           int last_ping_sent = (int)(now - _Connection._LastPingSent).TotalSeconds;
-                           int last_pong_rcvd = (int)(now - _Connection._LastPongReceived).TotalSeconds;
-                           // determins if the resoponse time is ok
-                           if (last_ping_sent < _Connection._PingTimeout) {
-                               // determines if it need to send another ping yet
-                               if (last_pong_rcvd > _Connection._PingInterval) {
-                                   _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
-                                   _Connection._LastPingSent = now;
-                                   _Connection._LastPongReceived = now;
-                               } // else connection is fine, just continue
-                           } else {
+                    while (_Connection.IsConnected ) {
+                        Thread.Sleep(_Connection._IdleWorkerInterval);
+                        
+                        // only send active pings if we are registered
+                        if (!_Connection.IsRegistered) {
+                            continue;
+                        }
+                        
+                        DateTime now = DateTime.Now;
+                        int last_ping_sent = (int)(now - _Connection._LastPingSent).TotalSeconds;
+                        int last_pong_rcvd = (int)(now - _Connection._LastPongReceived).TotalSeconds;
+                        // determins if the resoponse time is ok
+                        if (last_ping_sent < _Connection._PingTimeout) {
+                            if (_Connection._LastPingSent > _Connection._LastPongReceived) {
+                                // there is a pending ping request, we have to wait
+                                continue;
+                            }
+                            
+                            // determines if it need to send another ping yet
+                            if (last_pong_rcvd > _Connection._PingInterval) {
+                                _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
+                                _Connection._LastPingSent = now;
+                                //_Connection._LastPongReceived = now;
+                            } // else connection is fine, just continue
+                        } else {
+                            if (_Connection.IsDisconnecting) {
+                                break;
+                            }
 #if LOG4NET
-                               Logger.Socket.Warn("ping timeout, connection lost");
+                            Logger.Socket.Warn("ping timeout, connection lost");
 #endif
-                               _Connection.IsConnectionError = true;
-                               break;
-                           }
-                       }
-                       Thread.Sleep(_Connection._IdleWorkerInterval);
-                   }
+                            // only flag this as connection error if we are not
+                            // cleanly disconnecting
+                            _Connection.IsConnectionError = true;
+                            break;
+                        }
+                    }
                 } catch (ThreadAbortException) {
                     Thread.ResetAbort();
 #if LOG4NET
