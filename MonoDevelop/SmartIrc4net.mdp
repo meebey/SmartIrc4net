@@ -35,6 +35,9 @@
     <File name="src/IrcClient/ChannelUser.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcClient/NonRfcChannelUser.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcConnection/IrcProperties.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/IrcClient/ChannelInfo.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/IrcClient/WhoInfo.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/IrcClient/BanInfo.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Assembly" localcopy="True" refto="../bin/log4net.dll" />

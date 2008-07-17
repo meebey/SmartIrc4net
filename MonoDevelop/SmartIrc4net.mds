@@ -11,10 +11,10 @@
       <Entry build="True" name="Benchmark" configuration="Debug" />
     </Configuration>
   </Configurations>
-  <StartMode startupentry="SmartIrc4net" single="False">
+  <StartMode startupentry="Benchmark" single="True">
     <Execute type="None" entry="SmartIrc4net" />
-    <Execute type="Execute" entry="Test" />
-    <Execute type="None" entry="Benchmark" />
+    <Execute type="None" entry="Test" />
+    <Execute type="Execute" entry="Benchmark" />
   </StartMode>
   <Entries>
     <Entry filename="SmartIrc4net.mdp" />
