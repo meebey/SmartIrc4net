@@ -6,6 +6,7 @@
  * $Date$
  */
 
+08:09:48 <AirHead> btw, I forgot to mention, but the channel modes +q and +a are for Owner (~) and Admin (&) respectively.
 - IrcClient.AutoAwaySync, query every minute WHO of joined channels to keep away synced
 - Reconnect() / StoreRejoinChannels() should remember channel keys too!
 - add IrcNetwork property, which is guessed by default or passed with Connect()

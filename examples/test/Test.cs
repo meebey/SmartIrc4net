@@ -27,8 +27,10 @@
  */
 
 using System;
-using System.Collections;
 using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+
 using Meebey.SmartIrc4net;
 
 // This is an VERY basic example how your IRC application could be written
@@ -189,7 +191,25 @@ public class Test
         // WARNING, it uses WriteLine() means you need to enter RFC commands
         // like "JOIN #test" and then "PRIVMSG #test :hello to you"
         while (true) {
-            irc.WriteLine(System.Console.ReadLine());
+            string cmd = System.Console.ReadLine();
+            if (cmd.StartsWith("/list")) {
+                int pos = cmd.IndexOf(" ");
+                string channel = null;
+                if (pos != -1) {
+                    channel = cmd.Substring(pos + 1);
+                }
+                
+                IList<ChannelInfo> channelInfos = irc.GetChannelList(channel);
+                Console.WriteLine("channel count: {0}", channelInfos.Count);
+                foreach (ChannelInfo channelInfo in channelInfos) {
+                    Console.WriteLine("channel: {0} user count: {1} topic: {2}",
+                                      channelInfo.Channel,
+                                      channelInfo.UserCount,
+                                      channelInfo.Topic);
+                }
+            } else {
+                irc.WriteLine(cmd);
+            }
         }
     }
     

@@ -34,7 +34,9 @@ using Meebey.SmartIrc4net;
 
 public class Benchmark
 {
-    const string SERVER   = "saberhagen.freenode.net";
+    const string SERVER   = "irc.freenode.net";
+    //const string SERVER   = "irc.freenet.de";
+    //const string SERVER   = "10.1.0.101";
     const int    PORT     = 6667;
     const string NICK     = "SmartIrcB";
     const string REALNAME = "SmartIrc4net Benchmark Bot";
@@ -42,25 +44,26 @@ public class Benchmark
     
     public static void Main(string[] args)
     {
+        Thread.Sleep(5000);
+
         DateTime start, end;
 
-        start = DateTime.Now;
+        start = DateTime.UtcNow;
         TcpClientList();
-        end = DateTime.Now;
+        end = DateTime.UtcNow;
         Console.WriteLine("TcpClientList() took "+end.Subtract(start).TotalSeconds+" sec");
-        Thread.Sleep(3000);
+        Thread.Sleep(5000);
         
-        start = DateTime.Now;
+        start = DateTime.UtcNow;
         IrcConnectionList();
-        end = DateTime.Now;
+        end = DateTime.UtcNow;
         Console.WriteLine("IrcConnectionList() took "+end.Subtract(start).TotalSeconds+" sec");
-        Thread.Sleep(3000);
+        Thread.Sleep(5000);
         
-        start = DateTime.Now;
+        start = DateTime.UtcNow;
         IrcClientList();
-        end = DateTime.Now;
+        end = DateTime.UtcNow;
         Console.WriteLine("IrcClientList() took "+end.Subtract(start).TotalSeconds+" sec");
-        Thread.Sleep(3000);
     }
     
     public static void TcpClientList()

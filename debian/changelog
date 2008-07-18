@@ -1,5 +1,5 @@
-smartirc4net (0.4.0-1) unstable; urgency=low
+smartirc4net (0.4.5-1~pre1) unstable; urgency=low
 
   * Initial release. (Closes: #310837)
 
- -- Mirco Bauer <meebey@debian.org>  Wed, 18 Apr 2007 00:36:50 +0200
+ -- Mirco Bauer <meebey@debian.org>  Fri, 18 Jul 2008 17:04:00 +0200
