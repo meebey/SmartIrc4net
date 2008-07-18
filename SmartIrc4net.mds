@@ -18,7 +18,7 @@
   </StartMode>
   <Entries>
     <Entry filename="SmartIrc4net.mdp" />
-    <Entry filename="../examples/test/MonoDevelop/test.mdp" />
-    <Entry filename="../examples/benchmark/MonoDevelop/benchmark.mdp" />
+    <Entry filename="examples/test/MonoDevelop/test.mdp" />
+    <Entry filename="examples/benchmark/MonoDevelop/benchmark.mdp" />
   </Entries>
 </Combine>

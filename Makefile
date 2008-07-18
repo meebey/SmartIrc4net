@@ -25,8 +25,7 @@ release-stamp: $(SOURCE_FILES)
 
 release-signed: release-signed-stamp
 release-signed-stamp: $(SOURCE_FILES)
-	$(CSC) /target:library /define:DELAY_SIGN /out:bin/release/$(TARGET) $^
-	$(CSS) -R bin/release/$(TARGET) ../SmartIrc4net.snk
+	$(CSC) /target:library /out:bin/release/$(TARGET) -keyfile:debian/key.snk $^
 	touch release-signed-stamp
 
 docs: release

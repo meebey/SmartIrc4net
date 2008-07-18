@@ -56,7 +56,7 @@ binary-indep: build install
 	dh_compress
 	dh_fixperms
 	dh_shlibdeps
-	dh_makeclilibs -m 0.4.0
+	dh_makeclilibs -m 0.4.5
 	dh_installcligac
 	dh_clideps
 	dh_installdeb
