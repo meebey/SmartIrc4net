@@ -1,4 +1,4 @@
-CSC = mcs
+CSC = gmcs
 CSS = sn
 CLI = mono
 GACUTIL = gacutil
