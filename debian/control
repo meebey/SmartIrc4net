@@ -3,7 +3,12 @@ Section: libs
 Priority: optional
 Maintainer: Mirco Bauer <meebey@debian.org>
 Build-Depends: debhelper (>= 5.0.0), dpatch
-Build-Depends-Indep: cli-common-dev (>= 0.4.4), mono-gmcs (>= 1.0) | c-sharp-2.0-compiler, sharutils
+Build-Depends-Indep: cli-common-dev (>= 0.4.4),
+ mono-gmcs (>= 1.0) | c-sharp-2.0-compiler,
+ sharutils,
+ pkg-config,
+ libmono-dev,
+ liblog4net1.2-cil
 Standards-Version: 3.7.2
 
 Package: libsmartirc4net0.4-cil

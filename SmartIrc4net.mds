@@ -1,4 +1,4 @@
-<Combine name="SmartIrc4net" fileversion="2.0">
+<Combine releaseversion="0.4.5" name="SmartIrc4net" fileversion="2.0">
   <Configurations active="Debug">
     <Configuration name="Release" ctype="CombineConfiguration">
       <Entry build="True" name="SmartIrc4net" configuration="Release" />
@@ -16,6 +16,7 @@
     <Execute type="None" entry="Test" />
     <Execute type="Execute" entry="Benchmark" />
   </StartMode>
+  <MonoDevelop.ChangeLogAddIn.ChangeLogInfo policy="UpdateNearestChangeLog" />
   <Entries>
     <Entry filename="SmartIrc4net.mdp" />
     <Entry filename="examples/test/MonoDevelop/test.mdp" />

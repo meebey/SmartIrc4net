@@ -27,6 +27,7 @@
  */
 
 using System;
+using System.Text;
 
 namespace Meebey.SmartIrc4net
 {
@@ -34,8 +35,19 @@ namespace Meebey.SmartIrc4net
     ///
     /// </summary>
     /// <threadsafety static="true" instance="true" />
-    public class IrcCommands: IrcConnection
+    public class IrcCommands : IrcConnection
     {
+        private int _MaxModeChanges = 3;
+        
+        protected int MaxModeChanges {
+            get {
+                return _MaxModeChanges;
+            }
+            set {
+                _MaxModeChanges = value;
+            }
+        }
+
 #if LOG4NET
         public IrcCommands()
         {
@@ -137,11 +149,24 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
+        public void Op(string channel, string[] nicknames)
+        {
+            if (nicknames == null) {
+                throw new ArgumentNullException("nicknames");
+            }
+            
+            string[] modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++) {
+                modes[i] = "+o";
+            }
+            WriteLine(Rfc2812.Mode(channel, modes, nicknames));
+        }
+
         public void Op(string channel, string nickname)
         {
             WriteLine(Rfc2812.Mode(channel, "+o "+nickname));
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -288,7 +313,27 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Mode(channel, "-h "+nickname));
         }
 
-        // RFC commands
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="nickname"></param>
+        public void Mode(string target, string[] newModes, string[] newModeParameters)
+        {
+            int modeLines = (int) Math.Ceiling(newModes.Length / (double) _MaxModeChanges);
+            for (int i = 0; i < modeLines; i++) {
+                int chunkOffset = i * _MaxModeChanges;
+                string[] newModeChunks = new string[_MaxModeChanges];
+                string[] newModeParameterChunks = new string[_MaxModeChanges];
+                for (int j = 0; j < _MaxModeChanges; j++) {
+                    newModeChunks[j] = newModes[chunkOffset + j];
+                    newModeParameterChunks[j] = newModeParameterChunks[chunkOffset + j];
+                }
+                WriteLine(Rfc2812.Mode(target, newModeChunks, newModeParameterChunks));
+            }
+        }
+        
+#region RFC commands
         /// <summary>
         /// 
         /// </summary>
@@ -1505,7 +1550,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Mode(target, newmode));
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -2238,5 +2283,6 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Squit(server, comment));
         }
+#endregion
     }
 }

@@ -27,6 +27,7 @@
  */
 
 using System;
+using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -415,6 +416,45 @@ namespace Meebey.SmartIrc4net
             return "MODE "+target+" "+newmode;
         }
 
+        public static string Mode(string target, string[] newModes, string[] newModeParameters)
+        {
+            if (newModes == null) {
+                throw new ArgumentNullException("newModes");
+            }
+            if (newModeParameters == null) {
+                throw new ArgumentNullException("newModeParameters");
+            }
+            if (newModes.Length != newModeParameters.Length) {
+                throw new ArgumentException("newModes and modeParameters must have the same size.");
+            }
+            
+            StringBuilder newMode = new StringBuilder(newModes.Length);
+            StringBuilder newModeParameter = new StringBuilder();
+            // as per RFC 3.2.3, maximum is 3 modes changes at once
+            int maxModeChanges = 3;
+            if (newModes.Length > maxModeChanges) {
+                throw new ArgumentOutOfRangeException(
+                    "newModes.Length",
+                    newModes.Length,
+                    String.Format("Mode change list is too large (> {0}).", maxModeChanges)
+                );
+            }
+            
+            for (int i = 0; i < newModes.Length; i += maxModeChanges) {
+                for (int j = 0; j < maxModeChanges; j++) {
+                    newMode.Append(newModes[i + j]);
+                }
+                
+                for (int j = 0; j < maxModeChanges; j++) {
+                    newModeParameter.Append(newModeParameters[i + j]);
+                }
+            }
+            newMode.Append(" ");
+            newMode.Append(newModeParameter.ToString());
+            
+            return Mode(target, newMode.ToString());
+        }
+        
         public static string Service(string nickname, string distribution, string info)
         {
             return "SERVICE "+nickname+" * "+distribution+" * * :"+info;

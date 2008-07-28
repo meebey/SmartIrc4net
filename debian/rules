@@ -20,7 +20,8 @@ build: patch build-stamp
 build-stamp:
 	dh_testdir
 	uudecode -o debian/key.snk debian/key.snk.uue
-	$(MAKE) release-signed
+	./configure --enable-release
+	$(MAKE)
 	touch build-stamp
 
 clean: clean-patched unpatch
