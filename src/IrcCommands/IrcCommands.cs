@@ -149,6 +149,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
+        /*
         public void Op(string channel, string[] nicknames)
         {
             if (nicknames == null) {
@@ -161,6 +162,7 @@ namespace Meebey.SmartIrc4net
             }
             WriteLine(Rfc2812.Mode(channel, modes, nicknames));
         }
+        */
 
         public void Op(string channel, string nickname)
         {
@@ -318,6 +320,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
+        /*
         public void Mode(string target, string[] newModes, string[] newModeParameters)
         {
             int modeLines = (int) Math.Ceiling(newModes.Length / (double) _MaxModeChanges);
@@ -332,6 +335,7 @@ namespace Meebey.SmartIrc4net
                 WriteLine(Rfc2812.Mode(target, newModeChunks, newModeParameterChunks));
             }
         }
+        */
         
 #region RFC commands
         /// <summary>

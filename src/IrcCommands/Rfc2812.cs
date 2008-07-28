@@ -416,6 +416,7 @@ namespace Meebey.SmartIrc4net
             return "MODE "+target+" "+newmode;
         }
 
+        /*
         public static string Mode(string target, string[] newModes, string[] newModeParameters)
         {
             if (newModes == null) {
@@ -454,7 +455,8 @@ namespace Meebey.SmartIrc4net
             
             return Mode(target, newMode.ToString());
         }
-        
+        */
+
         public static string Service(string nickname, string distribution, string info)
         {
             return "SERVICE "+nickname+" * "+distribution+" * * :"+info;
