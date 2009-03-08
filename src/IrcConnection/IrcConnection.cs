@@ -481,6 +481,8 @@ namespace Meebey.SmartIrc4net
                     // Thus we send a \r\n so the IRCd can safely ignore that
                     // garbage.
                     _Writer.WriteLine();
+                    // make sure we flush the BOM+CRLF correctly
+                    _Writer.Flush();
                 }
 
                 // Connection was succeful, reseting the connect counter

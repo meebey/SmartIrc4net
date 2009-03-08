@@ -458,6 +458,7 @@ namespace Meebey.SmartIrc4net
             if (login) {
                 //reset the nick to the original nicklist
                 _CurrentNickname = 0;
+                // FIXME: honor _Nickname (last used nickname)
                 Login(_NicknameList, Realname, IUsermode, Username, Password);
             }
             if (channels) {
