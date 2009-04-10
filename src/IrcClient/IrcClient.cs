@@ -8,6 +8,7 @@
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
  * Copyright (c) 2003-2008 Mirco Bauer <meebey@meebey.net>
+ * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -1914,27 +1915,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="ircdata">Message data containing private message information</param>
         private void _Event_PRIVMSG(IrcMessageData ircdata)
         {
-            if (ircdata.Type == ReceiveType.CtcpRequest) {
-                if (ircdata.Message.StartsWith("\x1"+"PING")) {
-                    if (ircdata.Message.Length > 7) {
-                        SendMessage(SendType.CtcpReply, ircdata.Nick, "PING "+ircdata.Message.Substring(6, (ircdata.Message.Length-7)));
-                    } else {
-                        SendMessage(SendType.CtcpReply, ircdata.Nick, "PING");
-                    }
-                } else if (ircdata.Message.StartsWith("\x1"+"VERSION")) {
-                    string versionstring;
-                    if (_CtcpVersion == null) {
-                        versionstring = VersionString;
-                    } else {
-                        versionstring = _CtcpVersion;
-                    }
-                    SendMessage(SendType.CtcpReply, ircdata.Nick, "VERSION "+versionstring);
-                } else if (ircdata.Message.StartsWith("\x1"+"CLIENTINFO")) {
-                    SendMessage(SendType.CtcpReply, ircdata.Nick, "CLIENTINFO PING VERSION CLIENTINFO");
-                }
-            }
-
-            switch (ircdata.Type) {
+        	
+        	switch (ircdata.Type) {
                 case ReceiveType.ChannelMessage:
                     if (OnChannelMessage != null) {
                         OnChannelMessage(this, new IrcEventArgs(ircdata));

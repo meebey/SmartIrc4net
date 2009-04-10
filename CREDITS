@@ -33,3 +33,9 @@ D: Several patches: AutoRejoinOnKick, AutoJoinOnInvite, NicknameList,
    IdleWorkerThread, OnAutoConnectError, Lag, documentation
 S: Auckland
 S: New Zealand
+
+N: Thomas Bruderer (apophis)
+E: apophis@apophis.ch
+D: DCC implementation
+S: Zurich
+S: Switzerland
