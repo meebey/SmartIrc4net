@@ -36,6 +36,6 @@ S: New Zealand
 
 N: Thomas Bruderer (apophis)
 E: apophis@apophis.ch
-D: DCC implementation
+D: Several patches: DCC implementation, OnNames fix
 S: Zurich
 S: Switzerland

@@ -2213,7 +2213,24 @@ namespace Meebey.SmartIrc4net
         private void _Event_RPL_NAMREPLY(IrcMessageData ircdata)
         {
             string   channelname  = ircdata.Channel;
-            string[] userlist     = ircdata.MessageArray;
+            List<string> userlist = new List<string>();
+            foreach(string user in ircdata.MessageArray) {
+                if(user.Length>0) {
+                    switch (user[0]) {
+                        case '@':
+                        case '+':
+                        case '&':
+                        case '%':
+                        case '~':
+                            userlist.Add(user.Substring(1));
+                            break;
+                        default:
+                            userlist.Add(user);
+                            break;
+                    }
+                }
+            }
+            
             if (ActiveChannelSyncing &&
                 IsJoined(channelname)) {
                 string nickname;
@@ -2303,7 +2320,7 @@ namespace Meebey.SmartIrc4net
             }
             
             if (OnNames != null) {
-                OnNames(this, new NamesEventArgs(ircdata, channelname, userlist));
+                OnNames(this, new NamesEventArgs(ircdata, channelname, userlist.ToArray()));
             }
         }
         
