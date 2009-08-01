@@ -20,7 +20,6 @@
     <File name="src/EventArgs.cs" subtype="Code" buildaction="Compile" />
     <File name="src/Exceptions.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcConnection/IrcConnection.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcConnection/IrcTcpClient.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcConnection/Delegates.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcConnection/EventArgs.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcCommands/IrcCommands.cs" subtype="Code" buildaction="Compile" />
@@ -45,6 +44,16 @@
     <File name="src/IrcFeatures/EventArgs.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcFeatures/IrcConstants.cs" subtype="Code" buildaction="Compile" />
     <File name="src/IrcFeatures/IrcFeatures.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/HttpProxyClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/IProxyClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/ProxyClientFactory.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/Socks4ProxyClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/Socks4aProxyClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/Socks5ProxyClient.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/Utils.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/EventArgs/CreateConnectionAsyncCompletedEventArgs.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/StarkSoftProxy/Exceptions/ProxyException.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/IrcConnection/ProxyType.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />

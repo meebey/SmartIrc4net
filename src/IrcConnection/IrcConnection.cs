@@ -36,7 +36,6 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-
 using Starksoft.Net.Proxy;
 
 namespace Meebey.SmartIrc4net
@@ -58,7 +57,7 @@ namespace Meebey.SmartIrc4net
         private ReadThread       _ReadThread;
         private WriteThread      _WriteThread;
         private IdleWorkerThread _IdleWorkerThread;
-        private TcpClient     _TcpClient;
+        private TcpClient        _TcpClient;
         private Hashtable        _SendBuffer = Hashtable.Synchronized(new Hashtable());
         private int              _SendDelay = 200;
         private bool             _IsRegistered;
@@ -81,11 +80,9 @@ namespace Meebey.SmartIrc4net
         private string           _ProxyHost;
         private int              _ProxyPort;
         private ProxyType        _ProxyType = ProxyType.None;
-        private string           _ProxyUser = "";
-        private string           _ProxyPass = "";
+        private string           _ProxyUsername;
+        private string           _ProxyPassword;
         
-        private ProxyClientFactory proxyFactory = new ProxyClientFactory();
-
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
         /// </event>
@@ -419,12 +416,11 @@ namespace Meebey.SmartIrc4net
         
         /// <summary>
         /// Standard Setting is to use no Proxy Server, if you Set this to any other value,
-        /// you have to set the ProxyEndPoint aswell (and give credentials if needed)
-        /// Default: Org.Mentalis.Network.ProxySocket.ProxyTypes.None
+        /// you have to set the ProxyHost and ProxyPort aswell (and give credentials if needed)
+        /// Default: ProxyType.None
         /// </summary>
         public ProxyType ProxyType {
             get {
-                
                 return _ProxyType;
             }
             set {
@@ -435,25 +431,24 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Username to your Proxy Server
         /// </summary>
-        public string ProxyUser {
+        public string ProxyUsername {
             get {
-                return _ProxyUser;
+                return _ProxyUsername;
             }
             set {
-                
-                _ProxyUser = (value!=null)?value:"";
+                _ProxyUsername = value;
             }
         }
         
         /// <summary>
         /// Password to your Proxy Server
         /// </summary>
-        public string ProxyPass {
+        public string ProxyPassword {
             get {
-                return _ProxyPass;
+                return _ProxyPassword;
             }
             set {
-                _ProxyPass = (value!=null)?value:"";
+                _ProxyPassword = value;
             }
         }
         
@@ -526,26 +521,42 @@ namespace Meebey.SmartIrc4net
             try {
                 System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
 
-                if (_ProxyType != ProxyType.None) {
-                    IProxyClient proxy = null;
-                    if (string.IsNullOrEmpty(_ProxyUser) && string.IsNullOrEmpty(_ProxyPass)) {
-                        proxy = proxyFactory.CreateProxyClient(_ProxyType, _ProxyHost, _ProxyPort);
-                    } else {
-                        proxy = proxyFactory.CreateProxyClient(_ProxyType, _ProxyHost, _ProxyPort, _ProxyUser, _ProxyPass);
-                    }
-                    _TcpClient = proxy.TcpClient;
-                } else {
-                    _TcpClient = new TcpClient();
-                }
-                
-                
-                
+                _TcpClient = new TcpClient();
                 _TcpClient.NoDelay = true;
                 _TcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                 // set timeout, after this the connection will be aborted
                 _TcpClient.ReceiveTimeout = _SocketReceiveTimeout * 1000;
                 _TcpClient.SendTimeout = _SocketSendTimeout * 1000;
-                _TcpClient.Connect(ip, port);
+                
+                if (_ProxyType != ProxyType.None) {
+                    IProxyClient proxyClient = null;
+                    ProxyClientFactory proxyFactory = new ProxyClientFactory();
+                    // HACK: map our ProxyType to Starksoft's ProxyType
+                    Starksoft.Net.Proxy.ProxyType proxyType = 
+                        (Starksoft.Net.Proxy.ProxyType) Enum.Parse(
+                            typeof(ProxyType), _ProxyType.ToString(), true
+                        );
+                    
+                    if (_ProxyUsername == null && _ProxyPassword == null) {
+                        proxyClient = proxyFactory.CreateProxyClient(
+                            proxyType
+                        );
+                    } else {
+                        proxyClient = proxyFactory.CreateProxyClient(
+                            proxyType,
+                            _ProxyHost,
+                            _ProxyPort,
+                            _ProxyUsername,
+                            _ProxyPassword
+                        );
+                    }
+                    
+                    _TcpClient.Connect(_ProxyHost, _ProxyPort);
+                    proxyClient.TcpClient = _TcpClient;
+                    proxyClient.CreateConnection(ip.ToString(), port);
+                } else {
+                    _TcpClient.Connect(ip, port);
+                }
                 
                 Stream stream = _TcpClient.GetStream();
                 if (_UseSsl) {
