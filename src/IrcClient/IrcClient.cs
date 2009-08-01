@@ -28,6 +28,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections;
@@ -56,8 +57,7 @@ namespace Meebey.SmartIrc4net
         private bool             _PassiveChannelSyncing;
         private bool             _AutoJoinOnInvite;
         private bool             _AutoRejoin;
-        private StringDictionary _AutoRejoinChannels      = new StringDictionary();
-        private bool             _AutoRejoinChannelsWithKeys;
+        private Dictionary<string, string> _AutoRejoinChannels = new Dictionary<string, string>();
         private bool             _AutoRejoinOnKick;
         private bool             _AutoRelogin;
         private bool             _AutoNickHandling        = true;
@@ -959,20 +959,17 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Storing channels for rejoin...");
 #endif
-            _AutoRejoinChannels.Clear();
-            if (ActiveChannelSyncing || PassiveChannelSyncing) {
-                // store the key using channel sync
-                foreach (Channel channel in _Channels.Values) {
-                    if (channel.Key.Length > 0) {
+            lock (_AutoRejoinChannels) {
+                _AutoRejoinChannels.Clear();
+                if (ActiveChannelSyncing || PassiveChannelSyncing) {
+                    // store the key using channel sync
+                    foreach (Channel channel in _Channels.Values) {
                         _AutoRejoinChannels.Add(channel.Name, channel.Key);
-                        _AutoRejoinChannelsWithKeys = true;
-                    } else {
-                        _AutoRejoinChannels.Add(channel.Name, "nokey");
                     }
-                }
-            } else {
-                foreach (string channel in _JoinedChannels) {
-                    _AutoRejoinChannels.Add(channel, "nokey");
+                } else {
+                    foreach (string channel in _JoinedChannels) {
+                        _AutoRejoinChannels.Add(channel, null);
+                    }
                 }
             }
         }
@@ -982,22 +979,12 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("Rejoining channels...");
 #endif
-            int chan_count = _AutoRejoinChannels.Count;
-            
-            string[] names = new string[chan_count];
-            _AutoRejoinChannels.Keys.CopyTo(names, 0);
-            
-            if (_AutoRejoinChannelsWithKeys) {
-                string[] keys = new string[chan_count];
-                _AutoRejoinChannels.Values.CopyTo(keys, 0);
-                
-                RfcJoin(names, keys, Priority.High);
-            } else { 
-                RfcJoin(names, Priority.High);
+            lock (_AutoRejoinChannels) {
+                RfcJoin(_AutoRejoinChannels.Keys.ToArray(),
+                        _AutoRejoinChannels.Values.ToArray(),
+                        Priority.High);
+                _AutoRejoinChannels.Clear();
             }
-                
-            _AutoRejoinChannelsWithKeys = false;
-            _AutoRejoinChannels.Clear();
         }
         
         private void _SyncingCleanup()
