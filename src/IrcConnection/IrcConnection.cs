@@ -7,7 +7,8 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2009 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -27,15 +28,16 @@
  */
 
 using System;
-using System.IO;
-using System.Text;
 using System.Collections;
-using System.Threading;
-using System.Reflection;
-using System.Net.Sockets;
-#if NET_2_0
+using System.IO;
+using System.Net;
 using System.Net.Security;
-#endif
+using System.Net.Sockets;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+
+using Starksoft.Net.Proxy;
 
 namespace Meebey.SmartIrc4net
 {
@@ -50,15 +52,13 @@ namespace Meebey.SmartIrc4net
         private string[]         _AddressList = {"localhost"};
         private int              _CurrentAddress;
         private int              _Port;
-#if NET_2_0        
         private bool             _UseSsl;
-#endif
         private StreamReader     _Reader;
         private StreamWriter     _Writer;
         private ReadThread       _ReadThread;
         private WriteThread      _WriteThread;
         private IdleWorkerThread _IdleWorkerThread;
-        private IrcTcpClient     _TcpClient;
+        private TcpClient     _TcpClient;
         private Hashtable        _SendBuffer = Hashtable.Synchronized(new Hashtable());
         private int              _SendDelay = 200;
         private bool             _IsRegistered;
@@ -78,7 +78,14 @@ namespace Meebey.SmartIrc4net
         private DateTime         _LastPingSent;
         private DateTime         _LastPongReceived;
         private TimeSpan         _Lag;
+        private string           _ProxyHost;
+        private int              _ProxyPort;
+        private ProxyType        _ProxyType = ProxyType.None;
+        private string           _ProxyUser = "";
+        private string           _ProxyPass = "";
         
+        private ProxyClientFactory proxyFactory = new ProxyClientFactory();
+
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
         /// </event>
@@ -293,7 +300,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-#if NET_2_0        
         /// <summary>
         /// Enables/disables using SSL for the connection
         /// Default: false
@@ -306,7 +312,6 @@ namespace Meebey.SmartIrc4net
                 _UseSsl = value;
             }
         }
-#endif
 
         /// <summary>
         /// Timeout in seconds for receiving data from the socket
@@ -380,13 +385,78 @@ namespace Meebey.SmartIrc4net
             get {
                 if (_LastPingSent > _LastPongReceived) {
                     // there is an outstanding ping, thus we don't have a current lag value
-                    return DateTime.Now - _LastPingSent; 
+                    return DateTime.Now - _LastPingSent;
                 }
                 
                 return _Lag;
             }
         }
 
+        
+        /// <summary>
+        /// If you want to use a Proxy, set the ProxyHost to Host of the Proxy you want to use.
+        /// </summary>
+        public string ProxyHost {
+            get {
+                return _ProxyHost;
+            }
+            set {
+                _ProxyHost = value;
+            }
+        }
+
+        /// <summary>
+        /// If you want to use a Proxy, set the ProxyPort to Port of the Proxy you want to use.
+        /// </summary>
+        public int ProxyPort {
+            get {
+                return _ProxyPort;
+            }
+            set {
+                _ProxyPort = value;
+            }
+        }
+        
+        /// <summary>
+        /// Standard Setting is to use no Proxy Server, if you Set this to any other value,
+        /// you have to set the ProxyEndPoint aswell (and give credentials if needed)
+        /// Default: Org.Mentalis.Network.ProxySocket.ProxyTypes.None
+        /// </summary>
+        public ProxyType ProxyType {
+            get {
+                
+                return _ProxyType;
+            }
+            set {
+                _ProxyType = value;
+            }
+        }
+        
+        /// <summary>
+        /// Username to your Proxy Server
+        /// </summary>
+        public string ProxyUser {
+            get {
+                return _ProxyUser;
+            }
+            set {
+                
+                _ProxyUser = (value!=null)?value:"";
+            }
+        }
+        
+        /// <summary>
+        /// Password to your Proxy Server
+        /// </summary>
+        public string ProxyPass {
+            get {
+                return _ProxyPass;
+            }
+            set {
+                _ProxyPass = (value!=null)?value:"";
+            }
+        }
+        
         /// <summary>
         /// Initializes the message queues, read and write thread
         /// </summary>
@@ -446,6 +516,7 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info(String.Format("connecting... (attempt: {0})",
                                                  _ConnectTries));
 #endif
+
             _AddressList = (string[])addresslist.Clone();
             _Port = port;
 
@@ -454,24 +525,36 @@ namespace Meebey.SmartIrc4net
             }
             try {
                 System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
-                _TcpClient = new IrcTcpClient();
+
+                if (_ProxyType != ProxyType.None) {
+                    IProxyClient proxy = null;
+                    if (string.IsNullOrEmpty(_ProxyUser) && string.IsNullOrEmpty(_ProxyPass)) {
+                        proxy = proxyFactory.CreateProxyClient(_ProxyType, _ProxyHost, _ProxyPort);
+                    } else {
+                        proxy = proxyFactory.CreateProxyClient(_ProxyType, _ProxyHost, _ProxyPort, _ProxyUser, _ProxyPass);
+                    }
+                    _TcpClient = proxy.TcpClient;
+                } else {
+                    _TcpClient = new TcpClient();
+                }
+                
+                
+                
                 _TcpClient.NoDelay = true;
-                _TcpClient.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
+                _TcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                 // set timeout, after this the connection will be aborted
                 _TcpClient.ReceiveTimeout = _SocketReceiveTimeout * 1000;
                 _TcpClient.SendTimeout = _SocketSendTimeout * 1000;
                 _TcpClient.Connect(ip, port);
                 
                 Stream stream = _TcpClient.GetStream();
-#if NET_2_0
                 if (_UseSsl) {
                     SslStream sslStream = new SslStream(stream, false, delegate {
-                        return true;
-                    });
+                                                            return true;
+                                                        });
                     sslStream.AuthenticateAsClient(Address);
                     stream = sslStream;
                 }
-#endif
                 _Reader = new StreamReader(stream, _Encoding);
                 _Writer = new StreamWriter(stream, _Encoding);
                 
@@ -520,7 +603,7 @@ namespace Meebey.SmartIrc4net
                     _TcpClient.Close();
                 }
                 _IsConnected = false;
-                IsConnectionError = true; 
+                IsConnectionError = true;
                 
 #if LOG4NET
                 Logger.Connection.Info("connection failed: "+e.Message);
@@ -765,7 +848,7 @@ namespace Meebey.SmartIrc4net
 
         private void _SimpleParser(object sender, ReadLineEventArgs args)
         {
-            string   rawline = args.Line; 
+            string   rawline = args.Line;
             string[] rawlineex = rawline.Split(new char[] {' '});
             string   messagecode = "";
 
@@ -1031,7 +1114,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            #region WARNING: complex scheduler, don't even think about changing it!
+#region WARNING: complex scheduler, don't even think about changing it!
             // WARNING: complex scheduler, don't even think about changing it!
             private void _CheckBuffer()
             {
@@ -1154,7 +1237,7 @@ namespace Meebey.SmartIrc4net
                         (_AboveMediumCount > 0) ||
                         (_MediumCount > 0) ||
                         (_BelowMediumCount > 0)) {
-                            return true;
+                        return true;
                     }
 
                     string data = (string)((Queue)_Connection._SendBuffer[Priority.Low]).Dequeue();
@@ -1173,7 +1256,7 @@ namespace Meebey.SmartIrc4net
                 return true;
             }
             // END OF WARNING, below this you can read/change again ;)
-            #endregion
+#endregion
         }
 
         /// <summary>
