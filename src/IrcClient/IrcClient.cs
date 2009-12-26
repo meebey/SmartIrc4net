@@ -1777,8 +1777,19 @@ namespace Meebey.SmartIrc4net
                     _IrcUsers.Add(who, ircuser);
                 }
 
-                ChannelUser channeluser = CreateChannelUser(channelname, ircuser);
-                channel.UnsafeUsers.Add(who, channeluser);
+                // HACK: IRCnet's anonymous channel mode feature breaks our
+                // channnel sync here as they use the same nick for ALL channel
+                // users!
+                // Example: :anonymous!anonymous@anonymous. JOIN :$channel
+                if (who == "anonymous" &&
+                    ircdata.Ident == "anonymous" &&
+                    ircdata.Host == "anonymous." &&
+                    IsJoined(channelname, who)) {
+                    // ignore
+                } else {
+                    ChannelUser channeluser = CreateChannelUser(channelname, ircuser);
+                    channel.UnsafeUsers.Add(who, channeluser);
+                }
             }
 
             if (OnJoin != null) {
@@ -1810,8 +1821,19 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.ChannelSyncing.Debug(who+" parts channel: "+channel);
 #endif
-                    _RemoveChannelUser(channel, who);
-                    _RemoveIrcUser(who);
+                    // HACK: IRCnet's anonymous channel mode feature breaks our
+                    // channnel sync here as they use the same nick for ALL channel
+                    // users!
+                    // Example: :anonymous!anonymous@anonymous. PART $channel :$msg
+                    if (who == "anonymous" &&
+                        ircdata.Ident == "anonymous" &&
+                        ircdata.Host == "anonymous." &&
+                        !IsJoined(channel, who)) {
+                        // ignore
+                    } else {
+                        _RemoveChannelUser(channel, who);
+                        _RemoveIrcUser(who);
+                    }
                 }
             }
 
