@@ -144,14 +144,11 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets or sets the registered status of the user
         /// </summary>
-        /// <remarks>
-        /// Do _not_ set this value, it will break channel sync!
-        /// </remarks>
         public bool IsRegistered {
             get {
                 return _IsRegistered;
             }
-            set {
+            internal set {
                 _IsRegistered = value;
             }
         }
