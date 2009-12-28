@@ -1,0 +1,4 @@
+debug/*.dll*
+debug/*.exe*
+release/*.dll*
+release/*.exe*
