@@ -44,6 +44,7 @@ namespace Meebey.SmartIrc4net
         private bool     f_IsOp;
         private bool     f_IsVoice;
         private bool     f_IsIrcOp;
+        private bool     f_IsRegistered;
         
         public string Channel {
             get {
@@ -110,6 +111,12 @@ namespace Meebey.SmartIrc4net
                 return f_IsIrcOp;
             }
         }
+
+        public bool IsRegistered {
+            get {
+                return f_IsRegistered;
+            }
+        }
         
         private WhoInfo()
         {
@@ -142,6 +149,7 @@ namespace Meebey.SmartIrc4net
             bool voice = false;
             bool ircop = false;
             bool away = false;
+            bool registered = false;
             int usermodelength = usermode.Length;
             for (int i = 0; i < usermodelength; i++) {
                 switch (usermode[i]) {
@@ -160,12 +168,17 @@ namespace Meebey.SmartIrc4net
                     case '*':
                         ircop = true;
                     break;
+                    case 'r':
+                        registered = true;
+                    break;
                 }
             }
             whoInfo.f_IsAway = away;
             whoInfo.f_IsOp = op;
             whoInfo.f_IsVoice = voice;
             whoInfo.f_IsIrcOp = ircop;
+
+            whoInfo.f_IsRegistered = registered;
             
             return whoInfo;
         }

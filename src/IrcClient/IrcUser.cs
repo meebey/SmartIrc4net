@@ -48,6 +48,7 @@ namespace Meebey.SmartIrc4net
         private string    _Host     = null;
         private string    _Realname = null;
         private bool      _IsIrcOp  = false;
+        private bool      _IsRegistered = false;
         private bool      _IsAway   = false;
         private string    _Server   = null;
         private int       _HopCount = -1;
@@ -137,6 +138,21 @@ namespace Meebey.SmartIrc4net
             }
             set {
                 _IsIrcOp = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the registered status of the user
+        /// </summary>
+        /// <remarks>
+        /// Do _not_ set this value, it will break channel sync!
+        /// </remarks>
+        public bool IsRegistered {
+            get {
+                return _IsRegistered;
+            }
+            set {
+                _IsRegistered = value;
             }
         }
 
