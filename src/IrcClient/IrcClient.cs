@@ -2472,6 +2472,7 @@ namespace Meebey.SmartIrc4net
                     ircuser.Realname = info.Realname;
                     ircuser.IsAway   = info.IsAway;
                     ircuser.IsIrcOp  = info.IsIrcOp;
+                    ircuser.IsRegistered = info.IsRegistered;
                 
                     switch (channel[0]) {
                         case '#':
