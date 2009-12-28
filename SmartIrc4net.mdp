@@ -1,59 +1,59 @@
-<Project name="SmartIrc4net" fileversion="2.0" language="C#" clr-version="Net_2_0" targetFramework="3.5" ctype="DotNetProject">
+<Project name="SmartIrc4net" fileversion="2.0" DefaultNamespace="SmartIrc4net" language="C#" clr-version="Net_2_0" targetFramework="3.5" ctype="DotNetProject">
   <Configurations active="Debug">
     <Configuration name="Debug" ctype="DotNetProjectConfiguration">
       <Output directory="bin/debug" assembly="Meebey.SmartIrc4net" />
       <Build debugmode="True" target="Library" />
-      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" clr-version="Net_2_0" />
+      <Execution consolepause="False" runwithwarnings="False" runtime="MsNet" clr-version="Net_2_0" />
       <CodeGeneration compiler="Mcs" warninglevel="4" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" definesymbols="TRACE,DEBUG,LOG4NET,NET_2_0" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
     <Configuration name="Release" ctype="DotNetProjectConfiguration">
       <Output directory="bin/release" assembly="Meebey.SmartIrc4net" />
       <Build debugmode="False" target="Library" />
-      <Execution runwithwarnings="False" consolepause="False" runtime="MsNet" clr-version="Net_2_0" />
+      <Execution consolepause="False" runwithwarnings="False" runtime="MsNet" clr-version="Net_2_0" />
       <CodeGeneration compiler="Mcs" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" definesymbols="NET_2_0" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
   </Configurations>
   <Contents>
-    <File name="src/AssemblyInfo.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Logger.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Consts.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/EventArgs.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Exceptions.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcConnection/IrcConnection.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcConnection/Delegates.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcConnection/EventArgs.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcCommands/IrcCommands.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcCommands/Rfc2812.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/IrcClient.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/IrcMessageData.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/Delegates.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/EventArgs.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/IrcUser.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/Channel.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/NonRfcChannel.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/ChannelUser.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/NonRfcChannelUser.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcConnection/IrcProperties.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/ChannelInfo.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/WhoInfo.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcClient/BanInfo.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/DccChat.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/DccConnection.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/DccSend.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/Delegates.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/EventArgs.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/IrcConstants.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcFeatures/IrcFeatures.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/HttpProxyClient.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/IProxyClient.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/ProxyClientFactory.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/Socks4ProxyClient.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/Socks4aProxyClient.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/Socks5ProxyClient.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/Utils.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/EventArgs/CreateConnectionAsyncCompletedEventArgs.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/StarkSoftProxy/Exceptions/ProxyException.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/IrcConnection/ProxyType.cs" subtype="Code" buildaction="Compile" />
+    <File subtype="Code" buildaction="Compile" name="src/AssemblyInfo.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/Logger.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/Consts.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/EventArgs.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/Exceptions.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcConnection/IrcConnection.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcConnection/Delegates.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcConnection/EventArgs.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcCommands/IrcCommands.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcCommands/Rfc2812.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/IrcClient.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/IrcMessageData.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/Delegates.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/EventArgs.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/IrcUser.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/Channel.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/NonRfcChannel.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/ChannelUser.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/NonRfcChannelUser.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcConnection/IrcProperties.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/ChannelInfo.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/WhoInfo.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcClient/BanInfo.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/DccChat.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/DccConnection.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/DccSend.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/Delegates.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/EventArgs.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/IrcConstants.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcFeatures/IrcFeatures.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/HttpProxyClient.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/IProxyClient.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/ProxyClientFactory.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/Socks4ProxyClient.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/Socks4aProxyClient.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/Socks5ProxyClient.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/Utils.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/EventArgs/CreateConnectionAsyncCompletedEventArgs.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/StarkSoftProxy/Exceptions/ProxyException.cs" />
+    <File subtype="Code" buildaction="Compile" name="src/IrcConnection/ProxyType.cs" />
   </Contents>
   <References>
     <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
