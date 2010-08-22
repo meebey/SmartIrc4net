@@ -830,6 +830,16 @@ namespace Meebey.SmartIrc4net
             }
             if (exclamationpos != -1) {
                 nick = from.Substring(0, exclamationpos);
+            } else {
+                if (atpos == -1) {
+                    // no ident and no host, should be nick then
+                    if (!from.Contains(".")) {
+                        // HACK: from seems to be a nick instead of servername
+                        nick = from;
+                    }
+                } else {
+                    nick = from.Substring(0, atpos);
+                }
             }
             if ((atpos != -1) &&
                 (exclamationpos != -1)) {
