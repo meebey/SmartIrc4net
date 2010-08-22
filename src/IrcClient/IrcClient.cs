@@ -795,6 +795,10 @@ namespace Meebey.SmartIrc4net
         
         public IrcMessageData MessageParser(string rawline)
         {
+            if (rawline == null) {
+                throw new ArgumentNullException("rawline");
+            }
+
             string         line;
             string[]       linear;
             string         messagecode;
@@ -809,7 +813,11 @@ namespace Meebey.SmartIrc4net
             int            exclamationpos;
             int            atpos;
             int            colonpos;
-           
+
+            if (rawline.Length == 0) {
+                throw new ArgumentException("Value must not be empty.", "rawline");
+            }
+
             if (rawline[0] == ':') {
                 line = rawline.Substring(1);
             } else {
