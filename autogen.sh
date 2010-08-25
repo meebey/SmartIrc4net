@@ -79,5 +79,9 @@ $AUTOMAKE --add-missing --gnu $am_opt
 echo "Running $AUTOCONF ..."
 $AUTOCONF
 
-echo Running $srcdir/configure $conf_flags "$@" ...
-$srcdir/configure --enable-maintainer-mode $conf_flags "$@" \
+if test x$NOCONFIGURE = x; then
+    echo Running $srcdir/configure $conf_flags "$@" ...
+    $srcdir/configure --enable-maintainer-mode $conf_flags "$@" || exit 1
+else
+    echo Skipping configure process.
+fi
