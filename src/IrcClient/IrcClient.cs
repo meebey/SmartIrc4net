@@ -2243,27 +2243,12 @@ namespace Meebey.SmartIrc4net
             string[] userlist     = ircdata.MessageArray;
             // HACK: BIP skips the colon after the channel name even though
             // RFC 1459 and 2812 says it's mandantory in RPL_NAMREPLY
-            if (userlist == null) {
+            if (userlist == null && ircdata.RawMessageArray.Length > 5) {
                 userlist = new string[] { ircdata.RawMessageArray[5] };
+            } else {
+                userlist = new string[] {};
             }
-            List<string> userlist = new List<string>();
-            foreach(string user in ircdata.MessageArray) {
-                if(user.Length>0) {
-                    switch (user[0]) {
-                        case '@':
-                        case '+':
-                        case '&':
-                        case '%':
-                        case '~':
-                            userlist.Add(user.Substring(1));
-                            break;
-                        default:
-                            userlist.Add(user);
-                            break;
-                    }
-                }
-            }
-            
+
             if (ActiveChannelSyncing &&
                 IsJoined(channelname)) {
                 string nickname;
@@ -2351,9 +2336,31 @@ namespace Meebey.SmartIrc4net
                     }
                 }
             }
-            
+
+            var filteredUserlist = new List<string>(userlist.Length);
+            // filter user modes from nicknames
+            foreach (string user in userlist) {
+                if (String.IsNullOrEmpty(user)) {
+                    continue;
+                }
+
+                switch (user[0]) {
+                    case '@':
+                    case '+':
+                    case '&':
+                    case '%':
+                    case '~':
+                        filteredUserlist.Add(user.Substring(1));
+                        break;
+                    default:
+                        filteredUserlist.Add(user);
+                        break;
+                }
+            }
+
             if (OnNames != null) {
-                OnNames(this, new NamesEventArgs(ircdata, channelname, userlist.ToArray()));
+                OnNames(this, new NamesEventArgs(ircdata, channelname,
+                                                 filteredUserlist.ToArray()));
             }
         }
         
