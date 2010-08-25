@@ -36,6 +36,27 @@ fi
 GACUTIL_FLAGS='-root $(DESTDIR)$(libdir)'
 AC_SUBST(GACUTIL_FLAGS)
 
+AC_ARG_ENABLE(pkg-config,
+	AC_HELP_STRING([--disable-pkg-config],
+		[Disable pkg-config install [default=NO]]),
+	disable_pkg_config=yes, disable_pkg_config=no
+)
+AM_CONDITIONAL([INSTALL_PKG_CONFIG], test x$disable_pkg_config = xno)
+
+AC_ARG_ENABLE(pkg-lib,
+	AC_HELP_STRING([--disable-pkg-lib],
+		[Disable library install [default=NO]]),
+	disable_pkg_lib=yes, disable_pkg_lib=no
+)
+AM_CONDITIONAL([INSTALL_PKG_LIB], test x$disable_pkg_lib = xno)
+
+AC_ARG_ENABLE(pkg-gac,
+	AC_HELP_STRING([--disable-pkg-gac],
+		[Disable GAC install [default=NO]]),
+	disable_pkg_gac=yes, disable_pkg_gac=no
+)
+AM_CONDITIONAL([INSTALL_PKG_GAC], test x$disable_pkg_gac = xno)
+
 AC_CONFIG_FILES([
 	Makefile
 	smartirc4net.pc

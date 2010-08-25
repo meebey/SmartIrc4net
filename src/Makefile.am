@@ -1,4 +1,4 @@
-TARGET_DIR = $(top_srcdir)/bin
+TARGET_DIR = $(top_builddir)/bin
 KEYFILE = $(top_srcdir)/$(PACKAGE_NAME).snk
 ASSEMBLY = $(ASSEMBLY_NAME).dll
 ASSEMBLY_TARGET = $(TARGET_DIR)/$(ASSEMBLY)
@@ -7,18 +7,24 @@ ASSEMBLY_XML_TARGET = $(TARGET_DIR)/$(ASSEMBLY_XML)
 ASSEMBLY_PC = $(top_srcdir)/$(PACKAGE_NAME).pc
 NDOC = ndoc-console
 NDOC_TARGET_DIR = docs/html
-SOURCE_FILES = *.cs */*.cs */*/*.cs
+SOURCE_PATTERNS = *.cs */*.cs */*/*.cs
+SOURCE_FILES = $(foreach pattern, $(SOURCE_PATTERNS), $(wildcard $(pattern)))
 GACUTIL_INSTALL = $(GACUTIL) -i $(ASSEMBLY_TARGET) -f $(GACUTIL_FLAGS)
 GACUTIL_UNINSTALL = $(GACUTIL) -u $(ASSEMBLY_NAME) $(GACUTIL_FLAGS)
 
 # automake magic variables
 EXTRA_DIST = $(SOURCE_FILES)
-CLEANFILES = $(ASSEMBLY_TARGET)
+CLEANFILES = $(ASSEMBLY_TARGET) $(ASSEMBLY_TARGET).mdb $(ASSEMBLY_XML_TARGET)
 
+if INSTALL_PKG_LIB
 pkglib_DATA = $(ASSEMBLY_TARGET)
+endif
 
+if INSTALL_PKG_CONFIG
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(ASSEMBLY_PC)
+endif
+# end of magic
 
 all: $(ASSEMBLY_TARGET)
 
@@ -32,6 +38,7 @@ docs: $(ASSEMBLY_TARGET)
 	  -Title="SmartIrc4net API documentation" -SdkLinksOnWeb=true \
 	  -AssemblyVersionInfo=AssemblyVersion
 
+if INSTALL_PKG_GAC
 install-data-local:
 	echo "$(GACUTIL_INSTALL)";  \
 	  $(GACUTIL_INSTALL)  || exit 1;
@@ -39,3 +46,10 @@ install-data-local:
 uninstall-local:
 	echo "$(GACUTIL_UNINSTALL)";  \
 	  $(GACUTIL_UNINSTALL)  || exit 1;
+endif
+
+# HACK: autofoo stubbornly creates the $pkglibdir/$package directory
+if !INSTALL_PKG_LIB
+installdirs:
+install-pkglibDATA:
+endif
