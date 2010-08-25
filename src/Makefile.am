@@ -8,7 +8,7 @@ ASSEMBLY_PC = $(top_srcdir)/$(PACKAGE_NAME).pc
 NDOC = ndoc-console
 NDOC_TARGET_DIR = docs/html
 SOURCE_PATTERNS = *.cs */*.cs */*/*.cs
-SOURCE_FILES = $(foreach pattern, $(SOURCE_PATTERNS), $(wildcard $(pattern)))
+SOURCE_FILES = $(foreach pattern, $(SOURCE_PATTERNS), $(wildcard $(srcdir)/$(pattern)))
 GACUTIL_INSTALL = $(GACUTIL) -i $(ASSEMBLY_TARGET) -f $(GACUTIL_FLAGS)
 GACUTIL_UNINSTALL = $(GACUTIL) -u $(ASSEMBLY_NAME) $(GACUTIL_FLAGS)
 
