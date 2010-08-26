@@ -2243,10 +2243,12 @@ namespace Meebey.SmartIrc4net
             string[] userlist     = ircdata.MessageArray;
             // HACK: BIP skips the colon after the channel name even though
             // RFC 1459 and 2812 says it's mandantory in RPL_NAMREPLY
-            if (userlist == null && ircdata.RawMessageArray.Length > 5) {
-                userlist = new string[] { ircdata.RawMessageArray[5] };
-            } else {
-                userlist = new string[] {};
+            if (userlist == null) {
+                if (ircdata.RawMessageArray.Length > 5) {
+                    userlist = new string[] { ircdata.RawMessageArray[5] };
+                } else {
+                    userlist = new string[] {};
+                }
             }
 
             if (ActiveChannelSyncing &&
