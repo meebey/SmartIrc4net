@@ -416,7 +416,6 @@ namespace Meebey.SmartIrc4net
             return "MODE "+target+" "+newmode;
         }
 
-        /*
         public static string Mode(string target, string[] newModes, string[] newModeParameters)
         {
             if (newModes == null) {
@@ -426,7 +425,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("newModeParameters");
             }
             if (newModes.Length != newModeParameters.Length) {
-                throw new ArgumentException("newModes and modeParameters must have the same size.");
+                throw new ArgumentException("newModes and newModeParameters must have the same size.");
             }
             
             StringBuilder newMode = new StringBuilder(newModes.Length);
@@ -441,21 +440,31 @@ namespace Meebey.SmartIrc4net
                 );
             }
             
-            for (int i = 0; i < newModes.Length; i += maxModeChanges) {
+            for (int i = 0; i <= newModes.Length; i += maxModeChanges) {
                 for (int j = 0; j < maxModeChanges; j++) {
+                    if (i + j >= newModes.Length) {
+                        break;
+                    }
                     newMode.Append(newModes[i + j]);
                 }
                 
                 for (int j = 0; j < maxModeChanges; j++) {
+                    if (i + j >= newModeParameters.Length) {
+                        break;
+                    }
                     newModeParameter.Append(newModeParameters[i + j]);
+                    newModeParameter.Append(" ");
                 }
             }
-            newMode.Append(" ");
-            newMode.Append(newModeParameter.ToString());
-            
+            if (newModeParameter.Length > 0) {
+                // remove trailing space
+                newModeParameter.Length--;
+                newMode.Append(" ");
+                newMode.Append(newModeParameter.ToString());
+            }
+
             return Mode(target, newMode.ToString());
         }
-        */
 
         public static string Service(string nickname, string distribution, string info)
         {

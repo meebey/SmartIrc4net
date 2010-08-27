@@ -27,6 +27,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Meebey.SmartIrc4net
@@ -145,11 +146,10 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
-        /*
         public void Op(string channel, string[] nicknames)
         {
             if (nicknames == null) {
@@ -160,9 +160,8 @@ namespace Meebey.SmartIrc4net
             for (int i = 0; i < nicknames.Length; i++) {
                 modes[i] = "+o";
             }
-            WriteLine(Rfc2812.Mode(channel, modes, nicknames));
+            Mode(channel, modes, nicknames);
         }
-        */
 
         public void Op(string channel, string nickname)
         {
@@ -191,6 +190,24 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="nickname"></param>
+        public void Deop(string channel, string[] nicknames)
+        {
+            if (nicknames == null) {
+                throw new ArgumentNullException("nicknames");
+            }
+
+            string[] modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++) {
+                modes[i] = "-o";
+            }
+            Mode(channel, modes, nicknames);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="channel"></param>
@@ -212,6 +229,24 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="nickname"></param>
+        public void Voice(string channel, string[] nicknames)
+        {
+            if (nicknames == null) {
+                throw new ArgumentNullException("nicknames");
+            }
+
+            string[] modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++) {
+                modes[i] = "+v";
+            }
+            Mode(channel, modes, nicknames);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="channel"></param>
@@ -230,6 +265,24 @@ namespace Meebey.SmartIrc4net
         public void Devoice(string channel, string nickname)
         {
             WriteLine(Rfc2812.Mode(channel, "-v "+nickname));
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="nicknames"></param>
+        public void Devoice(string channel, string[] nicknames)
+        {
+            if (nicknames == null) {
+                throw new ArgumentNullException("nicknames");
+            }
+
+            string[] modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++) {
+                modes[i] = "-v";
+            }
+            Mode(channel, modes, nicknames);
         }
 
         /// <summary>
@@ -273,6 +326,24 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="hostmasks"></param>
+        public void Ban(string channel, string[] hostmasks)
+        {
+            if (hostmasks == null) {
+                throw new ArgumentNullException("hostmasks");
+            }
+
+            string[] modes = new string[hostmasks.Length];
+            for (int i = 0; i < hostmasks.Length; i++) {
+                modes[i] = "+b";
+            }
+            Mode(channel, modes, hostmasks);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="channel"></param>
@@ -293,6 +364,24 @@ namespace Meebey.SmartIrc4net
             WriteLine(Rfc2812.Mode(channel, "-b "+hostmask));
         }
         
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="hostmasks"></param>
+        public void Unban(string channel, string[] hostmasks)
+        {
+            if (hostmasks == null) {
+                throw new ArgumentNullException("hostmasks");
+            }
+
+            string[] modes = new string[hostmasks.Length];
+            for (int i = 0; i < hostmasks.Length; i++) {
+                modes[i] = "-b";
+            }
+            Mode(channel, modes, hostmasks);
+        }
+
         // non-RFC commands
         /// <summary>
         /// 
@@ -300,9 +389,27 @@ namespace Meebey.SmartIrc4net
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
         /// <param name="priority"></param>
-        public void Halfop(string channel, string nickname, Priority priority)
+        public void Halfop(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "+h "+nickname), priority);
+            WriteLine(Rfc2812.Mode(channel, "+h "+nickname));
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="nicknames"></param>
+        public void Halfop(string channel, string[] nicknames)
+        {
+            if (nicknames == null) {
+                throw new ArgumentNullException("nicknames");
+            }
+
+            string[] modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++) {
+                modes[i] = "+h";
+            }
+            Mode(channel, modes, nicknames);
         }
 
         /// <summary>
@@ -316,26 +423,65 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        /*
+        /// <param name="nicknames"></param>
+        public void Dehalfop(string channel, string[] nicknames)
+        {
+            if (nicknames == null) {
+                throw new ArgumentNullException("nicknames");
+            }
+
+            string[] modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++) {
+                modes[i] = "-h";
+            }
+            Mode(channel, modes, nicknames);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="newModes"></param>
+        /// <param name="newModeParameters"></param>
         public void Mode(string target, string[] newModes, string[] newModeParameters)
         {
-            int modeLines = (int) Math.Ceiling(newModes.Length / (double) _MaxModeChanges);
-            for (int i = 0; i < modeLines; i++) {
-                int chunkOffset = i * _MaxModeChanges;
-                string[] newModeChunks = new string[_MaxModeChanges];
-                string[] newModeParameterChunks = new string[_MaxModeChanges];
-                for (int j = 0; j < _MaxModeChanges; j++) {
-                    newModeChunks[j] = newModes[chunkOffset + j];
-                    newModeParameterChunks[j] = newModeParameterChunks[chunkOffset + j];
+            if (target == null) {
+                throw new ArgumentNullException("target");
+            }
+            if (newModes == null) {
+                throw new ArgumentNullException("newModes");
+            }
+            if (newModeParameters == null) {
+                throw new ArgumentNullException("newModeParameters");
+            }
+            if (newModes.Length == 0) {
+                throw new ArgumentException("newModes must not be empty." , "newModes");
+            }
+            if (newModeParameters.Length == 0) {
+                throw new ArgumentException("newModeParameters must not be empty." , "newModeParameters");
+            }
+            if (newModes.Length != newModeParameters.Length) {
+                throw new ArgumentException("newModes and newModeParameters must have the same size.", "newModes");
+            }
+
+            int maxModeChanges = _MaxModeChanges;
+            for (int i = 0; i < newModes.Length; i += maxModeChanges) {
+                var newModeChunks = new List<string>(maxModeChanges);
+                var newModeParameterChunks = new List<string>(maxModeChanges);
+                for (int j = 0; j < maxModeChanges; j++) {
+                    if (i + j >= newModes.Length) {
+                        break;
+                    }
+                    newModeChunks.Add(newModes[i + j]);
+                    newModeParameterChunks.Add(newModeParameters[i + j]);
                 }
-                WriteLine(Rfc2812.Mode(target, newModeChunks, newModeParameterChunks));
+                WriteLine(Rfc2812.Mode(target, newModeChunks.ToArray(),
+                                       newModeParameterChunks.ToArray()));
             }
         }
-        */
         
 #region RFC commands
         /// <summary>
