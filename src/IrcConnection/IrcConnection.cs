@@ -68,9 +68,10 @@ namespace Meebey.SmartIrc4net
         private bool             _IsConnected;
         private bool             _IsConnectionError;
         private bool             _IsDisconnecting;
-        private int              _ConnectTries;
+        private int              _AutoRetryAttempt;
         private bool             _AutoRetry;
         private int              _AutoRetryDelay = 30;
+        private int              _AutoRetryLimit = 3;
         private bool             _AutoReconnect;
         private Encoding         _Encoding = Encoding.Default;
         private int              _SocketReceiveTimeout  = 600;
@@ -235,6 +236,29 @@ namespace Meebey.SmartIrc4net
             }
             set {
                 _AutoRetryDelay = value;
+            }
+        }
+
+        /// <summary>
+        /// Maximum number of retries to connect to the server
+        /// Default: 3
+        /// </summary>
+        public int AutoRetryLimit {
+            get {
+                return _AutoRetryLimit;
+            }
+            set {
+                _AutoRetryLimit = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current amount of reconnect attempts
+        /// Default: 3
+        /// </summary>
+        public int AutoRetryAttempt {
+            get {
+                return _AutoRetryAttempt;
             }
         }
 
@@ -536,10 +560,10 @@ namespace Meebey.SmartIrc4net
                 throw new AlreadyConnectedException("Already connected to: " + Address + ":" + Port);
             }
 
-            _ConnectTries++;
+            _AutoRetryAttempt++;
 #if LOG4NET
             Logger.Connection.Info(String.Format("connecting... (attempt: {0})",
-                                                 _ConnectTries));
+                                                 _AutoRetryAttempt));
 #endif
 
             _AddressList = (string[])addresslist.Clone();
@@ -647,7 +671,7 @@ namespace Meebey.SmartIrc4net
                 }
 
                 // Connection was succeful, reseting the connect counter
-                _ConnectTries = 0;
+                _AutoRetryAttempt = 0;
 
                 // updating the connection error state, so connecting is possible again
                 IsConnectionError = false;
@@ -697,7 +721,9 @@ namespace Meebey.SmartIrc4net
                 }
 
                 if (_AutoRetry &&
-                    _ConnectTries <= 3) {
+                    (_AutoRetryLimit == -1 ||
+                     _AutoRetryLimit == 0 ||
+                     _AutoRetryLimit <= _AutoRetryAttempt)) {
                     if (OnAutoConnectError != null) {
                         OnAutoConnectError(this, new AutoConnectErrorEventArgs(Address, Port, e));
                     }
@@ -706,6 +732,7 @@ namespace Meebey.SmartIrc4net
 #endif
                     Thread.Sleep(_AutoRetryDelay * 1000);
                     _NextAddress();
+                    // FIXME: this is recursion
                     Connect(_AddressList, _Port);
                 } else {
                     throw new CouldNotConnectException("Could not connect to: "+Address+":"+Port+" "+e.Message, e);
