@@ -53,7 +53,7 @@ namespace Starksoft.Net.Proxy
         private TcpClient _tcpClient;
 
         private const int HTTP_PROXY_DEFAULT_PORT = 8080;
-        private const string HTTP_PROXY_CONNECT_CMD = "CONNECT {0}:{1} HTTP/1.0 \r\nHOST {0}:{1}\r\n\r\n";
+        private const string HTTP_PROXY_CONNECT_CMD = "CONNECT {0}:{1} HTTP/1.0\r\nHOST {0}:{1}\r\n\r\n";
         private const int WAIT_FOR_DATA_INTERVAL = 50; // 50 ms
         private const int WAIT_FOR_DATA_TIMEOUT = 15000; // 15 seconds
         private const string PROXY_NAME = "HTTP";

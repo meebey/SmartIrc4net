@@ -61,9 +61,9 @@ namespace Meebey.SmartIrc4net
         /// To handle more or less CTCP Events, modify this collection to your needs.
         /// You can also change the Delegates to your own implementations.
         /// </summary>
-        public Dictionary<string, ctcpDelagte> CtcpDelegates {
+        public Dictionary<string, CtcpDelegate> CtcpDelegates {
             get {
-                return _CtcpDelagtes;
+                return _CtcpDelegates;
             }
         }
         
@@ -110,7 +110,7 @@ namespace Meebey.SmartIrc4net
         #region private variables
         private IPAddress _ExternalIpAdress;
         private List<DccConnection> _DccConnections = new List<DccConnection>();
-        private Dictionary<string, ctcpDelagte>  _CtcpDelagtes = new Dictionary<string, ctcpDelagte>(StringComparer.CurrentCultureIgnoreCase);
+        private Dictionary<string, CtcpDelegate>  _CtcpDelegates = new Dictionary<string, CtcpDelegate>(StringComparer.CurrentCultureIgnoreCase);
         private string _CtcpUserInfo;
         private string _CtcpUrl;
         private string _CtcpSource;
@@ -177,17 +177,17 @@ namespace Meebey.SmartIrc4net
             this.OnCtcpRequest += new CtcpEventHandler(this.CtcpRequestsHandler);
 
             // Adding ctcp handler, all commands are lower case (.ToLower() in handler)
-            _CtcpDelagtes.Add("version", this.CtcpVersionDelegate);
-            _CtcpDelagtes.Add("clientinfo", this.CtcpClientInfoDelegate);
-            _CtcpDelagtes.Add("time", this.CtcpTimeDelegate);
-            _CtcpDelagtes.Add("userinfo", this.CtcpUserInfoDelegate);
-            _CtcpDelagtes.Add("url", this.CtcpUrlDelegate);
-            _CtcpDelagtes.Add("source", this.CtcpSourceDelegate);
-            _CtcpDelagtes.Add("finger", this.CtcpFingerDelegate);
+            _CtcpDelegates.Add("version", this.CtcpVersionDelegate);
+            _CtcpDelegates.Add("clientinfo", this.CtcpClientInfoDelegate);
+            _CtcpDelegates.Add("time", this.CtcpTimeDelegate);
+            _CtcpDelegates.Add("userinfo", this.CtcpUserInfoDelegate);
+            _CtcpDelegates.Add("url", this.CtcpUrlDelegate);
+            _CtcpDelegates.Add("source", this.CtcpSourceDelegate);
+            _CtcpDelegates.Add("finger", this.CtcpFingerDelegate);
             // The DCC Handler
-            _CtcpDelagtes.Add("dcc", this.CtcpDccDelegate);
+            _CtcpDelegates.Add("dcc", this.CtcpDccDelegate);
             // Don't remove the Ping handler without your own implementation
-            _CtcpDelagtes.Add("ping", this.CtcpPingDelegate);
+            _CtcpDelegates.Add("ping", this.CtcpPingDelegate);
         }
 
         /// <summary>
@@ -293,8 +293,8 @@ namespace Meebey.SmartIrc4net
         #region Private Methods
         private void CtcpRequestsHandler(object sender, CtcpEventArgs e)
         {
-            if (_CtcpDelagtes.ContainsKey(e.CtcpCommand)) {
-                _CtcpDelagtes[e.CtcpCommand].Invoke(e);
+            if (_CtcpDelegates.ContainsKey(e.CtcpCommand)) {
+                _CtcpDelegates[e.CtcpCommand].Invoke(e);
             } else {
                 /* No CTCP Handler for this Command */
             }
@@ -311,7 +311,7 @@ namespace Meebey.SmartIrc4net
         private void CtcpClientInfoDelegate(CtcpEventArgs e)
         {
             string clientInfo = "CLIENTINFO";
-            foreach(KeyValuePair<string, ctcpDelagte> kvp in _CtcpDelagtes) {
+            foreach(KeyValuePair<string, CtcpDelegate> kvp in _CtcpDelegates) {
                 clientInfo = clientInfo+" "+kvp.Key.ToUpper();
             }
             SendMessage(SendType.CtcpReply, e.Data.Nick, clientInfo);

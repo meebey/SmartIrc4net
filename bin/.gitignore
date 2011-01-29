@@ -2,3 +2,6 @@ debug/*.dll*
 debug/*.exe*
 release/*.dll*
 release/*.exe*
+Meebey.SmartIrc4net.dll
+Meebey.SmartIrc4net.dll.mdb
+Meebey.SmartIrc4net.xml

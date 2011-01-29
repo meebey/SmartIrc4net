@@ -26,7 +26,7 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// Delegates to handle individual ctcp commands
     /// </summary>
-    public delegate void ctcpDelagte(CtcpEventArgs eventArgs);
+    public delegate void CtcpDelegate(CtcpEventArgs eventArgs);
     
     /// <summary>
     /// Delegate for the Standard DCC EVent

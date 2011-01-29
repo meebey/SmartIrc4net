@@ -35,6 +35,8 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 using System.Threading;
 using Starksoft.Net.Proxy;
 
@@ -52,6 +54,8 @@ namespace Meebey.SmartIrc4net
         private int              _CurrentAddress;
         private int              _Port;
         private bool             _UseSsl;
+        private bool             _ValidateServerCertificate;
+        private X509Certificate  _SslClientCertificate;
         private StreamReader     _Reader;
         private StreamWriter     _Writer;
         private ReadThread       _ReadThread;
@@ -64,9 +68,10 @@ namespace Meebey.SmartIrc4net
         private bool             _IsConnected;
         private bool             _IsConnectionError;
         private bool             _IsDisconnecting;
-        private int              _ConnectTries;
+        private int              _AutoRetryAttempt;
         private bool             _AutoRetry;
         private int              _AutoRetryDelay = 30;
+        private int              _AutoRetryLimit = 3;
         private bool             _AutoReconnect;
         private Encoding         _Encoding = Encoding.Default;
         private int              _SocketReceiveTimeout  = 600;
@@ -235,6 +240,29 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        /// Maximum number of retries to connect to the server
+        /// Default: 3
+        /// </summary>
+        public int AutoRetryLimit {
+            get {
+                return _AutoRetryLimit;
+            }
+            set {
+                _AutoRetryLimit = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current amount of reconnect attempts
+        /// Default: 3
+        /// </summary>
+        public int AutoRetryAttempt {
+            get {
+                return _AutoRetryAttempt;
+            }
+        }
+
+        /// <summary>
         /// To prevent flooding the IRC server, it's required to delay each
         /// message, given in milliseconds.
         /// Default: 200
@@ -307,6 +335,32 @@ namespace Meebey.SmartIrc4net
             }
             set {
                 _UseSsl = value;
+            }
+        }
+
+        /// <summary>
+        /// Specifies if the certificate of the server is validated
+        /// Default: true
+        /// </summary>
+        public bool ValidateServerCertificate {
+            get {
+                return _ValidateServerCertificate;
+            }
+            set {
+                _ValidateServerCertificate = value;
+            }
+        }
+
+        /// <summary>
+        /// Specifies the client certificate used for the SSL connection
+        /// Default: null
+        /// </summary>
+        public X509Certificate SslClientCertificate {
+            get {
+                return _SslClientCertificate;
+            }
+            set {
+                _SslClientCertificate = value;
             }
         }
 
@@ -506,10 +560,10 @@ namespace Meebey.SmartIrc4net
                 throw new AlreadyConnectedException("Already connected to: " + Address + ":" + Port);
             }
 
-            _ConnectTries++;
+            _AutoRetryAttempt++;
 #if LOG4NET
             Logger.Connection.Info(String.Format("connecting... (attempt: {0})",
-                                                 _ConnectTries));
+                                                 _AutoRetryAttempt));
 #endif
 
             _AddressList = (string[])addresslist.Clone();
@@ -560,10 +614,47 @@ namespace Meebey.SmartIrc4net
                 
                 Stream stream = _TcpClient.GetStream();
                 if (_UseSsl) {
-                    SslStream sslStream = new SslStream(stream, false, delegate {
-                                                            return true;
-                                                        });
-                    sslStream.AuthenticateAsClient(Address);
+                    RemoteCertificateValidationCallback certValidation;
+                    if (_ValidateServerCertificate) {
+                        certValidation = delegate(object sender,
+                            X509Certificate certificate,
+                            X509Chain chain,
+                            SslPolicyErrors sslPolicyErrors) {
+                            if (sslPolicyErrors == SslPolicyErrors.None) {
+                                return true;
+                            }
+
+#if LOG4NET
+                            Logger.Connection.Error(
+                                "Connect(): Certificate error: " +
+                                sslPolicyErrors
+                            );
+#endif
+                            return false;
+                        };
+                    } else {
+                        certValidation = delegate { return true; };
+                    }
+                    SslStream sslStream = new SslStream(stream, false,
+                                                        certValidation);
+                    try {
+                        if (_SslClientCertificate != null) {
+                            var certs = new X509Certificate2Collection();
+                            certs.Add(_SslClientCertificate);
+                            sslStream.AuthenticateAsClient(Address, certs,
+                                                           SslProtocols.Default,
+                                                           false);
+                        } else {
+                            sslStream.AuthenticateAsClient(Address);
+                        }
+                    } catch (IOException ex) {
+#if LOG4NET
+                        Logger.Connection.Error(
+                            "Connect(): AuthenticateAsClient() failed!"
+                        );
+#endif
+                        throw new CouldNotConnectException("Could not connect to: " + Address + ":" + Port + " " + ex.Message, ex);
+                    }
                     stream = sslStream;
                 }
                 _Reader = new StreamReader(stream, _Encoding);
@@ -580,7 +671,7 @@ namespace Meebey.SmartIrc4net
                 }
 
                 // Connection was succeful, reseting the connect counter
-                _ConnectTries = 0;
+                _AutoRetryAttempt = 0;
 
                 // updating the connection error state, so connecting is possible again
                 IsConnectionError = false;
@@ -597,6 +688,11 @@ namespace Meebey.SmartIrc4net
                 if (OnConnected != null) {
                     OnConnected(this, EventArgs.Empty);
                 }
+            } catch (AuthenticationException ex) {
+#if LOG4NET
+                Logger.Connection.Error("Connect(): Exception", ex);
+#endif
+                throw new CouldNotConnectException("Could not connect to: " + Address + ":" + Port + " " + ex.Message, ex);
             } catch (Exception e) {
                 if (_Reader != null) {
                     try {
@@ -617,10 +713,17 @@ namespace Meebey.SmartIrc4net
                 IsConnectionError = true;
                 
 #if LOG4NET
-                Logger.Connection.Info("connection failed: "+e.Message);
+                Logger.Connection.Info("connection failed: "+e.Message, e);
 #endif
+                if (e is CouldNotConnectException) {
+                    // error was fatal, bail out
+                    throw;
+                }
+
                 if (_AutoRetry &&
-                    _ConnectTries <= 3) {
+                    (_AutoRetryLimit == -1 ||
+                     _AutoRetryLimit == 0 ||
+                     _AutoRetryLimit <= _AutoRetryAttempt)) {
                     if (OnAutoConnectError != null) {
                         OnAutoConnectError(this, new AutoConnectErrorEventArgs(Address, Port, e));
                     }
@@ -629,6 +732,7 @@ namespace Meebey.SmartIrc4net
 #endif
                     Thread.Sleep(_AutoRetryDelay * 1000);
                     _NextAddress();
+                    // FIXME: this is recursion
                     Connect(_AddressList, _Port);
                 } else {
                     throw new CouldNotConnectException("Could not connect to: "+Address+":"+Port+" "+e.Message, e);
