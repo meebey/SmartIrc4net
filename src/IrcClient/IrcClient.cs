@@ -51,6 +51,8 @@ namespace Meebey.SmartIrc4net
         private int              _IUsermode;
         private string           _Username                = string.Empty;
         private string           _Password                = string.Empty;
+        private string           _SaslAccount             = string.Empty;
+        private string           _SaslPassword            = string.Empty;
         private bool             _IsAway;
         private string           _CtcpVersion;
         private bool             _ActiveChannelSyncing;
@@ -78,22 +80,6 @@ namespace Meebey.SmartIrc4net
         private List<BanInfo>    _BanList;
         private Object           _BanListSyncRoot = new Object();
         private AutoResetEvent   _BanListReceivedEvent;
-        private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
-        private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
-        private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
-        private static Regex     _ActionRegex             = new Regex("^:.*? PRIVMSG (.).* :"+"\x1"+"ACTION .*"+"\x1"+"$", RegexOptions.Compiled);
-        private static Regex     _CtcpRequestRegex        = new Regex("^:.*? PRIVMSG .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
-        private static Regex     _MessageRegex            = new Regex("^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled);
-        private static Regex     _CtcpReplyRegex          = new Regex("^:.*? NOTICE .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
-        private static Regex     _NoticeRegex             = new Regex("^:.*? NOTICE (.).* :.*$", RegexOptions.Compiled);
-        private static Regex     _InviteRegex             = new Regex("^:.*? INVITE .* .*$", RegexOptions.Compiled);
-        private static Regex     _JoinRegex               = new Regex("^:.*? JOIN .*$", RegexOptions.Compiled);
-        private static Regex     _TopicRegex              = new Regex("^:.*? TOPIC .* :.*$", RegexOptions.Compiled);
-        private static Regex     _NickRegex               = new Regex("^:.*? NICK .*$", RegexOptions.Compiled);
-        private static Regex     _KickRegex               = new Regex("^:.*? KICK .* .*$", RegexOptions.Compiled);
-        private static Regex     _PartRegex               = new Regex("^:.*? PART .*$", RegexOptions.Compiled);
-        private static Regex     _ModeRegex               = new Regex("^:.*? MODE (.*) .*$", RegexOptions.Compiled);
-        private static Regex     _QuitRegex               = new Regex("^:.*? QUIT :.*$", RegexOptions.Compiled);
 
         public event EventHandler               OnRegistered;
         public event PingEventHandler           OnPing;
@@ -373,6 +359,30 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        /// Gets SASL account name
+        /// </summary>
+        public string SaslAccount {
+            get {
+                return _SaslAccount;
+            }
+            set {
+                _SaslAccount = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets SASL password
+        /// </summary>
+        public string SaslPassword {
+            get {
+                return _SaslPassword;
+            }
+            set {
+                _SaslPassword = value;
+            }
+        }
+
+        /// <summary>
         /// Returns if we are away on this connection
         /// </summary>
         public bool IsAway {
@@ -504,11 +514,15 @@ namespace Meebey.SmartIrc4net
             } else {
                 _Username = Environment.UserName.Replace(" ", "");
             }
+            
+            if (_SaslAccount != "")
+                Cap (CapabilitySubcommand.LS, Priority.Critical);
 
             if (password != null && password.Length > 0) {
                 _Password = password;
                 RfcPass(Password, Priority.Critical);
             }
+        
 
             RfcNick(Nickname, Priority.Critical);
             RfcUser(Username, IUsermode, Realname, Priority.Critical);
@@ -793,132 +807,6 @@ namespace Meebey.SmartIrc4net
             return list;
         }
         
-        public IrcMessageData MessageParser(string rawline)
-        {
-            if (rawline == null) {
-                throw new ArgumentNullException("rawline");
-            }
-
-            string         line;
-            string[]       linear;
-            string         messagecode;
-            string         from;
-            string         nick = null;
-            string         ident = null;
-            string         host = null;
-            string         channel = null;
-            string         message = null;
-            ReceiveType    type;
-            ReplyCode      replycode;
-            int            exclamationpos;
-            int            atpos;
-            int            colonpos;
-
-            if (rawline.Length == 0) {
-                throw new ArgumentException("Value must not be empty.", "rawline");
-            }
-
-            if (rawline[0] == ':') {
-                line = rawline.Substring(1);
-            } else {
-                line = rawline;
-            }
-
-            linear = line.Split(new char[] {' '});
-
-            // conform to RFC 2812
-            from = linear[0];
-            messagecode = linear[1];
-            exclamationpos = from.IndexOf("!");
-            atpos = from.IndexOf("@");
-            colonpos = line.IndexOf(" :");
-            if (colonpos != -1) {
-                // we want the exact position of ":" not beginning from the space
-                colonpos += 1;
-            }
-            if (exclamationpos != -1) {
-                nick = from.Substring(0, exclamationpos);
-            } else {
-                if (atpos == -1) {
-                    // no ident and no host, should be nick then
-                    if (!from.Contains(".")) {
-                        // HACK: from seems to be a nick instead of servername
-                        nick = from;
-                    }
-                } else {
-                    nick = from.Substring(0, atpos);
-                }
-            }
-            if ((atpos != -1) &&
-                (exclamationpos != -1)) {
-                ident = from.Substring(exclamationpos+1, (atpos - exclamationpos)-1);
-            }
-            if (atpos != -1) {
-                host = from.Substring(atpos+1);
-            }
-
-            try {
-                replycode = (ReplyCode)int.Parse(messagecode);
-            } catch (FormatException) {
-                replycode = ReplyCode.Null;
-            }
-            type = _GetMessageType(rawline);
-            if (colonpos != -1) {
-                message = line.Substring(colonpos + 1);
-            }
-
-            switch (type) {
-                case ReceiveType.Join:
-                case ReceiveType.Kick:
-                case ReceiveType.Part:
-                case ReceiveType.TopicChange:
-                case ReceiveType.ChannelModeChange:
-                case ReceiveType.ChannelMessage:
-                case ReceiveType.ChannelAction:
-                case ReceiveType.ChannelNotice:
-                    channel = linear[2];
-                break;
-                case ReceiveType.Who:
-                case ReceiveType.Topic:
-                case ReceiveType.Invite:
-                case ReceiveType.BanList:
-                case ReceiveType.ChannelMode:
-                    channel = linear[3];
-                break;
-                case ReceiveType.Name:
-                    channel = linear[4];
-                break;
-            }
-            
-            switch (replycode) {
-                case ReplyCode.List:
-                case ReplyCode.ListEnd:
-                case ReplyCode.ErrorNoChannelModes:
-                    channel = linear[3];
-                    break;
-            }
-
-            if ((channel != null) &&
-                (channel[0] == ':')) {
-                    channel = channel.Substring(1);
-            }
-
-            IrcMessageData data;
-            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, replycode);
-#if LOG4NET
-            Logger.MessageParser.Debug("IrcMessageData "+
-                                       "nick: '"+data.Nick+"' "+
-                                       "ident: '"+data.Ident+"' "+
-                                       "host: '"+data.Host+"' "+
-                                       "type: '"+data.Type.ToString()+"' "+
-                                       "from: '"+data.From+"' "+
-                                       "channel: '"+data.Channel+"' "+
-                                       "message: '"+data.Message+"' "
-                                       );
-#endif
-            return data;
-        }
-        
         protected virtual IrcUser CreateIrcUser(string nickname)
         {
              return new IrcUser(nickname, this);
@@ -944,8 +832,17 @@ namespace Meebey.SmartIrc4net
         
         private void _Worker(object sender, ReadLineEventArgs e)
         {
+            var msg = new IrcMessageData (this, e.Line);
+
+            Logger.MessageParser.Debug ("IrcMessageData: " + msg.ToString());
+            
+#if LOG4NET
+            if (msg.Type == ReceiveType.Unknown)
+                Logger.MessageTypes.Warn("Message not understood: \""+e.Line+"\"");
+#endif
+      
             // lets see if we have events or internal messagehandler for it
-            _HandleEvents(MessageParser(e.Line));
+            _HandleEvents(msg);
         }
 
         private void _OnDisconnected(object sender, EventArgs e)
@@ -1036,210 +933,19 @@ namespace Meebey.SmartIrc4net
             return NicknameList[_CurrentNickname];
         }
         
-        private ReceiveType _GetMessageType(string rawline)
-        {
-            Match found = _ReplyCodeRegex.Match(rawline);
-            if (found.Success) {
-                string code = found.Groups[1].Value;
-                ReplyCode replycode = (ReplyCode)int.Parse(code);
-
-                // check if this replycode is known in the RFC
-                if (Array.IndexOf(_ReplyCodes, replycode) == -1) {
-#if LOG4NET
-                    Logger.MessageTypes.Warn("This IRC server ("+Address+") doesn't conform to the RFC 2812! ignoring unrecognized replycode '"+replycode+"'");
-#endif
-                    return ReceiveType.Unknown;
-                }
-
-                switch (replycode) {
-                    case ReplyCode.Welcome:
-                    case ReplyCode.YourHost:
-                    case ReplyCode.Created:
-                    case ReplyCode.MyInfo:
-                    case ReplyCode.Bounce:
-                        return ReceiveType.Login;
-                    case ReplyCode.LuserClient:
-                    case ReplyCode.LuserOp:
-                    case ReplyCode.LuserUnknown:
-                    case ReplyCode.LuserMe:
-                    case ReplyCode.LuserChannels:
-                        return ReceiveType.Info;
-                    case ReplyCode.MotdStart:
-                    case ReplyCode.Motd:
-                    case ReplyCode.EndOfMotd:
-                        return ReceiveType.Motd;
-                    case ReplyCode.NamesReply:
-                    case ReplyCode.EndOfNames:
-                        return ReceiveType.Name;
-                    case ReplyCode.WhoReply:
-                    case ReplyCode.EndOfWho:
-                        return ReceiveType.Who;
-                    case ReplyCode.ListStart:
-                    case ReplyCode.List:
-                    case ReplyCode.ListEnd:
-                        return ReceiveType.List;
-                    case ReplyCode.BanList:
-                    case ReplyCode.EndOfBanList:
-                        return ReceiveType.BanList;
-                    case ReplyCode.Topic:
-                    case ReplyCode.NoTopic:
-                        return ReceiveType.Topic;
-                    case ReplyCode.WhoIsUser:
-                    case ReplyCode.WhoIsServer:
-                    case ReplyCode.WhoIsOperator:
-                    case ReplyCode.WhoIsIdle:
-                    case ReplyCode.WhoIsChannels:
-                    case ReplyCode.EndOfWhoIs:
-                        return ReceiveType.WhoIs;
-                    case ReplyCode.WhoWasUser:
-                    case ReplyCode.EndOfWhoWas:
-                        return ReceiveType.WhoWas;
-                    case ReplyCode.UserModeIs:
-                        return ReceiveType.UserMode;
-                    case ReplyCode.ChannelModeIs:
-                        return ReceiveType.ChannelMode;
-                    default:
-                        if (((int)replycode >= 400) &&
-                            ((int)replycode <= 599)) {
-                            return ReceiveType.ErrorMessage;
-                        } else {
-#if LOG4NET
-                            Logger.MessageTypes.Warn("replycode unknown ("+code+"): \""+rawline+"\"");
-#endif
-                            return ReceiveType.Unknown;
-                        }                        
-                }
-            }
-
-            found = _PingRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Unknown;
-            }
-
-            found = _ErrorRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Error;
-            }
-
-            found = _ActionRegex.Match(rawline);
-            if (found.Success) {
-                switch (found.Groups[1].Value) {
-                    case "#":
-                    case "!":
-                    case "&":
-                    case "+":
-                        return ReceiveType.ChannelAction;
-                    default:
-                        return ReceiveType.QueryAction;
-                }
-            }
-
-            found = _CtcpRequestRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.CtcpRequest;
-            }
-
-            found = _MessageRegex.Match(rawline);
-            if (found.Success) {
-                switch (found.Groups[1].Value) {
-                    case "#":
-                    case "!":
-                    case "&":
-                    case "+":
-                        return ReceiveType.ChannelMessage;
-                    default:
-                        return ReceiveType.QueryMessage;
-                }
-            }
-
-            found = _CtcpReplyRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.CtcpReply;
-            }
-
-            found = _NoticeRegex.Match(rawline);
-            if (found.Success) {
-                switch (found.Groups[1].Value) {
-                    case "#":
-                    case "!":
-                    case "&":
-                    case "+":
-                        return ReceiveType.ChannelNotice;
-                    default:
-                        return ReceiveType.QueryNotice;
-                }
-            }
-
-            found = _InviteRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Invite;
-            }
-
-            found = _JoinRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Join;
-            }
-
-            found = _TopicRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.TopicChange;
-            }
-
-            found = _NickRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.NickChange;
-            }
-
-            found = _KickRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Kick;
-            }
-
-            found = _PartRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Part;
-            }
-
-            found = _ModeRegex.Match(rawline);
-            if (found.Success) {
-                if (found.Groups[1].Value == _Nickname) {
-                    return ReceiveType.UserModeChange;
-                } else {
-                    return ReceiveType.ChannelModeChange;
-                }
-            }
-
-            found = _QuitRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.Quit;
-            }
-
-#if LOG4NET
-            Logger.MessageTypes.Warn("messagetype unknown: \""+rawline+"\"");
-#endif
-            return ReceiveType.Unknown;
-        }
-        
         private void _HandleEvents(IrcMessageData ircdata)
         {
             if (OnRawMessage != null) {
                 OnRawMessage(this, new IrcEventArgs(ircdata));
             }
 
-            string code;
-            // special IRC messages
-            code = ircdata.RawMessageArray[0];
-            switch (code) {
+            switch (ircdata.Command) {
                 case "PING":
                     _Event_PING(ircdata);
                 break;
                 case "ERROR":
                     _Event_ERROR(ircdata);
                 break;
-            }
-
-            code = ircdata.RawMessageArray[1];
-            switch (code) {
                 case "PRIVMSG":
                     _Event_PRIVMSG(ircdata);
                 break;
@@ -1272,6 +978,12 @@ namespace Meebey.SmartIrc4net
                 break;
                 case "PONG":
                     _Event_PONG(ircdata);
+                break;
+                case "CAP":
+                    _Event_CAP(ircdata);
+                break;
+                case "AUTHENTICATE":
+                    _Event_AUTH(ircdata);
                 break;
             }
 
@@ -1336,6 +1048,12 @@ namespace Meebey.SmartIrc4net
                         break;
                     case ReplyCode.ErrorNicknameInUse:
                         _Event_ERR_NICKNAMEINUSE(ircdata);
+                        break;
+                    case ReplyCode.SaslSuccess:
+                    case ReplyCode.SaslFailure1:
+                    case ReplyCode.SaslFailure2:
+                    case ReplyCode.SaslAbort:
+                        _Event_RPL_SASL(ircdata);
                         break;
                 }
             }
@@ -2163,6 +1881,55 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        /// <summary>
+        /// Event handler for SASL authentication
+        /// </summary>
+        /// <param name="ircdata">Message data containing authentication subcommand </param>
+        private void _Event_AUTH(IrcMessageData ircdata)
+        {
+            byte[] src = System.Text.UTF8Encoding.UTF8.GetBytes (String.Format ("{0}\0{0}\0{1}", _SaslAccount, _SaslPassword));
+            Authenticate (System.Convert.ToBase64String (src), Priority.Critical);
+        }
+
+        /// <summary>
+        /// Event handler for capability negotiation
+        /// </summary>
+        /// <param name="ircdata">Message data containing capability subcommand </param>
+        private void _Event_CAP(IrcMessageData ircdata)
+        {
+            if (ircdata.Args.Length > 1)
+            {
+                switch (ircdata.Args[1])
+                {
+                    case "LS":
+                        if (ircdata.MessageArray.Contains ("sasl"))
+                        {
+                            // sasl supported, request use
+                            if (_SaslAccount != "")
+                                CapReq (new string[] { "sasl" }, Priority.Critical);
+                        }
+                        break;
+                    
+                    case "ACK":
+                        if (ircdata.MessageArray.Contains ("sasl"))
+                        {
+                            // sasl negotiated, authenticate
+                            Authenticate (SaslAuthMethod.Plain, Priority.Critical);
+                        }
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler for SASL authentication
+        /// </summary>
+        /// <param name="ircdata">Message data containing authentication subcommand </param>
+        private void _Event_RPL_SASL(IrcMessageData ircdata)
+        {
+            Cap (CapabilitySubcommand.END, Priority.Critical);
+            //check ircdata.ReplyCode for success
+        }
 
         /// <summary>
         /// Event handler for channel mode reply messages

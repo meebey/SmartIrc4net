@@ -89,6 +89,7 @@ namespace Meebey.SmartIrc4net
         CtcpRequest,
         Error,
         ErrorMessage,
+        Other,
         Unknown
     }
 
@@ -234,6 +235,10 @@ namespace Meebey.SmartIrc4net
         ErrorUniqueOpPrivilegesNeeded =  485,
         ErrorNoOperHost =                491,
         ErrorUserModeUnknownFlag =       501,
-        ErrorUsersDoNotMatch =           502
+        ErrorUsersDoNotMatch =           502,
+        SaslSuccess =                    903,
+        SaslFailure1 =                   904,
+        SaslFailure2 =                   905,
+        SaslAbort =                      906,
     }
 }

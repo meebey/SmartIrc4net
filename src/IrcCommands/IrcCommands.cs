@@ -439,7 +439,7 @@ namespace Meebey.SmartIrc4net
             }
             Mode(channel, modes, nicknames);
         }
-
+        
         /// <summary>
         ///
         /// </summary>
@@ -482,7 +482,77 @@ namespace Meebey.SmartIrc4net
                                        newModeParameterChunks.ToArray()));
             }
         }
+
+#region Client capability commands
+  
+        public enum CapabilitySubcommand
+        {
+            LS,
+            LIST,
+            REQ,
+            CLEAR,
+            END
+        }
+                    
+        public void Cap (CapabilitySubcommand subCmd, Priority priority)
+        {
+            WriteLine ("CAP " + subCmd.ToString(), priority);
+        }
         
+        public void CapReq (string[] caps, Priority priority)
+        {
+            if (caps.Length == 0)
+                throw new ArgumentException ("Capability list must not be empty");
+            
+            var sb = new StringBuilder ("CAP REQ ");
+            string ch = ":";
+            foreach (var cap in caps)
+            {
+                sb.Append (ch);
+                sb.Append (cap);
+                ch = " ";
+            }
+            WriteLine (sb.ToString(), priority);
+        }
+
+#endregion
+  
+        public enum SaslAuthMethod
+        {
+            Plain,
+            DiffieHellmanBlowfish
+        }
+                    
+        public void Authenticate (SaslAuthMethod method, Priority priority)
+        {
+            switch (method)
+            {
+                case SaslAuthMethod.Plain:
+                    WriteLine ("AUTHENTICATE PLAIN", priority);
+                    break;
+
+//                case SaslAuthMethod.DiffieHellmanBlowfish:
+//                    WriteLine ("AUTHENTICATE DH-BLOWFISH", priority);
+//                    break;
+                
+                default:
+                    throw new ArgumentException ("Unsupported SASL authentication method");
+            }
+        }
+        
+        public void Authenticate (string authData, Priority priority)
+        {
+            int len = authData.Length;
+            
+            for (int i = 0; i < len/400; i++)
+            {
+                WriteLine ("AUTHENTICATE " + authData.Substring (400 * i, 400));
+            }
+            
+            if (len % 400 > 0)
+                WriteLine ("AUTHENTICATE " + authData.Substring (len - len%400), priority);
+        }
+                                                                        
 #region RFC commands
         /// <summary>
         /// 
