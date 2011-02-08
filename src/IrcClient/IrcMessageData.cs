@@ -420,7 +420,7 @@ namespace Meebey.SmartIrc4net
                         break;
                     
                     case "PRIVMSG":
-                        if (_Args.Length > 0 && _Rest.StartsWith("\x1ACTION") && _Rest.EndsWith("\x1"))
+                        if (_Args.Length > 0 && _Rest.StartsWith("\x1" + "ACTION") && _Rest.EndsWith("\x1"))
                         {
                             switch (_Args[0][0])
                             {
