@@ -834,8 +834,6 @@ namespace Meebey.SmartIrc4net
         {
             var msg = new IrcMessageData (this, e.Line);
 
-            Logger.MessageParser.Debug ("IrcMessageData: " + msg.ToString());
-            
 #if LOG4NET
             if (msg.Type == ReceiveType.Unknown)
                 Logger.MessageTypes.Warn("Message not understood: \""+e.Line+"\"");
