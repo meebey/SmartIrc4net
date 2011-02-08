@@ -541,7 +541,7 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.ChannelMessage:
                 case ReceiveType.ChannelAction:
                 case ReceiveType.ChannelNotice:
-                    _Channel = _Args[0];
+                    _Channel = _RawMessageArray[2];
                     break;
                     
                 case ReceiveType.Who:
@@ -549,11 +549,11 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.Invite:
                 case ReceiveType.BanList:
                 case ReceiveType.ChannelMode:
-                    _Channel = _Args[1];
+                    _Channel = _RawMessageArray[3];
                     break;
                     
                 case ReceiveType.Name:
-                    _Channel = _Args[2];
+                    _Channel = _RawMessageArray[4];
                     break;
             }
             
