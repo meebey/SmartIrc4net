@@ -573,8 +573,6 @@ namespace Meebey.SmartIrc4net
                 OnConnecting(this, EventArgs.Empty);
             }
             try {
-                System.Net.IPAddress ip = System.Net.Dns.Resolve(Address).AddressList[0];
-
                 _TcpClient = new TcpClient();
                 _TcpClient.NoDelay = true;
                 _TcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
@@ -607,9 +605,9 @@ namespace Meebey.SmartIrc4net
                     
                     _TcpClient.Connect(_ProxyHost, _ProxyPort);
                     proxyClient.TcpClient = _TcpClient;
-                    proxyClient.CreateConnection(ip.ToString(), port);
+                    proxyClient.CreateConnection(Address, port);
                 } else {
-                    _TcpClient.Connect(ip, port);
+                    _TcpClient.Connect(Address, port);
                 }
                 
                 Stream stream = _TcpClient.GetStream();
