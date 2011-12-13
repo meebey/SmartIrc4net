@@ -766,6 +766,7 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info("reconnecting...");
 #endif
             Disconnect();
+            Thread.Sleep(AutoRetryDelay * 1000);
             Connect(_AddressList, _Port);
         }
         
