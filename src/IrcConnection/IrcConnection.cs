@@ -964,45 +964,47 @@ namespace Meebey.SmartIrc4net
         {
             string   rawline = args.Line;
             string[] rawlineex = rawline.Split(new char[] {' '});
-            string   messagecode = "";
+            string   line = null;
+            string   prefix = null;
+            string   command = null;
 
             if (rawline[0] == ':') {
-                messagecode = rawlineex[1];
-                
-                ReplyCode replycode = ReplyCode.Null;
-                try {
-                    replycode = (ReplyCode)int.Parse(messagecode);
-                } catch (FormatException) {
-                }
-                
-                if (replycode != ReplyCode.Null) {
-                    switch (replycode) {
-                        case ReplyCode.Welcome:
-                            _IsRegistered = true;
-#if LOG4NET
-                            Logger.Connection.Info("logged in");
-#endif
-                            break;
-                    }
-                } else {
-                    switch (rawlineex[1]) {
-                        case "PONG":
-                            DateTime now = DateTime.Now;
-                            _LastPongReceived = now;
-                            _Lag = now - _LastPingSent;
+                prefix = rawlineex[0].Substring(1);
+                line = rawline.Substring(prefix.Length + 2);
+            } else {
+                line = rawline;
+            }
+            string[] lineex = line.Split(new char[] {' '});
 
+            command = lineex[0];
+            ReplyCode replycode = ReplyCode.Null;
+            int intReplycode;
+            if (Int32.TryParse(command, out intReplycode)) {
+                replycode = (ReplyCode) intReplycode;
+            }
+            if (replycode != ReplyCode.Null) {
+                switch (replycode) {
+                    case ReplyCode.Welcome:
+                        _IsRegistered = true;
 #if LOG4NET
-                            Logger.Connection.Debug("PONG received, took: " + _Lag.TotalMilliseconds + " ms");
+                        Logger.Connection.Info("logged in");
 #endif
-                            break;
-                    }
+                        break;
                 }
             } else {
-                messagecode = rawlineex[0];
-                switch (messagecode) {
+                switch (command) {
                     case "ERROR":
                         // FIXME: handle server errors differently than connection errors!
                         //IsConnectionError = true;
+                        break;
+                    case "PONG":
+                        DateTime now = DateTime.Now;
+                        _LastPongReceived = now;
+                        _Lag = now - _LastPingSent;
+
+#if LOG4NET
+                        Logger.Connection.Debug("PONG received, took: " + _Lag.TotalMilliseconds + " ms");
+#endif
                         break;
                 }
             }
