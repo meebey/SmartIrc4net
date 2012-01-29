@@ -2353,6 +2353,7 @@ namespace Meebey.SmartIrc4net
                     case '%':
                     case '~':
                     case '!':
+                    case '.':
                         filteredUserlist.Add(user.Substring(1));
                         break;
                     default:
