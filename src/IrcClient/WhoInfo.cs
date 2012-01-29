@@ -131,9 +131,15 @@ namespace Meebey.SmartIrc4net
             whoInfo.f_Host     = data.RawMessageArray[5];
             whoInfo.f_Server   = data.RawMessageArray[6];
             whoInfo.f_Nick     = data.RawMessageArray[7];
-            // skip hop count
-            whoInfo.f_Realname = String.Join(" ", data.MessageArray, 1, data.MessageArray.Length - 1);
-            
+
+            // realname field can be empty on bugged IRCds like InspIRCd-2.0
+            if (data.MessageArray == null) {
+                whoInfo.f_Realname = String.Empty;
+            } else {
+                // skip hop count
+                whoInfo.f_Realname = String.Join(" ", data.MessageArray, 1, data.MessageArray.Length - 1);
+            }
+
             int    hopcount = 0;
             string hopcountStr = data.MessageArray[0];
             try {
