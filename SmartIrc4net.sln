@@ -1,0 +1,75 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartIrc4net", "SmartIrc4net.csproj", "{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark", "examples\benchmark\benchmark.csproj", "{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "examples\test\test.csproj", "{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stresstest", "examples\stresstest\stresstest.csproj", "{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Any CPU = Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = SmartIrc4net.csproj
+		Policies = $0
+		$0.ChangeLogPolicy = $1
+		$1.UpdateMode = Nearest
+		$1.MessageStyle = $2
+		$2.LineAlign = 0
+		$1.inheritsSet = Mono
+		$0.TextStylePolicy = $3
+		$3.RemoveTrailingWhitespace = True
+		$3.inheritsSet = VisualStudio
+		$3.inheritsScope = text/plain
+		$3.scope = text/plain
+		$0.TextStylePolicy = $4
+		$4.inheritsSet = null
+		$4.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $5
+		$5.IndentSwitchBody = True
+		$5.AllowPropertyGetBlockInline = False
+		$5.AllowPropertySetBlockInline = False
+		$5.IfElseBraceForcement = AddBraces
+		$5.ForBraceForcement = AddBraces
+		$5.ForEachBraceForcement = AddBraces
+		$5.WhileBraceForcement = AddBraces
+		$5.UsingBraceForcement = AddBraces
+		$5.FixedBraceForcement = AddBraces
+		$5.BeforeMethodDeclarationParentheses = False
+		$5.BeforeMethodCallParentheses = False
+		$5.BeforeConstructorDeclarationParentheses = False
+		$5.BeforeDelegateDeclarationParentheses = False
+		$5.NewParentheses = False
+		$5.inheritsSet = Mono
+		$5.inheritsScope = text/x-csharp
+		$5.scope = text/x-csharp
+		$0.StandardHeader = $6
+		$6.Text = @ SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>\n\n Copyright (c) ${Year} ${CopyrightHolder}\n\n Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>\n\n This library is free software; you can redistribute it and/or modify\n it under the terms of the GNU Lesser General Public License as\n published by the Free Software Foundation; either version 2.1 of the\n License, or (at your option) any later version.\n\n This library is distributed in the hope that it will be useful, but\n WITHOUT ANY WARRANTY; without even the implied warranty of\n MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU\n Lesser General Public License for more details.\n\n You should have received a copy of the GNU Lesser General Public\n License along with this library; if not, write to the Free Software\n Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+		$6.IncludeInNewFiles = True
+		releaseversion = 0.4.5
+		name = SmartIrc4net
+	EndGlobalSection
+EndGlobal

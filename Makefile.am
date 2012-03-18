@@ -3,8 +3,7 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	$(PACKAGE_NAME).snk \
-	SmartIrc4net.mds \
-	SmartIrc4net.mdp \
+	SmartIrc4net.csproj \
 	API_CHANGE \
 	CHANGELOG \
 	CREDITS \

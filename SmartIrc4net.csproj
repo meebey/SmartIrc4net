@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SmartIrc4net</RootNamespace>
+    <AssemblyName>Meebey.SmartIrc4net</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\debug</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LOG4NET;NET_2_0</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <ConsolePause>false</ConsolePause>
+    <RunWithWarnings>false</RunWithWarnings>
+    <Execution>
+      <Execution clr-version="Net_2_0" />
+    </Execution>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\release</OutputPath>
+    <DefineConstants>NET_2_0</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <RunWithWarnings>false</RunWithWarnings>
+    <ConsolePause>false</ConsolePause>
+    <Execution>
+      <Execution clr-version="Net_2_0" />
+    </Execution>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\AssemblyInfo.cs" />
+    <Compile Include="src\Logger.cs" />
+    <Compile Include="src\Consts.cs" />
+    <Compile Include="src\EventArgs.cs" />
+    <Compile Include="src\Exceptions.cs" />
+    <Compile Include="src\IrcConnection\IrcConnection.cs" />
+    <Compile Include="src\IrcConnection\Delegates.cs" />
+    <Compile Include="src\IrcConnection\EventArgs.cs" />
+    <Compile Include="src\IrcCommands\IrcCommands.cs" />
+    <Compile Include="src\IrcCommands\Rfc2812.cs" />
+    <Compile Include="src\IrcClient\IrcClient.cs" />
+    <Compile Include="src\IrcClient\IrcMessageData.cs" />
+    <Compile Include="src\IrcClient\Delegates.cs" />
+    <Compile Include="src\IrcClient\EventArgs.cs" />
+    <Compile Include="src\IrcClient\IrcUser.cs" />
+    <Compile Include="src\IrcClient\Channel.cs" />
+    <Compile Include="src\IrcClient\NonRfcChannel.cs" />
+    <Compile Include="src\IrcClient\ChannelUser.cs" />
+    <Compile Include="src\IrcClient\NonRfcChannelUser.cs" />
+    <Compile Include="src\IrcConnection\IrcProperties.cs" />
+    <Compile Include="src\IrcClient\ChannelInfo.cs" />
+    <Compile Include="src\IrcClient\WhoInfo.cs" />
+    <Compile Include="src\IrcClient\BanInfo.cs" />
+    <Compile Include="src\IrcFeatures\DccChat.cs" />
+    <Compile Include="src\IrcFeatures\DccConnection.cs" />
+    <Compile Include="src\IrcFeatures\DccSend.cs" />
+    <Compile Include="src\IrcFeatures\Delegates.cs" />
+    <Compile Include="src\IrcFeatures\EventArgs.cs" />
+    <Compile Include="src\IrcFeatures\IrcConstants.cs" />
+    <Compile Include="src\IrcFeatures\IrcFeatures.cs" />
+    <Compile Include="src\StarkSoftProxy\HttpProxyClient.cs" />
+    <Compile Include="src\StarkSoftProxy\IProxyClient.cs" />
+    <Compile Include="src\StarkSoftProxy\ProxyClientFactory.cs" />
+    <Compile Include="src\StarkSoftProxy\Socks4ProxyClient.cs" />
+    <Compile Include="src\StarkSoftProxy\Socks4aProxyClient.cs" />
+    <Compile Include="src\StarkSoftProxy\Socks5ProxyClient.cs" />
+    <Compile Include="src\StarkSoftProxy\Utils.cs" />
+    <Compile Include="src\StarkSoftProxy\EventArgs\CreateConnectionAsyncCompletedEventArgs.cs" />
+    <Compile Include="src\StarkSoftProxy\Exceptions\ProxyException.cs" />
+    <Compile Include="src\IrcConnection\ProxyType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="log4net, Version=1.2.9.0, Culture=neutral, PublicKeyToken=a5715cc6d5c3540b">
+      <Package>log4net</Package>
+    </Reference>
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
