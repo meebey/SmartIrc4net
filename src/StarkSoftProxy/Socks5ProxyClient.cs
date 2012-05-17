@@ -542,12 +542,12 @@ namespace Starksoft.Net.Proxy
             byte[] response = new byte[255];
             
             // read proxy server response
-            stream.Read(response, 0, response.Length);
+            var responseSize = stream.Read(response, 0, response.Length);
             
             byte replyCode = response[1];
 
             //  evaluate the reply code for an error condition
-            if (replyCode != SOCKS5_CMD_REPLY_SUCCEEDED)
+            if (responseSize < 2  || replyCode != SOCKS5_CMD_REPLY_SUCCEEDED)
                 HandleProxyCommandError(response, destinationHost, destinationPort );
         }
 
