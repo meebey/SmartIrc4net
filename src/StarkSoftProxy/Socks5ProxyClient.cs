@@ -395,7 +395,7 @@ namespace Starksoft.Net.Proxy
                 //       +----+------+----------+------+----------+
 
                 byte[] credentials = new byte[_proxyUserName.Length + _proxyPassword.Length + 3];
-                credentials[0] = SOCKS5_VERSION_NUMBER;
+                credentials[0] = 1;
                 credentials[1] = (byte)_proxyUserName.Length; 
                 Array.Copy(ASCIIEncoding.ASCII.GetBytes(_proxyUserName), 0, credentials, 2, _proxyUserName.Length); 
                 credentials[_proxyUserName.Length + 2] = (byte)_proxyPassword.Length;
