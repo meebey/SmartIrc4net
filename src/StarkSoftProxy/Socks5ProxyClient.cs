@@ -414,6 +414,15 @@ namespace Starksoft.Net.Proxy
                 // A STATUS field of X'00' indicates success. If the server returns a
                 // `failure' (STATUS value other than X'00') status, it MUST close the
                 // connection.
+                stream.Write(credentials, 0, credentials.Length);
+                byte[] crResponse = new byte[2];
+                stream.Read(crResponse, 0, crResponse.Length);
+
+                if (crResponse[1] != 0)
+                {
+                    _tcpClient.Close();
+                    throw new ProxyException("Proxy authentification failure!");
+                }
             }
         }
 
