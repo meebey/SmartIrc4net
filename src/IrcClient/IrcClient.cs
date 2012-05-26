@@ -1868,6 +1868,10 @@ namespace Meebey.SmartIrc4net
         {
             string channelname = ircdata.Channel;
             string who = ircdata.Nick;
+            if (String.IsNullOrEmpty(who)) {
+                // the server itself kicked
+                who = ircdata.From;
+            }
             string whom = ircdata.RawMessageArray[3];
             string reason = ircdata.Message;
             bool isme = IsMe(whom);          
