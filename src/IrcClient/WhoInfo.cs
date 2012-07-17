@@ -132,22 +132,22 @@ namespace Meebey.SmartIrc4net
             whoInfo.f_Server   = data.RawMessageArray[6];
             whoInfo.f_Nick     = data.RawMessageArray[7];
 
-            // realname field can be empty on bugged IRCds like InspIRCd-2.0
-            if (data.MessageArray == null) {
+            // HACK: realname field can be empty on bugged IRCds like InspIRCd-2.0
+            // :topiary.voxanon.net 352 Mirco #anonplusradio CpGc igot.avhost Voxanon CpGc H
+            if (data.MessageArray == null || data.MessageArray.Length < 2) {
                 whoInfo.f_Realname = String.Empty;
             } else {
+                int hopcount = 0;
+                var hopcountStr = data.MessageArray[0];
+                if (Int32.TryParse(hopcountStr, out hopcount)) {
+                    whoInfo.f_HopCount = hopcount;
+                } else {
+#if LOG4NET
+                    Logger.MessageParser.Warn("Parse(): couldn't parse hopcount (as int): '" + hopcountStr + "'");
+#endif
+                }
                 // skip hop count
                 whoInfo.f_Realname = String.Join(" ", data.MessageArray, 1, data.MessageArray.Length - 1);
-            }
-
-            int    hopcount = 0;
-            string hopcountStr = data.MessageArray[0];
-            try {
-                hopcount = int.Parse(hopcountStr);
-            } catch (FormatException ex) {
-#if LOG4NET
-                Logger.MessageParser.Warn("Parse(): couldn't parse (as int): '" + hopcountStr + "'", ex);
-#endif
             }
 
             string usermode = data.RawMessageArray[8];
