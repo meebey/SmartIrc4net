@@ -921,8 +921,10 @@ namespace Meebey.SmartIrc4net
         {
             if (IsConnected) {
                 try {
-                    _Writer.Write(data + "\r\n");
-                    _Writer.Flush();
+                    lock (_Writer) {
+                        _Writer.Write(data + "\r\n");
+                        _Writer.Flush();
+                    }
                 } catch (IOException) {
 #if LOG4NET
                     Logger.Socket.Warn("sending data failed, connection lost");
