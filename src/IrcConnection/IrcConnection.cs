@@ -1424,7 +1424,7 @@ namespace Meebey.SmartIrc4net
 #endif
                 try {
                     while (_Connection.IsConnected ) {
-                        Thread.Sleep(_Connection._IdleWorkerInterval);
+                        Thread.Sleep(_Connection._IdleWorkerInterval * 1000);
                         
                         // only send active pings if we are registered
                         if (!_Connection.IsRegistered) {
