@@ -134,6 +134,10 @@ namespace Meebey.SmartIrc4net
                 lock (this) {
                     _IsConnectionError = value;
                 }
+                if (value) {
+                    // signal ReadLine() to check IsConnectionError state
+                    _ReadThread.QueuedEvent.Set();
+                }
             }
         }
 
