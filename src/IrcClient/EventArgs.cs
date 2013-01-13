@@ -230,7 +230,8 @@ namespace Meebey.SmartIrc4net
     {
         private string   _Channel;
         private string[] _UserList;
-        
+        public string[] RawUserList { get; private set; }
+
         public string Channel {
             get {
                 return _Channel;
@@ -243,10 +244,11 @@ namespace Meebey.SmartIrc4net
             }
         }
          
-        internal NamesEventArgs(IrcMessageData data, string channel, string[] userlist) : base(data)
+        internal NamesEventArgs(IrcMessageData data, string channel, string[] userlist, string[] rawUserList) : base(data)
         {
             _Channel = channel;
             _UserList = userlist;
+            RawUserList = rawUserList;
         }
     }
 

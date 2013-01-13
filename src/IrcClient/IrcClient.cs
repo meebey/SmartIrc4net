@@ -2368,7 +2368,7 @@ namespace Meebey.SmartIrc4net
 
             if (OnNames != null) {
                 OnNames(this, new NamesEventArgs(ircdata, channelname,
-                                                 filteredUserlist.ToArray()));
+                                                 filteredUserlist.ToArray(), userlist));
             }
         }
         
