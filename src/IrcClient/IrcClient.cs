@@ -618,7 +618,7 @@ namespace Meebey.SmartIrc4net
         /// <returns>True if nickname belongs to you</returns>
         public bool IsMe(string nickname)
         {
-            return (Nickname == nickname);
+            return String.Compare(Nickname, nickname, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         /// <summary>
@@ -1202,7 +1202,7 @@ namespace Meebey.SmartIrc4net
 
             found = _ModeRegex.Match(rawline);
             if (found.Success) {
-                if (found.Groups[1].Value == _Nickname) {
+                if (IsMe(found.Groups[1].Value)) {
                     return ReceiveType.UserModeChange;
                 } else {
                     return ReceiveType.ChannelModeChange;
