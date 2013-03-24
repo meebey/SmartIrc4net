@@ -1412,7 +1412,7 @@ namespace Meebey.SmartIrc4net
                         parametersEnumerator.MoveNext();
                         
                         if (add) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 // sanity check
                                 if (GetChannelUser(ircdata.Channel, temp) != null) {
                                     // update the op list
@@ -1445,7 +1445,7 @@ namespace Meebey.SmartIrc4net
                             }
                         }
                         if (remove) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 // sanity check
                                 if (GetChannelUser(ircdata.Channel, temp) != null) {
                                     // update the op list
@@ -1477,7 +1477,7 @@ namespace Meebey.SmartIrc4net
                             parametersEnumerator.MoveNext();
                             
                             if (add) {
-                                if (ActiveChannelSyncing) {
+                                if (ActiveChannelSyncing && channel != null) {
                                     // sanity check
                                     if (GetChannelUser(ircdata.Channel, temp) != null) {
                                         // update the halfop list
@@ -1510,7 +1510,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                             if (remove) {
-                                if (ActiveChannelSyncing) {
+                                if (ActiveChannelSyncing && channel != null) {
                                     // sanity check
                                     if (GetChannelUser(ircdata.Channel, temp) != null) {
                                         // update the halfop list
@@ -1542,7 +1542,7 @@ namespace Meebey.SmartIrc4net
                         parametersEnumerator.MoveNext();
                         
                         if (add) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 // sanity check
                                 if (GetChannelUser(ircdata.Channel, temp) != null) {
                                     // update the voice list
@@ -1575,7 +1575,7 @@ namespace Meebey.SmartIrc4net
                             }
                         }
                         if (remove) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 // sanity check
                                 if (GetChannelUser(ircdata.Channel, temp) != null) {
                                     // update the voice list
@@ -1605,7 +1605,7 @@ namespace Meebey.SmartIrc4net
                         temp = (string)parametersEnumerator.Current;
                         parametersEnumerator.MoveNext();
                         if (add) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 try {
                                     channel.Bans.Add(temp);
 #if LOG4NET
@@ -1622,7 +1622,7 @@ namespace Meebey.SmartIrc4net
                             }
                         }
                         if (remove) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 channel.Bans.Remove(temp);
 #if LOG4NET
                                 Logger.ChannelSyncing.Debug("removed ban: "+temp+" from: "+ircdata.Channel);
@@ -1637,7 +1637,7 @@ namespace Meebey.SmartIrc4net
                         temp = (string)parametersEnumerator.Current;
                         parametersEnumerator.MoveNext();
                         if (add) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 try {
                                     channel.UserLimit = int.Parse(temp);
 #if LOG4NET
@@ -1651,7 +1651,7 @@ namespace Meebey.SmartIrc4net
                             }
                         }
                         if (remove) {
-                            if (ActiveChannelSyncing) {
+                            if (ActiveChannelSyncing && channel != null) {
                                 channel.UserLimit = 0;
 #if LOG4NET
                                 Logger.ChannelSyncing.Debug("removed user limit for: "+ircdata.Channel);
@@ -1663,7 +1663,7 @@ namespace Meebey.SmartIrc4net
                             temp = (string)parametersEnumerator.Current;
                             parametersEnumerator.MoveNext();
                             if (add) {
-                                if (ActiveChannelSyncing) {
+                                if (ActiveChannelSyncing && channel != null) {
                                     channel.Key = temp;
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("stored channel key for: "+ircdata.Channel);
@@ -1671,7 +1671,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                             if (remove) {
-                                if (ActiveChannelSyncing) {
+                                if (ActiveChannelSyncing && channel != null) {
                                     channel.Key = "";
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("removed channel key for: "+ircdata.Channel);
@@ -1681,7 +1681,7 @@ namespace Meebey.SmartIrc4net
                         break;
                         default:
                             if (add) {
-                                if (ActiveChannelSyncing) {
+                                if (ActiveChannelSyncing && channel != null) {
                                     if (channel.Mode.IndexOf(mode[i]) == -1) {
                                         channel.Mode += mode[i];
 #if LOG4NET
@@ -1691,7 +1691,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                             if (remove) {
-                                if (ActiveChannelSyncing) {
+                                if (ActiveChannelSyncing && channel != null) {
                                     channel.Mode = channel.Mode.Replace(mode[i].ToString(), String.Empty);
 #if LOG4NET
                                     Logger.ChannelSyncing.Debug("removed channel mode ("+mode[i]+") for: "+ircdata.Channel);
