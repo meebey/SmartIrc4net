@@ -1,0 +1,3 @@
+[submodule "src/starksoftproxy"]
+	path = src/starksoftproxy
+	url = git://github.com/meebey/starksoftproxy.git
