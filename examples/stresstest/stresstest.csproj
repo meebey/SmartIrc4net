@@ -57,10 +57,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Meebey.SmartIrc4net">
-      <Name>Meebey.SmartIrc4net</Name>
-      <HintPath>..\..\..\..\bin\release\Meebey.SmartIrc4net.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -75,5 +71,11 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="stresstest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SmartIrc4net.csproj">
+      <Project>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</Project>
+      <Name>SmartIrc4net</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
