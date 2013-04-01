@@ -8,3 +8,11 @@ script:
     - ./autogen.sh MCS=/usr/bin/dmcs
     - xbuild SmartIrc4net.sln
     - make clean; make distcheck MCS=/usr/bin/dmcs
+
+notifications:
+    irc:
+        channels: "irc.oftc.net#smuxi-devel"
+        skip_join: true
+        template:
+            - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+            - "Build details : %{build_url}"
