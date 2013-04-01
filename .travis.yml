@@ -7,4 +7,4 @@ install:
 script:
     - ./autogen.sh MCS=/usr/bin/dmcs
     - xbuild SmartIrc4net.sln
-    - make clean; make
+    - make clean; make distcheck MCS=/usr/bin/dmcs
