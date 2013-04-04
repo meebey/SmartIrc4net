@@ -80,7 +80,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="src\starksoftproxy\StarkSoftProxy.csproj">
+    <ProjectReference Include="..\StarkSoftProxy\StarkSoftProxy.csproj">
       <Project>{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}</Project>
       <Name>StarkSoftProxy</Name>
     </ProjectReference>
