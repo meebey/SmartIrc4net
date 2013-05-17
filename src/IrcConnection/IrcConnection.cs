@@ -770,7 +770,6 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info("reconnecting...");
 #endif
             Disconnect();
-            Thread.Sleep(AutoRetryDelay * 1000);
             Connect(_AddressList, _Port);
         }
         
@@ -1021,6 +1020,8 @@ namespace Meebey.SmartIrc4net
         {
             try {
                 if (AutoReconnect) {
+                    // prevent connect -> exception -> connect flood loop
+                    Thread.Sleep(AutoRetryDelay * 1000);
                     // lets try to recover the connection
                     Reconnect();
                 } else {
