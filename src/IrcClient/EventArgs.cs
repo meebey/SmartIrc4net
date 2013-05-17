@@ -643,212 +643,119 @@ namespace Meebey.SmartIrc4net
     }
 
     /// <summary>
-    ///
+    /// Event arguments for any change in channel role.
     /// </summary>
-    public class OpEventArgs : IrcEventArgs
+    public class ChannelRoleChangeEventArgs : IrcEventArgs
     {
-        private string   _Channel;
-        private string   _Who;
-        private string   _Whom;
-        
-        public string Channel {
-            get {
-                return _Channel;
-            }
-        }
+        public string Channel { get; private set; }
+        public string Who { get; private set; }
+        public string Whom { get; private set; }
 
-        public string Who {
-            get {
-                return _Who;
-            }
-        }
-
-        public string Whom {
-            get {
-                return _Whom;
-            }
-        }
-        
-        internal OpEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal ChannelRoleChangeEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
     }
 
     /// <summary>
-    ///
+    /// User gained owner status (non-RFC, channel mode +q, prefix ~).
     /// </summary>
-    public class DeopEventArgs : IrcEventArgs
+    public class OwnerEventArgs : ChannelRoleChangeEventArgs
     {
-        private string   _Channel;
-        private string   _Who;
-        private string   _Whom;
-        
-        public string Channel {
-            get {
-                return _Channel;
-            }
-        }
-
-        public string Who {
-            get {
-                return _Who;
-            }
-        }
-
-        public string Whom {
-            get {
-                return _Whom;
-            }
-        }
-        
-        internal DeopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal OwnerEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
-        }
-    }
-    
-    /// <summary>
-    ///
-    /// </summary>
-    public class HalfopEventArgs : IrcEventArgs
-    {
-        private string   _Channel;
-        private string   _Who;
-        private string   _Whom;
-        
-        public string Channel {
-            get {
-                return _Channel;
-            }
-        }
-
-        public string Who {
-            get {
-                return _Who;
-            }
-        }
-
-        public string Whom {
-            get {
-                return _Whom;
-            }
-        }
-        
-        internal HalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
-        {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
         }
     }
 
     /// <summary>
-    ///
+    /// User lost owner status (non-RFC, channel mode -q).
     /// </summary>
-    public class DehalfopEventArgs : IrcEventArgs
+    public class DeownerEventArgs : ChannelRoleChangeEventArgs
     {
-        private string   _Channel;
-        private string   _Who;
-        private string   _Whom;
-        
-        public string Channel {
-            get {
-                return _Channel;
-            }
-        }
-
-        public string Who {
-            get {
-                return _Who;
-            }
-        }
-
-        public string Whom {
-            get {
-                return _Whom;
-            }
-        }
-        
-        internal DehalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal DeownerEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
-        }
-    }
-    
-    /// <summary>
-    ///
-    /// </summary>
-    public class VoiceEventArgs : IrcEventArgs
-    {
-        private string   _Channel;
-        private string   _Who;
-        private string   _Whom;
-        
-        public string Channel {
-            get {
-                return _Channel;
-            }
-        }
-
-        public string Who {
-            get {
-                return _Who;
-            }
-        }
-
-        public string Whom {
-            get {
-                return _Whom;
-            }
-        }
-        
-        internal VoiceEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
-        {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
         }
     }
 
     /// <summary>
-    ///
+    /// User gained channel admin status (non-RFC, channel mode +a, prefix &amp;).
     /// </summary>
-    public class DevoiceEventArgs : IrcEventArgs
+    public class ChannelAdminEventArgs : ChannelRoleChangeEventArgs
     {
-        private string   _Channel;
-        private string   _Who;
-        private string   _Whom;
-        
-        public string Channel {
-            get {
-                return _Channel;
-            }
-        }
-
-        public string Who {
-            get {
-                return _Who;
-            }
-        }
-
-        public string Whom {
-            get {
-                return _Whom;
-            }
-        }
-        
-        internal DevoiceEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal ChannelAdminEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+        }
+    }
+
+    /// <summary>
+    /// User lost channel admin status (non-RFC, channel mode -a).
+    /// </summary>
+    public class DeChannelAdminEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal DeChannelAdminEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
+        }
+    }
+
+    /// <summary>
+    /// User gained op status (channel mode +o, prefix @).
+    /// </summary>
+    public class OpEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal OpEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
+        }
+    }
+
+    /// <summary>
+    /// User lost op status (channel mode -o).
+    /// </summary>
+    public class DeopEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal DeopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
+        }
+    }
+
+    /// <summary>
+    /// User gained halfop status (non-RFC, channel mode +h, prefix %).
+    /// </summary>
+    public class HalfopEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal HalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
+        }
+    }
+
+    /// <summary>
+    /// User lost halfop status (non-RFC, channel mode -h).
+    /// </summary>
+    public class DehalfopEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal DehalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
+        }
+    }
+
+    /// <summary>
+    /// User gained voice status (channel mode +v, prefix +).
+    /// </summary>
+    public class VoiceEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal VoiceEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
+        }
+    }
+
+    /// <summary>
+    /// User lost voice status (channel mode -v).
+    /// </summary>
+    public class DevoiceEventArgs : ChannelRoleChangeEventArgs
+    {
+        internal DevoiceEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data, channel, who, whom)
+        {
         }
     }
 

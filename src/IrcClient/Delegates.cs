@@ -39,6 +39,10 @@ namespace Meebey.SmartIrc4net
     public delegate void ListEventHandler(object sender, ListEventArgs e);
     public delegate void PartEventHandler(object sender, PartEventArgs e);
     public delegate void InviteEventHandler(object sender, InviteEventArgs e);
+    public delegate void OwnerEventHandler(object sender, OwnerEventArgs e);
+    public delegate void DeownerEventHandler(object sender, DeownerEventArgs e);
+    public delegate void ChannelAdminEventHandler(object sender, ChannelAdminEventArgs e);
+    public delegate void DeChannelAdminEventHandler(object sender, DeChannelAdminEventArgs e);
     public delegate void OpEventHandler(object sender, OpEventArgs e);
     public delegate void DeopEventHandler(object sender, DeopEventArgs e);
     public delegate void HalfopEventHandler(object sender, HalfopEventArgs e);
