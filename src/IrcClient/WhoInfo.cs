@@ -41,7 +41,10 @@ namespace Meebey.SmartIrc4net
         private int      f_HopCount;
         private string   f_Realname;
         private bool     f_IsAway;
+        private bool     f_IsOwner;
+        private bool     f_IsChannelAdmin;
         private bool     f_IsOp;
+        private bool     f_IsHalfop;
         private bool     f_IsVoice;
         private bool     f_IsIrcOp;
         private bool     f_IsRegistered;
@@ -94,9 +97,27 @@ namespace Meebey.SmartIrc4net
             }
         }
 
+        public bool IsOwner {
+            get {
+                return f_IsOwner;
+            }
+        }
+
+        public bool IsChannelAdmin {
+            get {
+                return f_IsChannelAdmin;
+            }
+        }
+
         public bool IsOp {
             get {
                 return f_IsOp;
+            }
+        }
+
+        public bool IsHalfop {
+            get {
+                return f_IsHalfop;
             }
         }
 
@@ -151,7 +172,10 @@ namespace Meebey.SmartIrc4net
             }
 
             string usermode = data.RawMessageArray[8];
+            bool owner = false;
+            bool chanadmin = false;
             bool op = false;
+            bool halfop = false;
             bool voice = false;
             bool ircop = false;
             bool away = false;
@@ -165,8 +189,17 @@ namespace Meebey.SmartIrc4net
                     case 'G':
                         away = true;
                     break;
+                    case '~':
+                        owner = true;
+                    break;
+                    case '&':
+                        chanadmin = true;
+                    break;
                     case '@':
                         op = true;
+                    break;
+                    case '%':
+                        halfop = true;
                     break;
                     case '+':
                         voice = true;
@@ -180,7 +213,10 @@ namespace Meebey.SmartIrc4net
                 }
             }
             whoInfo.f_IsAway = away;
+            whoInfo.f_IsOwner = owner;
+            whoInfo.f_IsChannelAdmin = chanadmin;
             whoInfo.f_IsOp = op;
+            whoInfo.f_IsHalfop = halfop;
             whoInfo.f_IsVoice = voice;
             whoInfo.f_IsIrcOp = ircop;
 
