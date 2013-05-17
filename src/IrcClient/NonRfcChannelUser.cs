@@ -34,9 +34,9 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class NonRfcChannelUser : ChannelUser
     {
-        private bool _IsHalfop;
-        private bool _IsOwner;
-        private bool _IsAdmin;
+        public bool IsOwner { get; set; }
+        public bool IsChannelAdmin { get; set; }
+        public bool IsHalfop { get; set; }
         
         /// <summary>
         /// 
@@ -53,18 +53,5 @@ namespace Meebey.SmartIrc4net
             Logger.ChannelSyncing.Debug("NonRfcChannelUser ("+Channel+":"+IrcUser.Nick+") destroyed");
         }
 #endif
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <value> </value>
-        public bool IsHalfop {
-            get {
-                return _IsHalfop;
-            }
-            set {
-                _IsHalfop = value;
-            }
-        }
     }
 }
