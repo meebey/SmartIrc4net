@@ -1944,7 +1944,7 @@ namespace Meebey.SmartIrc4net
                     // ignore
                 } else {
                     ChannelUser channeluser = CreateChannelUser(channelname, ircuser);
-                    channel.UnsafeUsers.Add(who, channeluser);
+                    channel.UnsafeUsers[who] = channeluser;
                 }
             }
 
