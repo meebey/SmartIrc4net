@@ -37,8 +37,10 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class NonRfcChannel : Channel
     {
+        private Hashtable _Owners = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private Hashtable _ChannelAdmins = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable _Halfops = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -53,6 +55,46 @@ namespace Meebey.SmartIrc4net
             Logger.ChannelSyncing.Debug("NonRfcChannel ("+Name+") destroyed");
         }
 #endif
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public Hashtable Owners {
+            get {
+                return (Hashtable) _Owners.Clone();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeOwners {
+            get {
+                return _Owners;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public Hashtable ChannelAdmins {
+            get {
+                return (Hashtable) _ChannelAdmins.Clone();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeChannelAdmins {
+            get {
+                return _ChannelAdmins;
+            }
+        }
 
         /// <summary>
         /// 
