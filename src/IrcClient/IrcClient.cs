@@ -78,6 +78,12 @@ namespace Meebey.SmartIrc4net
         private List<BanInfo>    _BanList;
         private Object           _BanListSyncRoot = new Object();
         private AutoResetEvent   _BanListReceivedEvent;
+        private List<BanInfo>    _BanExceptList;
+        private Object           _BanExceptListSyncRoot = new Object();
+        private AutoResetEvent   _BanExceptListReceivedEvent;
+        private List<BanInfo>    _InviteExceptList;
+        private Object           _InviteExceptListSyncRoot = new Object();
+        private AutoResetEvent   _InviteExceptListReceivedEvent;
         private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
@@ -113,6 +119,10 @@ namespace Meebey.SmartIrc4net
         public event InviteEventHandler         OnInvite;
         public event BanEventHandler            OnBan;
         public event UnbanEventHandler          OnUnban;
+        public event BanEventHandler            OnBanException;
+        public event UnbanEventHandler          OnUnBanException;
+        public event BanEventHandler            OnInviteException;
+        public event UnbanEventHandler          OnUnInviteException;
         public event OwnerEventHandler          OnOwner;
         public event DeownerEventHandler        OnDeowner;
         public event ChannelAdminEventHandler   OnChannelAdmin;
@@ -796,6 +806,46 @@ namespace Meebey.SmartIrc4net
             
             return list;
         }
+
+        /// <summary>
+        /// Fetches a fresh ban-exceptions list from the specified channel.
+        /// </summary>
+        public IList<BanInfo> GetBanExceptionList(string channel)
+        {
+            List<BanInfo> list = new List<BanInfo>();
+            lock (_BanExceptListSyncRoot) {
+                _BanExceptList = list;
+                _BanExceptListReceivedEvent = new AutoResetEvent(false);
+
+                BanException(channel);
+                _BanExceptListReceivedEvent.WaitOne();
+
+                _BanExceptListReceivedEvent = null;
+                _BanExceptList = null;
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Fetches a fresh invite-exceptions list from the specified channel.
+        /// </summary>
+        public IList<BanInfo> GetInviteExceptionList(string channel)
+        {
+            List<BanInfo> list = new List<BanInfo>();
+            lock (_InviteExceptListSyncRoot) {
+                _InviteExceptList = list;
+                _InviteExceptListReceivedEvent = new AutoResetEvent(false);
+
+                InviteException(channel);
+                _InviteExceptListReceivedEvent.WaitOne();
+
+                _InviteExceptListReceivedEvent = null;
+                _InviteExceptList = null;
+            }
+
+            return list;
+        }
         
         public IrcMessageData MessageParser(string rawline)
         {
@@ -1341,6 +1391,18 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.ErrorNicknameInUse:
                         _Event_ERR_NICKNAMEINUSE(ircdata);
                         break;
+                    case ReplyCode.InviteList:
+                        _Event_RPL_INVITELIST(ircdata);
+                        break;
+                    case ReplyCode.EndOfInviteList:
+                        _Event_RPL_ENDOFINVITELIST(ircdata);
+                        break;
+                    case ReplyCode.ExceptionList:
+                        _Event_RPL_EXCEPTLIST(ircdata);
+                        break;
+                    case ReplyCode.EndOfExceptionList:
+                        _Event_RPL_ENDOFEXCEPTLIST(ircdata);
+                        break;
                 }
             }
             
@@ -1771,6 +1833,70 @@ namespace Meebey.SmartIrc4net
                             }
                         }
                     break;
+                    case 'e':
+                        temp = (string)parametersEnumerator.Current;
+                        parametersEnumerator.MoveNext();
+                        if (add) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                try {
+                                    channel.BanExceptions.Add(temp);
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("added ban exception: "+temp+" to: "+ircdata.Channel);
+#endif
+                                } catch (ArgumentException) {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("duplicate ban exception: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                }
+                            }
+                            if (OnBanException != null) {
+                               OnBanException(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                channel.BanExceptions.Remove(temp);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed ban exception: "+temp+" from: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnUnBanException != null) {
+                                OnUnBanException(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                    break;
+                    case 'I':
+                        temp = (string)parametersEnumerator.Current;
+                        parametersEnumerator.MoveNext();
+                        if (add) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                try {
+                                    channel.InviteExceptions.Add(temp);
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("added invite exception: "+temp+" to: "+ircdata.Channel);
+#endif
+                                } catch (ArgumentException) {
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("duplicate invite exception: "+temp+" in: "+ircdata.Channel+" not added");
+#endif
+                                }
+                            }
+                            if (OnInviteException != null) {
+                               OnInviteException(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                channel.InviteExceptions.Remove(temp);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed invite exception: "+temp+" from: "+ircdata.Channel);
+#endif
+                            }
+                            if (OnUnInviteException != null) {
+                                OnUnInviteException(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                    break;
                     case 'l':
                         temp = (string)parametersEnumerator.Current;
                         parametersEnumerator.MoveNext();
@@ -1912,6 +2038,10 @@ namespace Meebey.SmartIrc4net
                     RfcMode(channelname);
                     // request wholist
                     RfcWho(channelname);
+                    // request ban exception list
+                    BanException(channelname);
+                    // request invite exception list
+                    InviteException(channelname);
                     // request banlist
                     Ban(channelname);
                 } else {
@@ -2773,6 +2903,64 @@ namespace Meebey.SmartIrc4net
             }
         }
         
+        private void _Event_RPL_EXCEPTLIST(IrcMessageData ircdata)
+        {
+            string channelname = ircdata.Channel;
+
+            BanInfo info = BanInfo.Parse(ircdata);
+            if (_BanExceptList != null) {
+                _BanExceptList.Add(info);
+            }
+
+            if (ActiveChannelSyncing &&
+                IsJoined(channelname)) {
+                Channel channel = GetChannel(channelname);
+                if (channel.IsSycned) {
+                    return;
+                }
+
+                channel.BanExceptions.Add(info.Mask);
+            }
+        }
+
+        private void _Event_RPL_ENDOFEXCEPTLIST(IrcMessageData ircdata)
+        {
+            string channelname = ircdata.Channel;
+
+            if (_BanExceptListReceivedEvent != null) {
+                _BanExceptListReceivedEvent.Set();
+            }
+        }
+
+        private void _Event_RPL_INVITELIST(IrcMessageData ircdata)
+        {
+            string channelname = ircdata.Channel;
+
+            BanInfo info = BanInfo.Parse(ircdata);
+            if (_InviteExceptList != null) {
+                _InviteExceptList.Add(info);
+            }
+
+            if (ActiveChannelSyncing &&
+                IsJoined(channelname)) {
+                Channel channel = GetChannel(channelname);
+                if (channel.IsSycned) {
+                    return;
+                }
+
+                channel.InviteExceptions.Add(info.Mask);
+            }
+        }
+
+        private void _Event_RPL_ENDOFINVITELIST(IrcMessageData ircdata)
+        {
+            string channelname = ircdata.Channel;
+
+            if (_InviteExceptListReceivedEvent != null) {
+                _InviteExceptListReceivedEvent.Set();
+            }
+        }
+
         // MODE +b might return ERR_NOCHANMODES for mode-less channels (like +chan) 
         private void _Event_ERR_NOCHANMODES(IrcMessageData ircdata)
         {

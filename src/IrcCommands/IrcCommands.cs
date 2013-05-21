@@ -238,100 +238,171 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// 
+        /// Fetch a list of entries of a mask-format channel mode.
         /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="priority"></param>
-        public void Ban(string channel, Priority priority)
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) to fetch.</param>
+        /// <param name="channel">The channel whose mode to fetch.</param>
+        public void ListChannelMasks(string modetype, string channel)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b"), priority);
+            WriteLine(Rfc2812.Mode(channel, modetype));
         }
 
         /// <summary>
-        /// 
+        /// Fetch a list of entries of a mask-format channel mode.
         /// </summary>
-        /// <param name="channel"></param>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) to fetch.</param>
+        /// <param name="channel">The channel whose mode to fetch.</param>
+        /// <param name="priority">The priority with which the mode-setting message should be sent.</param>
+        public void ListChannelMasks(string modetype, string channel, Priority priority)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype), priority);
+        }
+
+        /// <summary>
+        /// Add or remove an entry to/from a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) whose entries to modify.</param>
+        /// <param name="channel">The channel whose mode to edit.</param>
+        /// <param name="hostmask">The hostmask of the entry to add/remove.</param>
+        /// <param name="priority">The priority with which the mode-setting message should be sent.</param>
+        public void ModifyChannelMasks(string modetype, string channel, string hostmask, Priority priority)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype + " " + hostmask), priority);
+        }
+
+        /// <summary>
+        /// Add or remove an entry to/from a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) whose entries to modify.</param>
+        /// <param name="channel">The channel whose mode to edit.</param>
+        /// <param name="hostmask">The hostmask of the entry to add/remove.</param>
+        public void ModifyChannelMasks(string modetype, string channel, string hostmask)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype + " " + hostmask));
+        }
+
+        /// <summary>
+        /// Add or remove multiple entries to/from a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) whose entries to modify.</param>
+        /// <param name="channel">The channel whose mode to edit.</param>
+        /// <param name="hostmasks">The hostmasks of the entries to add/remove.</param>
+        public void ModifyChannelMasks(string modetype, string channel, string[] hostmasks)
+        {
+            if (hostmasks == null) {
+                throw new ArgumentNullException("hostmasks");
+            }
+
+            string[] modes = new string[hostmasks.Length];
+            for (int i = 0; i < hostmasks.Length; i++) {
+                modes[i] = modetype;
+            }
+            Mode(channel, modes, hostmasks);
+        }
+
         public void Ban(string channel)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b"));
+            ListChannelMasks("+b", channel);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
-        /// <param name="priority"></param>
         public void Ban(string channel, string hostmask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b "+hostmask), priority);
+            ModifyChannelMasks("+b", channel, hostmask, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
         public void Ban(string channel, string hostmask)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b "+hostmask));
+            ModifyChannelMasks("+b", channel, hostmask);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmasks"></param>
         public void Ban(string channel, string[] hostmasks)
         {
-            if (hostmasks == null) {
-                throw new ArgumentNullException("hostmasks");
-            }
-
-            string[] modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++) {
-                modes[i] = "+b";
-            }
-            Mode(channel, modes, hostmasks);
+            ModifyChannelMasks("+b", channel, hostmasks);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
-        /// <param name="priority"></param>
         public void Unban(string channel, string hostmask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b "+hostmask), priority);
+            ModifyChannelMasks("-b", channel, hostmask, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
         public void Unban(string channel, string hostmask)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b "+hostmask));
+            ModifyChannelMasks("-b", channel, hostmask);
         }
-        
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmasks"></param>
+
         public void Unban(string channel, string[] hostmasks)
         {
-            if (hostmasks == null) {
-                throw new ArgumentNullException("hostmasks");
-            }
+            ModifyChannelMasks("-b", channel, hostmasks);
+        }
 
-            string[] modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++) {
-                modes[i] = "-b";
-            }
-            Mode(channel, modes, hostmasks);
+        public void BanException(string channel)
+        {
+            ListChannelMasks("+e", channel);
+        }
+
+        public void BanException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("+e", channel, hostmask, priority);
+        }
+
+        public void BanException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("+e", channel, hostmask);
+        }
+
+        public void BanException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("+e", channel, hostmasks);
+        }
+
+        public void UnBanException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("-e", channel, hostmask, priority);
+        }
+
+        public void UnBanException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("-e", channel, hostmask);
+        }
+
+        public void UnBanException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("-e", channel, hostmasks);
+        }
+
+        public void InviteException(string channel)
+        {
+            ListChannelMasks("+I", channel);
+        }
+
+        public void InviteException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("+I", channel, hostmask, priority);
+        }
+
+        public void InviteException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("+I", channel, hostmask);
+        }
+
+        public void InviteException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("+I", channel, hostmasks);
+        }
+
+        public void UnInviteException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("-I", channel, hostmask, priority);
+        }
+
+        public void UnInviteException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("-I", channel, hostmask);
+        }
+
+        public void UnInviteException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("-I", channel, hostmasks);
         }
 
         // non-RFC commands
