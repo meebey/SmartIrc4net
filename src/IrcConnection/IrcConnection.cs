@@ -74,6 +74,7 @@ namespace Meebey.SmartIrc4net
         private int              _AutoRetryLimit = 3;
         private bool             _AutoReconnect;
         private Encoding         _Encoding = Encoding.Default;
+        public bool EnableUTF8Recode { get; set; }
         private int              _SocketReceiveTimeout  = 600;
         private int              _SocketSendTimeout = 600;
         private int              _IdleWorkerInterval = 60;
@@ -317,7 +318,12 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Encoding which is used for reading and writing to the socket
+        /// The encoding to use to write to and read from the socket.
+        ///
+        /// If EnableUTF8Recode is true, reading and writing will always happen
+        /// using UTF-8; this encoding is only used to decode incoming messages
+        /// that cannot be successfully decoded using UTF-8.
+        ///
         /// Default: encoding of the system
         /// </summary>
         public Encoding Encoding {
@@ -659,17 +665,22 @@ namespace Meebey.SmartIrc4net
                     }
                     stream = sslStream;
                 }
-                _Reader = new StreamReader(stream, _Encoding);
-                _Writer = new StreamWriter(stream, _Encoding);
-                
-                if (_Encoding.GetPreamble().Length > 0) {
-                    // HACK: we have an encoding that has some kind of preamble
-                    // like UTF-8 has a BOM, this will confuse the IRCd!
-                    // Thus we send a \r\n so the IRCd can safely ignore that
-                    // garbage.
-                    _Writer.WriteLine();
-                    // make sure we flush the BOM+CRLF correctly
-                    _Writer.Flush();
+                if (EnableUTF8Recode) {
+                    _Reader = new StreamReader(stream, new PrimaryOrFallbackEncoding(new UTF8Encoding(false, true), _Encoding));
+                    _Writer = new StreamWriter(stream, new UTF8Encoding(false, false));
+                } else {
+                    _Reader = new StreamReader(stream, _Encoding);
+                    _Writer = new StreamWriter(stream, _Encoding);
+
+                    if (_Encoding.GetPreamble().Length > 0) {
+                        // HACK: we have an encoding that has some kind of preamble
+                        // like UTF-8 has a BOM, this will confuse the IRCd!
+                        // Thus we send a \r\n so the IRCd can safely ignore that
+                        // garbage.
+                        _Writer.WriteLine();
+                        // make sure we flush the BOM+CRLF correctly
+                        _Writer.Flush();
+                    }
                 }
 
                 // Connection was succeful, reseting the connect counter
