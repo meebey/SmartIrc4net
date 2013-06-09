@@ -998,6 +998,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ListChannelMasks("+" + bexchar.Value, channel);
+            } else {
+                base.BanException(channel);
             }
         }
 
@@ -1006,6 +1008,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ModifyChannelMasks("+" + bexchar.Value, channel, hostmask, priority);
+            } else {
+                base.BanException(channel, hostmask, priority);
             }
         }
 
@@ -1014,6 +1018,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ModifyChannelMasks("+" + bexchar.Value, channel, hostmask);
+            } else {
+                base.BanException(channel, hostmask);
             }
         }
 
@@ -1022,6 +1028,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ModifyChannelMasks("+" + bexchar.Value, channel, hostmasks);
+            } else {
+                base.BanException(channel, hostmasks);
             }
         }
 
@@ -1030,6 +1038,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ModifyChannelMasks("-" + bexchar.Value, channel, hostmask, priority);
+            } else {
+                base.UnBanException(channel, hostmask, priority);
             }
         }
 
@@ -1038,6 +1048,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ModifyChannelMasks("-" + bexchar.Value, channel, hostmask);
+            } else {
+                base.UnBanException(channel, hostmask);
             }
         }
 
@@ -1046,6 +1058,8 @@ namespace Meebey.SmartIrc4net
             var bexchar = _ServerProperties.BanExceptionCharacter;
             if (bexchar.HasValue) {
                 ModifyChannelMasks("-" + bexchar.Value, channel, hostmasks);
+            } else {
+                base.UnBanException(channel, hostmasks);
             }
         }
 
@@ -1054,6 +1068,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ListChannelMasks("+" + iexchar.Value, channel);
+            } else {
+                base.InviteException(channel);
             }
         }
 
@@ -1062,6 +1078,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ModifyChannelMasks("+" + iexchar.Value, channel, hostmask, priority);
+            } else {
+                base.InviteException(channel, hostmask, priority);
             }
         }
 
@@ -1070,6 +1088,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ModifyChannelMasks("+" + iexchar.Value, channel, hostmask);
+            } else {
+                base.InviteException(channel, hostmask);
             }
         }
 
@@ -1078,6 +1098,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ModifyChannelMasks("+" + iexchar.Value, channel, hostmasks);
+            } else {
+                base.InviteException(channel, hostmasks);
             }
         }
 
@@ -1086,6 +1108,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ModifyChannelMasks("-" + iexchar.Value, channel, hostmask, priority);
+            } else {
+                base.UnInviteException(channel, hostmask, priority);
             }
         }
 
@@ -1094,6 +1118,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ModifyChannelMasks("-" + iexchar.Value, channel, hostmask);
+            } else {
+                base.UnInviteException(channel, hostmask);
             }
         }
 
@@ -1102,6 +1128,8 @@ namespace Meebey.SmartIrc4net
             var iexchar = _ServerProperties.InviteExceptionCharacter;
             if (iexchar.HasValue) {
                 ModifyChannelMasks("-" + iexchar.Value, channel, hostmasks);
+            } else {
+                base.UnInviteException(channel, hostmasks);
             }
         }
         
@@ -2174,9 +2202,13 @@ namespace Meebey.SmartIrc4net
                     // request wholist
                     RfcWho(channelname);
                     // request ban exception list
-                    BanException(channelname);
+                    if (_ServerProperties.BanExceptionCharacter.HasValue) {
+                        BanException(channelname);
+                    }
                     // request invite exception list
-                    InviteException(channelname);
+                    if (_ServerProperties.InviteExceptionCharacter.HasValue) {
+                        InviteException(channelname);
+                    }
                     // request banlist
                     Ban(channelname);
                 } else {
