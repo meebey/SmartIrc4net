@@ -84,6 +84,7 @@ namespace Meebey.SmartIrc4net
         private List<BanInfo>    _InviteExceptList;
         private Object           _InviteExceptListSyncRoot = new Object();
         private AutoResetEvent   _InviteExceptListReceivedEvent;
+        private ServerProperties _ServerProperties = new ServerProperties();
         private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
@@ -100,6 +101,7 @@ namespace Meebey.SmartIrc4net
         private static Regex     _PartRegex               = new Regex("^:.*? PART .*$", RegexOptions.Compiled);
         private static Regex     _ModeRegex               = new Regex("^:.*? MODE (.*) .*$", RegexOptions.Compiled);
         private static Regex     _QuitRegex               = new Regex("^:.*? QUIT :.*$", RegexOptions.Compiled);
+        private static Regex     _BounceMessageRegex      = new Regex("^Try server (.+), port ([0-9]+)$", RegexOptions.Compiled);
 
         public event EventHandler               OnRegistered;
         public event PingEventHandler           OnPing;
@@ -151,6 +153,7 @@ namespace Meebey.SmartIrc4net
         public event IrcEventHandler            OnQueryNotice;
         public event CtcpEventHandler           OnCtcpRequest;
         public event CtcpEventHandler           OnCtcpReply;
+        public event BounceEventHandler         OnBounce;
 
         /// <summary>
         /// Enables/disables the active channel sync feature.
@@ -425,6 +428,15 @@ namespace Meebey.SmartIrc4net
         public object BanListSyncRoot {
             get {
                 return _BanListSyncRoot;
+            }
+        }
+
+        /// <summary>
+        /// Gets the special functionality supported by this server.
+        /// </summary>
+        public ServerProperties ServerProperties {
+            get {
+                return _ServerProperties;
             }
         }
         
@@ -813,6 +825,9 @@ namespace Meebey.SmartIrc4net
         public IList<BanInfo> GetBanExceptionList(string channel)
         {
             List<BanInfo> list = new List<BanInfo>();
+            if (!_ServerProperties.BanExceptionCharacter.HasValue) {
+                return list;
+            }
             lock (_BanExceptListSyncRoot) {
                 _BanExceptList = list;
                 _BanExceptListReceivedEvent = new AutoResetEvent(false);
@@ -833,6 +848,9 @@ namespace Meebey.SmartIrc4net
         public IList<BanInfo> GetInviteExceptionList(string channel)
         {
             List<BanInfo> list = new List<BanInfo>();
+            if (!_ServerProperties.InviteExceptionCharacter.HasValue) {
+                return list;
+            }
             lock (_InviteExceptListSyncRoot) {
                 _InviteExceptList = list;
                 _InviteExceptListReceivedEvent = new AutoResetEvent(false);
@@ -971,6 +989,120 @@ namespace Meebey.SmartIrc4net
                                        );
 #endif
             return data;
+        }
+
+	// ISUPPORT-honoring versions of some IrcCommands methods
+
+        public override void BanException(string channel)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ListChannelMasks("+" + bexchar.Value, channel);
+            }
+        }
+
+        public override void BanException(string channel, string hostmask, Priority priority)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ModifyChannelMasks("+" + bexchar.Value, channel, hostmask, priority);
+            }
+        }
+
+        public override void BanException(string channel, string hostmask)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ModifyChannelMasks("+" + bexchar.Value, channel, hostmask);
+            }
+        }
+
+        public override void BanException(string channel, string[] hostmasks)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ModifyChannelMasks("+" + bexchar.Value, channel, hostmasks);
+            }
+        }
+
+        public override void UnBanException(string channel, string hostmask, Priority priority)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ModifyChannelMasks("-" + bexchar.Value, channel, hostmask, priority);
+            }
+        }
+
+        public override void UnBanException(string channel, string hostmask)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ModifyChannelMasks("-" + bexchar.Value, channel, hostmask);
+            }
+        }
+
+        public override void UnBanException(string channel, string[] hostmasks)
+        {
+            var bexchar = _ServerProperties.BanExceptionCharacter;
+            if (bexchar.HasValue) {
+                ModifyChannelMasks("-" + bexchar.Value, channel, hostmasks);
+            }
+        }
+
+        public override void InviteException(string channel)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ListChannelMasks("+" + iexchar.Value, channel);
+            }
+        }
+
+        public override void InviteException(string channel, string hostmask, Priority priority)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ModifyChannelMasks("+" + iexchar.Value, channel, hostmask, priority);
+            }
+        }
+
+        public override void InviteException(string channel, string hostmask)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ModifyChannelMasks("+" + iexchar.Value, channel, hostmask);
+            }
+        }
+
+        public override void InviteException(string channel, string[] hostmasks)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ModifyChannelMasks("+" + iexchar.Value, channel, hostmasks);
+            }
+        }
+
+        public override void UnInviteException(string channel, string hostmask, Priority priority)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ModifyChannelMasks("-" + iexchar.Value, channel, hostmask, priority);
+            }
+        }
+
+        public override void UnInviteException(string channel, string hostmask)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ModifyChannelMasks("-" + iexchar.Value, channel, hostmask);
+            }
+        }
+
+        public override void UnInviteException(string channel, string[] hostmasks)
+        {
+            var iexchar = _ServerProperties.InviteExceptionCharacter;
+            if (iexchar.HasValue) {
+                ModifyChannelMasks("-" + iexchar.Value, channel, hostmasks);
+            }
         }
         
         protected virtual IrcUser CreateIrcUser(string nickname)
@@ -1402,6 +1534,9 @@ namespace Meebey.SmartIrc4net
                         break;
                     case ReplyCode.EndOfExceptionList:
                         _Event_RPL_ENDOFEXCEPTLIST(ircdata);
+                        break;
+                    case ReplyCode.Bounce:
+                        _Event_RPL_BOUNCE(ircdata);
                         break;
                 }
             }
@@ -3018,6 +3153,50 @@ namespace Meebey.SmartIrc4net
             }
             // change the nickname
             RfcNick(nickname, Priority.Critical);
+        }
+
+        private void _Event_RPL_BOUNCE(IrcMessageData ircdata)
+        {
+            // HACK: might be BOUNCE or ISUPPORT; try to detect
+            if (ircdata.Message.StartsWith("Try server ")) {
+                // BOUNCE
+                string host = null;
+                int port = -1;
+                // try to parse out host and port
+                var match = _BounceMessageRegex.Match(ircdata.Message);
+                if (match.Success) {
+                    host = match.Groups [1].Value;
+                    port = int.Parse(match.Groups [2].Value);
+                }
+
+                if (OnBounce != null) {
+                    OnBounce(this, new BounceEventArgs(ircdata, host, port));
+                }
+                return;
+            }
+
+            // ISUPPORT
+            // split the message (0 = server, 1 = code, 2 = my nick)
+            for (int i = 3; i < ircdata.RawMessageArray.Length; ++i) {
+                var msg = ircdata.RawMessageArray [i];
+                if (msg.StartsWith(":")) {
+                    // addendum; we're done
+                    break;
+                }
+
+                var keyval = msg.Split('=');
+                if (keyval.Length == 1) {
+                    // keyword only
+                    _ServerProperties.RawProperties [keyval [0]] = null;
+                } else if (keyval.Length == 2) {
+                    // key and value
+                    _ServerProperties.RawProperties [keyval [0]] = keyval [1];
+                } else {
+#if LOG4NET
+                    Logger.Connection.Warn("confusing ISUPPORT message, ignoring: " + msg);
+#endif
+                }
+            }
         }
 #endregion
     }

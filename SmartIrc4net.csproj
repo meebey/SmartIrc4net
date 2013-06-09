@@ -71,6 +71,7 @@
     <Compile Include="src\IrcFeatures\IrcFeatures.cs" />
     <Compile Include="src\IrcConnection\ProxyType.cs" />
     <Compile Include="src\IrcConnection\PrimaryOrFallbackEncoding.cs" />
+    <Compile Include="src\IrcClient\ServerProperties.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
