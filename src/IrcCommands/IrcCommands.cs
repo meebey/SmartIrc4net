@@ -335,72 +335,72 @@ namespace Meebey.SmartIrc4net
             ModifyChannelMasks("-b", channel, hostmasks);
         }
 
-        public void BanException(string channel)
+        public virtual void BanException(string channel)
         {
             ListChannelMasks("+e", channel);
         }
 
-        public void BanException(string channel, string hostmask, Priority priority)
+        public virtual void BanException(string channel, string hostmask, Priority priority)
         {
             ModifyChannelMasks("+e", channel, hostmask, priority);
         }
 
-        public void BanException(string channel, string hostmask)
+        public virtual void BanException(string channel, string hostmask)
         {
             ModifyChannelMasks("+e", channel, hostmask);
         }
 
-        public void BanException(string channel, string[] hostmasks)
+        public virtual void BanException(string channel, string[] hostmasks)
         {
             ModifyChannelMasks("+e", channel, hostmasks);
         }
 
-        public void UnBanException(string channel, string hostmask, Priority priority)
+        public virtual void UnBanException(string channel, string hostmask, Priority priority)
         {
             ModifyChannelMasks("-e", channel, hostmask, priority);
         }
 
-        public void UnBanException(string channel, string hostmask)
+        public virtual void UnBanException(string channel, string hostmask)
         {
             ModifyChannelMasks("-e", channel, hostmask);
         }
 
-        public void UnBanException(string channel, string[] hostmasks)
+        public virtual void UnBanException(string channel, string[] hostmasks)
         {
             ModifyChannelMasks("-e", channel, hostmasks);
         }
 
-        public void InviteException(string channel)
+        public virtual void InviteException(string channel)
         {
             ListChannelMasks("+I", channel);
         }
 
-        public void InviteException(string channel, string hostmask, Priority priority)
+        public virtual void InviteException(string channel, string hostmask, Priority priority)
         {
             ModifyChannelMasks("+I", channel, hostmask, priority);
         }
 
-        public void InviteException(string channel, string hostmask)
+        public virtual void InviteException(string channel, string hostmask)
         {
             ModifyChannelMasks("+I", channel, hostmask);
         }
 
-        public void InviteException(string channel, string[] hostmasks)
+        public virtual void InviteException(string channel, string[] hostmasks)
         {
             ModifyChannelMasks("+I", channel, hostmasks);
         }
 
-        public void UnInviteException(string channel, string hostmask, Priority priority)
+        public virtual void UnInviteException(string channel, string hostmask, Priority priority)
         {
             ModifyChannelMasks("-I", channel, hostmask, priority);
         }
 
-        public void UnInviteException(string channel, string hostmask)
+        public virtual void UnInviteException(string channel, string hostmask)
         {
             ModifyChannelMasks("-I", channel, hostmask);
         }
 
-        public void UnInviteException(string channel, string[] hostmasks)
+        public virtual void UnInviteException(string channel, string[] hostmasks)
         {
             ModifyChannelMasks("-I", channel, hostmasks);
         }

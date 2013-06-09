@@ -759,4 +759,24 @@ namespace Meebey.SmartIrc4net
         }
     }
 
+    public class BounceEventArgs : IrcEventArgs
+    {
+        /// <summary>
+        /// Hostname/address of the server to which the user is being redirected.
+        /// May be null if not successfully parsed from the message.
+        /// </summary>
+        public string Server { get; private set; }
+
+        /// <summary>
+        /// Port of the server to which the user is being redirected.
+        /// May be -1 if not successfully parsed from the message.
+        /// </summary>
+        public int Port { get; private set; }
+
+        internal BounceEventArgs(IrcMessageData data, string server, int port) : base(data)
+        {
+            Server = server;
+            Port = Port;
+        }
+    }
 }
