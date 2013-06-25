@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
@@ -44,6 +45,8 @@ namespace Meebey.SmartIrc4net
         private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
         private StringCollection _Bans      = new StringCollection();
+        private List<string>     _BanExcepts = new List<string>();
+        private List<string>     _InviteExcepts = new List<string>();
         private string           _Topic     = String.Empty;
         private int              _UserLimit;
         private string           _Mode      = String.Empty;
@@ -159,6 +162,18 @@ namespace Meebey.SmartIrc4net
         public StringCollection Bans {
             get {
                 return _Bans;
+            }
+        }
+
+        public List<string> BanExceptions {
+            get {
+                return _BanExcepts;
+            }
+        }
+
+        public List<string> InviteExceptions {
+            get {
+                return _InviteExcepts;
             }
         }
 

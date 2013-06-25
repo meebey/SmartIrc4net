@@ -134,310 +134,367 @@ namespace Meebey.SmartIrc4net
             SendReply(data, message, Priority.Medium);
         }
         
+
         /// <summary>
-        /// 
+        /// Give or take a user's privilege in a channel.
         /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        /// <param name="priority"></param>
-        public void Op(string channel, string nickname, Priority priority)
+        /// <param name="modechg">The mode change (e.g. +o) to perform on the user.</param>
+        /// <param name="channel">The channel in which to perform the privilege change.</param>
+        /// <param name="nickname">The nickname of the user whose privilege is being changed.</param>
+        /// <param name="priority">The priority with which the mode-setting message should be sent.</param>
+        public void ChangeChannelPrivilege(string modechg, string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+o "+nickname), priority);
+            WriteLine(Rfc2812.Mode(channel, modechg + " " + nickname), priority);
         }
 
         /// <summary>
-        ///
+        /// Give or take a user's privilege in a channel.
         /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        public void Op(string channel, string[] nicknames)
+        /// <param name="modechg">The mode change (e.g. +o) to perform on the user.</param>
+        /// <param name="channel">The channel in which to perform the privilege change.</param>
+        /// <param name="nickname">The nickname of the user whose privilege is being changed.</param>
+        public void ChangeChannelPrivilege(string modechg, string channel, string nickname)
+        {
+            WriteLine(Rfc2812.Mode(channel, modechg + " " + nickname));
+        }
+
+        /// <summary>
+        /// Give or take a privilege to/from multiple users in a channel.
+        /// </summary>
+        /// <param name="modechg">The mode change (e.g. +o) to perform on the users.</param>
+        /// <param name="channel">The channel in which to give the users a privilege.</param>
+        /// <param name="nickname">The nicknames of the users receiving the privilege.</param>
+        public void ChangeChannelPrivilege(string modechg, string channel, string[] nicknames)
         {
             if (nicknames == null) {
                 throw new ArgumentNullException("nicknames");
             }
-            
+
             string[] modes = new string[nicknames.Length];
             for (int i = 0; i < nicknames.Length; i++) {
-                modes[i] = "+o";
+                modes[i] = modechg;
             }
             Mode(channel, modes, nicknames);
+        }
+
+        public void Op(string channel, string nickname, Priority priority)
+        {
+            ChangeChannelPrivilege("+o", channel, nickname, priority);
+        }
+
+        public void Op(string channel, string[] nicknames)
+        {
+            ChangeChannelPrivilege("+o", channel, nicknames);
         }
 
         public void Op(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "+o "+nickname));
+            ChangeChannelPrivilege("+o", channel, nickname);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        /// <param name="priority"></param>
+
         public void Deop(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-o "+nickname), priority);
+            ChangeChannelPrivilege("-o", channel, nickname, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        public void Deop(string channel, string nickname)
-        {
-            WriteLine(Rfc2812.Mode(channel, "-o "+nickname));
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
         public void Deop(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
-                throw new ArgumentNullException("nicknames");
-            }
-
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
-                modes[i] = "-o";
-            }
-            Mode(channel, modes, nicknames);
+            ChangeChannelPrivilege("-o", channel, nicknames);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        /// <param name="priority"></param>
+        public void Deop(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("-o", channel, nickname);
+        }
+
         public void Voice(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+v "+nickname), priority);
+            ChangeChannelPrivilege("+v", channel, nickname, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        public void Voice(string channel, string nickname)
-        {
-            WriteLine(Rfc2812.Mode(channel, "+v "+nickname));
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
         public void Voice(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
-                throw new ArgumentNullException("nicknames");
-            }
-
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
-                modes[i] = "+v";
-            }
-            Mode(channel, modes, nicknames);
+            ChangeChannelPrivilege("+v", channel, nicknames);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        /// <param name="priority"></param>
+        public void Voice(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("+v", channel, nickname);
+        }
+
         public void Devoice(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-v "+nickname), priority);
+            ChangeChannelPrivilege("-v", channel, nickname, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        public void Devoice(string channel, string nickname)
-        {
-            WriteLine(Rfc2812.Mode(channel, "-v "+nickname));
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nicknames"></param>
         public void Devoice(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
-                throw new ArgumentNullException("nicknames");
-            }
-
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
-                modes[i] = "-v";
-            }
-            Mode(channel, modes, nicknames);
+            ChangeChannelPrivilege("-v", channel, nicknames);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="priority"></param>
-        public void Ban(string channel, Priority priority)
+        public void Devoice(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b"), priority);
+            ChangeChannelPrivilege("-v", channel, nickname);
         }
 
         /// <summary>
-        /// 
+        /// Fetch a list of entries of a mask-format channel mode.
         /// </summary>
-        /// <param name="channel"></param>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) to fetch.</param>
+        /// <param name="channel">The channel whose mode to fetch.</param>
+        public void ListChannelMasks(string modetype, string channel)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype));
+        }
+
+        /// <summary>
+        /// Fetch a list of entries of a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) to fetch.</param>
+        /// <param name="channel">The channel whose mode to fetch.</param>
+        /// <param name="priority">The priority with which the mode-setting message should be sent.</param>
+        public void ListChannelMasks(string modetype, string channel, Priority priority)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype), priority);
+        }
+
+        /// <summary>
+        /// Add or remove an entry to/from a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) whose entries to modify.</param>
+        /// <param name="channel">The channel whose mode to edit.</param>
+        /// <param name="hostmask">The hostmask of the entry to add/remove.</param>
+        /// <param name="priority">The priority with which the mode-setting message should be sent.</param>
+        public void ModifyChannelMasks(string modetype, string channel, string hostmask, Priority priority)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype + " " + hostmask), priority);
+        }
+
+        /// <summary>
+        /// Add or remove an entry to/from a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) whose entries to modify.</param>
+        /// <param name="channel">The channel whose mode to edit.</param>
+        /// <param name="hostmask">The hostmask of the entry to add/remove.</param>
+        public void ModifyChannelMasks(string modetype, string channel, string hostmask)
+        {
+            WriteLine(Rfc2812.Mode(channel, modetype + " " + hostmask));
+        }
+
+        /// <summary>
+        /// Add or remove multiple entries to/from a mask-format channel mode.
+        /// </summary>
+        /// <param name="modetype">The type of the mask-format mode (e.g. +b) whose entries to modify.</param>
+        /// <param name="channel">The channel whose mode to edit.</param>
+        /// <param name="hostmasks">The hostmasks of the entries to add/remove.</param>
+        public void ModifyChannelMasks(string modetype, string channel, string[] hostmasks)
+        {
+            if (hostmasks == null) {
+                throw new ArgumentNullException("hostmasks");
+            }
+
+            string[] modes = new string[hostmasks.Length];
+            for (int i = 0; i < hostmasks.Length; i++) {
+                modes[i] = modetype;
+            }
+            Mode(channel, modes, hostmasks);
+        }
+
         public void Ban(string channel)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b"));
+            ListChannelMasks("+b", channel);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
-        /// <param name="priority"></param>
         public void Ban(string channel, string hostmask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b "+hostmask), priority);
+            ModifyChannelMasks("+b", channel, hostmask, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
         public void Ban(string channel, string hostmask)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b "+hostmask));
+            ModifyChannelMasks("+b", channel, hostmask);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmasks"></param>
         public void Ban(string channel, string[] hostmasks)
         {
-            if (hostmasks == null) {
-                throw new ArgumentNullException("hostmasks");
-            }
-
-            string[] modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++) {
-                modes[i] = "+b";
-            }
-            Mode(channel, modes, hostmasks);
+            ModifyChannelMasks("+b", channel, hostmasks);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
-        /// <param name="priority"></param>
         public void Unban(string channel, string hostmask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b "+hostmask), priority);
+            ModifyChannelMasks("-b", channel, hostmask, priority);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
         public void Unban(string channel, string hostmask)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b "+hostmask));
+            ModifyChannelMasks("-b", channel, hostmask);
         }
-        
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="hostmasks"></param>
+
         public void Unban(string channel, string[] hostmasks)
         {
-            if (hostmasks == null) {
-                throw new ArgumentNullException("hostmasks");
-            }
+            ModifyChannelMasks("-b", channel, hostmasks);
+        }
 
-            string[] modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++) {
-                modes[i] = "-b";
-            }
-            Mode(channel, modes, hostmasks);
+        public virtual void BanException(string channel)
+        {
+            ListChannelMasks("+e", channel);
+        }
+
+        public virtual void BanException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("+e", channel, hostmask, priority);
+        }
+
+        public virtual void BanException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("+e", channel, hostmask);
+        }
+
+        public virtual void BanException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("+e", channel, hostmasks);
+        }
+
+        public virtual void UnBanException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("-e", channel, hostmask, priority);
+        }
+
+        public virtual void UnBanException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("-e", channel, hostmask);
+        }
+
+        public virtual void UnBanException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("-e", channel, hostmasks);
+        }
+
+        public virtual void InviteException(string channel)
+        {
+            ListChannelMasks("+I", channel);
+        }
+
+        public virtual void InviteException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("+I", channel, hostmask, priority);
+        }
+
+        public virtual void InviteException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("+I", channel, hostmask);
+        }
+
+        public virtual void InviteException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("+I", channel, hostmasks);
+        }
+
+        public virtual void UnInviteException(string channel, string hostmask, Priority priority)
+        {
+            ModifyChannelMasks("-I", channel, hostmask, priority);
+        }
+
+        public virtual void UnInviteException(string channel, string hostmask)
+        {
+            ModifyChannelMasks("-I", channel, hostmask);
+        }
+
+        public virtual void UnInviteException(string channel, string[] hostmasks)
+        {
+            ModifyChannelMasks("-I", channel, hostmasks);
         }
 
         // non-RFC commands
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        /// <param name="priority"></param>
-        public void Halfop(string channel, string nickname)
+
+        public void Owner(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+h "+nickname));
+            ChangeChannelPrivilege("+q", channel, nickname, priority);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nicknames"></param>
+        public void Owner(string channel, string[] nicknames)
+        {
+            ChangeChannelPrivilege("+q", channel, nicknames);
+        }
+
+        public void Owner(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("+q", channel, nickname);
+        }
+
+        public void Deowner(string channel, string nickname, Priority priority)
+        {
+            ChangeChannelPrivilege("-q", channel, nickname, priority);
+        }
+
+        public void Deowner(string channel, string[] nicknames)
+        {
+            ChangeChannelPrivilege("-q", channel, nicknames);
+        }
+
+        public void Deowner(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("-q", channel, nickname);
+        }
+
+        public void ChanAdmin(string channel, string nickname, Priority priority)
+        {
+            ChangeChannelPrivilege("+a", channel, nickname, priority);
+        }
+
+        public void ChanAdmin(string channel, string[] nicknames)
+        {
+            ChangeChannelPrivilege("+a", channel, nicknames);
+        }
+
+        public void ChanAdmin(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("+a", channel, nickname);
+        }
+
+        public void DeChanAdmin(string channel, string nickname, Priority priority)
+        {
+            ChangeChannelPrivilege("-a", channel, nickname, priority);
+        }
+
+        public void DeChanAdmin(string channel, string[] nicknames)
+        {
+            ChangeChannelPrivilege("-a", channel, nicknames);
+        }
+
+        public void DeChanAdmin(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("-a", channel, nickname);
+        }
+
+        public void Halfop(string channel, string nickname, Priority priority)
+        {
+            ChangeChannelPrivilege("+h", channel, nickname, priority);
+        }
+
         public void Halfop(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
-                throw new ArgumentNullException("nicknames");
-            }
-
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
-                modes[i] = "+h";
-            }
-            Mode(channel, modes, nicknames);
+            ChangeChannelPrivilege("+h", channel, nicknames);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nickname"></param>
-        public void Dehalfop(string channel, string nickname)
+        public void Halfop(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "-h "+nickname));
+            ChangeChannelPrivilege("+h", channel, nickname);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="nicknames"></param>
+        public void Dehalfop(string channel, string nickname, Priority priority)
+        {
+            ChangeChannelPrivilege("-h", channel, nickname, priority);
+        }
+
         public void Dehalfop(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
-                throw new ArgumentNullException("nicknames");
-            }
+            ChangeChannelPrivilege("-h", channel, nicknames);
+        }
 
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
-                modes[i] = "-h";
-            }
-            Mode(channel, modes, nicknames);
+        public void Dehalfop(string channel, string nickname)
+        {
+            ChangeChannelPrivilege("-h", channel, nickname);
         }
 
         /// <summary>
