@@ -378,7 +378,7 @@ namespace Meebey.SmartIrc4net
                     return null;
                 }
 
-                var modesPrefixes = prefixstr.Split(')');
+                var modesPrefixes = prefixstr.Substring(1).Split(')');
                 if (modesPrefixes.Length != 2) {
                     // assuming the pathological case of a ')' mode
                     // character is impossible, this is invalid
