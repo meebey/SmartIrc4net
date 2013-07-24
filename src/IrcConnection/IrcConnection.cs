@@ -1111,6 +1111,10 @@ namespace Meebey.SmartIrc4net
                     _Connection._Reader.Close();
                 } catch (ObjectDisposedException) {
                 }
+
+                // clean up our receive queue else we continue processing old
+                // messages when the read thread is restarted!
+                _Queue.Clear();
             }
 
             private void _Worker()
