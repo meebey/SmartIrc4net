@@ -624,27 +624,35 @@ namespace Meebey.SmartIrc4net
                 if (_UseSsl) {
                     RemoteCertificateValidationCallback certValidation;
                     if (_ValidateServerCertificate) {
-                        certValidation = delegate(object sender,
-                            X509Certificate certificate,
-                            X509Chain chain,
-                            SslPolicyErrors sslPolicyErrors) {
-                            if (sslPolicyErrors == SslPolicyErrors.None) {
-                                return true;
-                            }
+                        certValidation = ServicePointManager.ServerCertificateValidationCallback;
+                        if (certValidation == null) {
+                            certValidation = delegate(object sender,
+                                X509Certificate certificate,
+                                X509Chain chain,
+                                SslPolicyErrors sslPolicyErrors) {
+                                if (sslPolicyErrors == SslPolicyErrors.None) {
+                                    return true;
+                                }
 
 #if LOG4NET
-                            Logger.Connection.Error(
-                                "Connect(): Certificate error: " +
-                                sslPolicyErrors
-                            );
+                                Logger.Connection.Error(
+                                    "Connect(): Certificate error: " +
+                                    sslPolicyErrors
+                                );
 #endif
-                            return false;
-                        };
+                                return false;
+                            };
+                        }
                     } else {
                         certValidation = delegate { return true; };
                     }
+                    RemoteCertificateValidationCallback certValidationWithIrcAsSender =
+                        delegate(object sender, X509Certificate certificate,
+                                 X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+                        return certValidation(this, certificate, chain, sslPolicyErrors);
+                    };
                     SslStream sslStream = new SslStream(stream, false,
-                                                        certValidation);
+                                                        certValidationWithIrcAsSender);
                     try {
                         if (_SslClientCertificate != null) {
                             var certs = new X509Certificate2Collection();
