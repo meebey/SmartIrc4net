@@ -1580,10 +1580,13 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname">The users 'nick' name which may NOT contain spaces</param>
         private bool _RemoveIrcUser(string nickname)
         {
-            if (GetIrcUser(nickname).JoinedChannels.Length == 0) {
-                // he is nowhere else, lets kill him
-                _IrcUsers.Remove(nickname);
-                return true;
+            IrcUser user = GetIrcUser(nickname);
+            if (user != null) {
+                if (user.JoinedChannels.Length == 0) {
+                    // he is nowhere else, lets kill him
+                    _IrcUsers.Remove(nickname);
+                    return true;
+                }
             }
 
             return false;
