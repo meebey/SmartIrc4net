@@ -45,7 +45,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("qNETp")]
 [assembly: AssemblyProduct("SmartIrc4net")]
-[assembly: AssemblyCopyright("2003-2008 (C) Mirco Bauer <meebey@meebey.net>")]
+[assembly: AssemblyCopyright("2003-2013 (C) Mirco Bauer <meebey@meebey.net>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -56,7 +56,7 @@ using System.Runtime.InteropServices;
 // You can specify all values by your own or you can build default build and revision
 // numbers with the '*' character (the default):
 
-[assembly: AssemblyVersion("0.4.5.0")]
+[assembly: AssemblyVersion("0.5.0.0")]
 
 // The following attributes specify the key for the sign of your assembly. See the
 // .NET Framework documentation for more information about signing.
