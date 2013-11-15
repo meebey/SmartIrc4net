@@ -72,5 +72,5 @@ namespace Meebey.SmartIrc4net
             Dcc = log4net.LogManager.GetLogger("DCC");
         }
     }
-#endif
 }
+#endif
