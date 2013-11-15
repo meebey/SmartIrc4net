@@ -522,7 +522,6 @@ namespace Meebey.SmartIrc4net
         public IrcConnection()
         {
 #if LOG4NET
-            Logger.Init();
             Logger.Main.Debug("IrcConnection created");
 #endif
             _SendBuffer[Priority.High]        = Queue.Synchronized(new Queue());
