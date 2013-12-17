@@ -812,6 +812,7 @@ namespace Meebey.SmartIrc4net
             
             IsDisconnecting = true;
             
+            _IdleWorkerThread.Stop();
             _ReadThread.Stop();
             _WriteThread.Stop();
             _TcpClient.Close();
@@ -1467,6 +1468,7 @@ namespace Meebey.SmartIrc4net
             public void Stop()
             {
                 _Thread.Abort();
+                _Thread.Join();
             }
 
             private void _Worker()
