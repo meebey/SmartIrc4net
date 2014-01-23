@@ -967,6 +967,7 @@ namespace Meebey.SmartIrc4net
                 case ReplyCode.ListEnd:
                 case ReplyCode.ErrorNoChannelModes:
                 case ReplyCode.InviteList:
+                case ReplyCode.ExceptionList:
                     channel = linear[3];
                     break;
             }
