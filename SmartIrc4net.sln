@@ -11,12 +11,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stresstest", "examples\stre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarkSoftProxy", "src\starksoftproxy\StarkSoftProxy.csproj", "{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{154D83B3-A162-4886-B358-6188DBE376D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Any CPU = Release|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,12 +63,6 @@ Global
 		$5.IndentSwitchBody = True
 		$5.AllowPropertyGetBlockInline = False
 		$5.AllowPropertySetBlockInline = False
-		$5.IfElseBraceForcement = AddBraces
-		$5.ForBraceForcement = AddBraces
-		$5.ForEachBraceForcement = AddBraces
-		$5.WhileBraceForcement = AddBraces
-		$5.UsingBraceForcement = AddBraces
-		$5.FixedBraceForcement = AddBraces
 		$5.BeforeMethodDeclarationParentheses = False
 		$5.BeforeMethodCallParentheses = False
 		$5.BeforeConstructorDeclarationParentheses = False
