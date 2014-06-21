@@ -72,6 +72,7 @@
     <Compile Include="src\IrcConnection\ProxyType.cs" />
     <Compile Include="src\IrcConnection\PrimaryOrFallbackEncoding.cs" />
     <Compile Include="src\IrcClient\ServerProperties.cs" />
+    <Compile Include="src\IrcClient\ChannelModeChangeInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -7,7 +7,7 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2008 Mirco Bauer <meebey@meebey.net>
+ * Copyright (c) 2003-2010, 2012-2014 Mirco Bauer <meebey@meebey.net>
  * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
@@ -102,6 +102,8 @@ namespace Meebey.SmartIrc4net
         private static Regex     _ModeRegex               = new Regex("^:.*? MODE (.*) .*$", RegexOptions.Compiled);
         private static Regex     _QuitRegex               = new Regex("^:.*? QUIT :.*$", RegexOptions.Compiled);
         private static Regex     _BounceMessageRegex      = new Regex("^Try server (.+), port ([0-9]+)$", RegexOptions.Compiled);
+
+        ChannelModeMap ChannelModeMap { get; set; }
 
         public event EventHandler               OnRegistered;
         public event PingEventHandler           OnPing;
@@ -451,6 +453,8 @@ namespace Meebey.SmartIrc4net
             OnReadLine        += new ReadLineEventHandler(_Worker);
             OnDisconnected    += new EventHandler(_OnDisconnected);
             OnConnectionError += new EventHandler(_OnConnectionError);
+
+            ChannelModeMap = new ChannelModeMap();
         }
 
 #if LOG4NET
@@ -468,6 +472,7 @@ namespace Meebey.SmartIrc4net
         public new void Connect(string[] addresslist, int port)
         {
             _SupportNonRfcLocked = true;
+            ChannelModeMap = new ChannelModeMap();
             base.Connect(addresslist, port);
         }
         
@@ -1619,34 +1624,18 @@ namespace Meebey.SmartIrc4net
         /// <param name="ircdata">Message data containing channel mode information</param>
         /// <param name="mode">Channel mode</param>
         /// <param name="parameter">List of supplied paramaters</param>
-        private void _InterpretChannelMode(IrcMessageData ircdata, string mode, string parameter)
+        private void _InterpretChannelMode(IrcMessageData ircdata, List<ChannelModeChangeInfo> changeInfos)
         {
-            string[] parameters = parameter.Split(new char[] {' '});
-            bool add       = false;
-            bool remove    = false;
-            int modelength = mode.Length;
-            string temp;
             Channel channel = null;
             if (ActiveChannelSyncing) {
                 channel = GetChannel(ircdata.Channel);
             }
-            IEnumerator parametersEnumerator = parameters.GetEnumerator();
-            // bring the enumerator to the 1. element
-            parametersEnumerator.MoveNext();
-            for (int i = 0; i < modelength; i++) {
-                switch(mode[i]) {
-                    case '-':
-                        add = false;
-                        remove = true;
-                    break;
-                    case '+':
-                        add = true;
-                        remove = false;
-                    break;
-                    case 'o':
-                        temp = (string)parametersEnumerator.Current;
-                        parametersEnumerator.MoveNext();
-                        
+            foreach (var changeInfo in changeInfos) {
+                var temp = changeInfo.Parameter;
+                var add = changeInfo.Action == ChannelModeChangeAction.Set;
+                var remove = changeInfo.Action == ChannelModeChangeAction.Unset;
+                switch (changeInfo.Mode) {
+                    case ChannelMode.Op:
                         if (add) {
                             if (ActiveChannelSyncing && channel != null) {
                                 // sanity check
@@ -1706,12 +1695,9 @@ namespace Meebey.SmartIrc4net
                                 OnDeop(this, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
-                    break;
-                    case 'q':
+                        break;
+                    case ChannelMode.Owner:
                         if (SupportNonRfc) {
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-
                             if (add) {
                                 if (ActiveChannelSyncing && channel != null) {
                                     // sanity check
@@ -1772,12 +1758,9 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                         }
-                    break;
-                    case 'a':
+                        break;
+                    case ChannelMode.Admin:
                         if (SupportNonRfc) {
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-
                             if (add) {
                                 if (ActiveChannelSyncing && channel != null) {
                                     // sanity check
@@ -1838,12 +1821,9 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                         }
-                    break;
-                    case 'h':
+                        break;
+                    case ChannelMode.HalfOp:
                         if (SupportNonRfc) {
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            
                             if (add) {
                                 if (ActiveChannelSyncing && channel != null) {
                                     // sanity check
@@ -1904,11 +1884,8 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                         }
-                    break;
-                    case 'v':
-                        temp = (string)parametersEnumerator.Current;
-                        parametersEnumerator.MoveNext();
-                        
+                        break;
+                    case ChannelMode.Voice:
                         if (add) {
                             if (ActiveChannelSyncing && channel != null) {
                                 // sanity check
@@ -1968,10 +1945,8 @@ namespace Meebey.SmartIrc4net
                                 OnDevoice(this, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
-                    break;
-                    case 'b':
-                        temp = (string)parametersEnumerator.Current;
-                        parametersEnumerator.MoveNext();
+                        break;
+                    case ChannelMode.Ban:
                         if (add) {
                             if (ActiveChannelSyncing && channel != null) {
                                 try {
@@ -2000,10 +1975,8 @@ namespace Meebey.SmartIrc4net
                                 OnUnban(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
-                    break;
-                    case 'e':
-                        temp = (string)parametersEnumerator.Current;
-                        parametersEnumerator.MoveNext();
+                        break;
+                    case ChannelMode.BanException:
                         if (add) {
                             if (ActiveChannelSyncing && channel != null) {
                                 try {
@@ -2018,24 +1991,22 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                             if (OnBanException != null) {
-                               OnBanException(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                OnBanException(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         if (remove) {
                             if (ActiveChannelSyncing && channel != null) {
                                 channel.BanExceptions.Remove(temp);
-#if LOG4NET
+                                #if LOG4NET
                                 Logger.ChannelSyncing.Debug("removed ban exception: "+temp+" from: "+ircdata.Channel);
-#endif
+                                #endif
                             }
                             if (OnUnBanException != null) {
                                 OnUnBanException(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
-                    break;
-                    case 'I':
-                        temp = (string)parametersEnumerator.Current;
-                        parametersEnumerator.MoveNext();
+                        break;
+                    case ChannelMode.InviteException:
                         if (add) {
                             if (ActiveChannelSyncing && channel != null) {
                                 try {
@@ -2050,24 +2021,22 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                             if (OnInviteException != null) {
-                               OnInviteException(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                OnInviteException(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         if (remove) {
                             if (ActiveChannelSyncing && channel != null) {
                                 channel.InviteExceptions.Remove(temp);
-#if LOG4NET
+                                #if LOG4NET
                                 Logger.ChannelSyncing.Debug("removed invite exception: "+temp+" from: "+ircdata.Channel);
-#endif
+                                #endif
                             }
                             if (OnUnInviteException != null) {
                                 OnUnInviteException(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
-                    break;
-                    case 'l':
-                        temp = (string)parametersEnumerator.Current;
-                        parametersEnumerator.MoveNext();
+                        break;
+                    case ChannelMode.UserLimit:
                         if (add) {
                             if (ActiveChannelSyncing && channel != null) {
                                 try {
@@ -2090,49 +2059,47 @@ namespace Meebey.SmartIrc4net
 #endif
                             }
                         }
-                    break;
-                        case 'k':
-                            temp = (string)parametersEnumerator.Current;
-                            parametersEnumerator.MoveNext();
-                            if (add) {
-                                if (ActiveChannelSyncing && channel != null) {
-                                    channel.Key = temp;
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("stored channel key for: "+ircdata.Channel);
-#endif
-                                }
-                            }
-                            if (remove) {
-                                if (ActiveChannelSyncing && channel != null) {
-                                    channel.Key = "";
-#if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed channel key for: "+ircdata.Channel);
-#endif
-                                }
-                            }
                         break;
-                        default:
-                            if (add) {
-                                if (ActiveChannelSyncing && channel != null) {
-                                    if (channel.Mode.IndexOf(mode[i]) == -1) {
-                                        channel.Mode += mode[i];
+                    case ChannelMode.Key:
+                        if (add) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                channel.Key = temp;
 #if LOG4NET
-                                        Logger.ChannelSyncing.Debug("added channel mode ("+mode[i]+") for: "+ircdata.Channel);
+                                Logger.ChannelSyncing.Debug("stored channel key for: "+ircdata.Channel);
 #endif
-                                    }
-                                }
                             }
-                            if (remove) {
-                                if (ActiveChannelSyncing && channel != null) {
-                                    channel.Mode = channel.Mode.Replace(mode[i].ToString(), String.Empty);
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                channel.Key = "";
 #if LOG4NET
-                                    Logger.ChannelSyncing.Debug("removed channel mode ("+mode[i]+") for: "+ircdata.Channel);
+                                Logger.ChannelSyncing.Debug("removed channel key for: "+ircdata.Channel);
 #endif
-                                }
                             }
+                        }
                         break;
-                    }
+                    default:
+                        if (add) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                if (channel.Mode.IndexOf(changeInfo.ModeChar) == -1) {
+                                    channel.Mode += changeInfo.ModeChar;
+#if LOG4NET
+                                    Logger.ChannelSyncing.Debug("added channel mode ("+changeInfo.ModeChar+") for: "+ircdata.Channel);
+#endif
+                                }
+                            }
+                        }
+                        if (remove) {
+                            if (ActiveChannelSyncing && channel != null) {
+                                channel.Mode = channel.Mode.Replace(changeInfo.ModeChar.ToString(), String.Empty);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("removed channel mode ("+changeInfo.ModeChar+") for: "+ircdata.Channel);
+#endif
+                            }
+                        }
+                        break;
                 }
+            }
         }
         
 #region Internal Messagehandlers
@@ -2595,22 +2562,29 @@ namespace Meebey.SmartIrc4net
             if (IsMe(ircdata.RawMessageArray[2])) {
                 // my user mode changed
                 _Usermode = ircdata.RawMessageArray[3].Substring(1);
+
+                if (OnUserModeChange != null) {
+                    OnUserModeChange(this, new IrcEventArgs(ircdata));
+                }
             } else {
                 // channel mode changed
                 string mode = ircdata.RawMessageArray[3];
                 string parameter = String.Join(" ", ircdata.RawMessageArray, 4, ircdata.RawMessageArray.Length-4);
-                _InterpretChannelMode(ircdata, mode, parameter);
+                var changeInfos = ChannelModeChangeInfo.Parse(
+                    ChannelModeMap, ircdata.Channel, mode, parameter
+                );
+                _InterpretChannelMode(ircdata, changeInfos);
+
+                if (OnChannelModeChange != null) {
+                    OnChannelModeChange(
+                        this,
+                        new ChannelModeChangeEventArgs(
+                            ircdata, ircdata.Channel, changeInfos
+                        )
+                    );
+                }
             }
             
-            if ((ircdata.Type == ReceiveType.UserModeChange) &&
-                (OnUserModeChange != null)) {
-                OnUserModeChange(this, new IrcEventArgs(ircdata));
-            }
-
-            if ((ircdata.Type == ReceiveType.ChannelModeChange) &&
-                (OnChannelModeChange != null)) {
-                OnChannelModeChange(this, new IrcEventArgs(ircdata));
-            }
 
             if (OnModeChange != null) {
                 OnModeChange(this, new IrcEventArgs(ircdata));
@@ -2631,7 +2605,10 @@ namespace Meebey.SmartIrc4net
                 chan.Mode = String.Empty;
                 string mode = ircdata.RawMessageArray[4];
                 string parameter = String.Join(" ", ircdata.RawMessageArray, 5, ircdata.RawMessageArray.Length-5);
-                _InterpretChannelMode(ircdata, mode, parameter);
+                var changeInfos = ChannelModeChangeInfo.Parse(
+                    ChannelModeMap, ircdata.Channel, mode, parameter
+                );
+                _InterpretChannelMode(ircdata, changeInfos);
             }
         }
         
@@ -3232,6 +3209,13 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                     Logger.Connection.Warn("confusing ISUPPORT message, ignoring: " + msg);
 #endif
+                }
+
+                if (keyval.Length == 2 && keyval[0] == "CHANMODES") {
+                    var chanModes = keyval[1];
+                    if (!String.IsNullOrEmpty(chanModes)) {
+                        ChannelModeMap = new ChannelModeMap(chanModes);
+                    }
                 }
             }
         }
