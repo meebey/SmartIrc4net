@@ -1961,7 +1961,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
                             if (OnBan != null) {
-                               OnBan(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                OnBan(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         if (remove) {
