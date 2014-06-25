@@ -144,7 +144,7 @@ namespace Meebey.SmartIrc4net
         public event NickChangeEventHandler     OnNickChange;
         public event IrcEventHandler            OnModeChange;
         public event IrcEventHandler            OnUserModeChange;
-        public event IrcEventHandler            OnChannelModeChange;
+        public event EventHandler<ChannelModeChangeEventArgs> OnChannelModeChange;
         public event IrcEventHandler            OnChannelMessage;
         public event ActionEventHandler         OnChannelAction;
         public event IrcEventHandler            OnChannelNotice;
@@ -501,7 +501,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="login">If the login data should be sent, after successful connect.</param>
         public void Reconnect(bool login)
         {
-            Reconnect(login, true);
+            Reconnect(login, AutoRejoin);
         }
 
         /// <summary>
