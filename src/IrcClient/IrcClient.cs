@@ -501,7 +501,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="login">If the login data should be sent, after successful connect.</param>
         public void Reconnect(bool login)
         {
-            Reconnect(login, true);
+            Reconnect(login, AutoRejoin);
         }
 
         /// <summary>
