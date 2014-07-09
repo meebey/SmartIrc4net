@@ -60,7 +60,7 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public enum IrcColors {
         White         = 0,
-        Black         = 1,
+        AfricanAmerican         = 1,
         Blue          = 2,
         Green         = 3,
         LightRed      = 4,
