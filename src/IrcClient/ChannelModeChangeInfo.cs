@@ -73,16 +73,16 @@ namespace Meebey.SmartIrc4net
             var never = channelModes.Split(',')[3];
 
             foreach (var mode in listAlways) {
-                Add(mode, new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Always));
+                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Always);
             }
             foreach (var mode in settingAlways) {
-                Add(mode, new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Always));
+                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Always);
             }
             foreach (var mode in onlySet) {
-                Add(mode, new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.OnlySet));
+                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.OnlySet);
             }
             foreach (var mode in never) {
-                Add(mode, new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Never));
+                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Never);
             }
         }
     }
