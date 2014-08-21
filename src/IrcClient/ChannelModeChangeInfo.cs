@@ -49,7 +49,19 @@ namespace Meebey.SmartIrc4net
         Never
     }
 
-    public class ChannelModeMap : Dictionary<char, Tuple<ChannelMode, ChannelModeHasParameter>>
+    public class ChannelModeInfo
+    {
+        public ChannelMode Mode { get; set; }
+        public ChannelModeHasParameter HasParameter { get; set; }
+
+        public ChannelModeInfo(ChannelMode mode, ChannelModeHasParameter hasParameter)
+        {
+            Mode = mode;
+            HasParameter = hasParameter;
+        }
+    }
+
+    public class ChannelModeMap : Dictionary<char, ChannelModeInfo>
     {
         // TODO: verify RFC modes!
         public ChannelModeMap() :
@@ -73,16 +85,16 @@ namespace Meebey.SmartIrc4net
             var never = channelModes.Split(',')[3];
 
             foreach (var mode in listAlways) {
-                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Always);
+                this[mode] = new ChannelModeInfo((ChannelMode) mode, ChannelModeHasParameter.Always);
             }
             foreach (var mode in settingAlways) {
-                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Always);
+                this[mode] = new ChannelModeInfo((ChannelMode) mode, ChannelModeHasParameter.Always);
             }
             foreach (var mode in onlySet) {
-                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.OnlySet);
+                this[mode] = new ChannelModeInfo((ChannelMode) mode, ChannelModeHasParameter.OnlySet);
             }
             foreach (var mode in never) {
-                this[mode] = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) mode, ChannelModeHasParameter.Never);
+                this[mode] = new ChannelModeInfo((ChannelMode) mode, ChannelModeHasParameter.Never);
             }
         }
     }
@@ -129,20 +141,20 @@ namespace Meebey.SmartIrc4net
                         action = ChannelModeChangeAction.Unset;
                         break;
                     default:
-                        Tuple<ChannelMode, ChannelModeHasParameter> modeInfo = null;
+                        ChannelModeInfo modeInfo = null;
                         modeMap.TryGetValue(modeChar, out modeInfo);
                         if (modeInfo == null) {
                             // modes not specified in CHANMODES are expected to
                             // always have parameters
-                            modeInfo = new Tuple<ChannelMode, ChannelModeHasParameter>((ChannelMode) modeChar, ChannelModeHasParameter.Always);
+                            modeInfo = new ChannelModeInfo((ChannelMode) modeChar, ChannelModeHasParameter.Always);
                         }
 
                         string parameter = null;
-                        var channelMode = modeInfo.Item1;
+                        var channelMode = modeInfo.Mode;
                         if (!Enum.IsDefined(typeof(ChannelMode), channelMode)) {
                             channelMode = ChannelMode.Unknown;
                         }
-                        var hasParameter = modeInfo.Item2;
+                        var hasParameter = modeInfo.HasParameter;
                         if (hasParameter == ChannelModeHasParameter.Always ||
                             (hasParameter == ChannelModeHasParameter.OnlySet &&
                              action == ChannelModeChangeAction.Set)) {
