@@ -16,3 +16,6 @@ smartirc4net.pc
 *.userprefs
 [Bb]in/
 [Oo]bj/
+*.suo
+*.user
+*.sln.docstates
