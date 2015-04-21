@@ -934,11 +934,13 @@ namespace Meebey.SmartIrc4net
                 host = from.Substring(atpos+1);
             }
 
-            try {
-                replycode = (ReplyCode)int.Parse(messagecode);
-            } catch (FormatException) {
+            int tmp;
+            if (int.TryParse(messagecode, out tmp)) {
+                replycode = (ReplyCode) tmp;
+            } else {
                 replycode = ReplyCode.Null;
             }
+
             type = _GetMessageType(rawline);
             if (colonpos != -1) {
                 message = line.Substring(colonpos + 1);
