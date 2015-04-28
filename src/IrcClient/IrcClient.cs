@@ -67,8 +67,8 @@ namespace Meebey.SmartIrc4net
         private bool             _MotdReceived;
         private Array            _ReplyCodes              = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels          = new StringCollection();
-        private Hashtable        _Channels                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private Hashtable        _IrcUsers                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private Hashtable        _Channels                = Hashtable.Synchronized(new Hashtable(StringComparer.OrdinalIgnoreCase));
+        private Hashtable        _IrcUsers                = Hashtable.Synchronized(new Hashtable(StringComparer.OrdinalIgnoreCase));
         private List<ChannelInfo> _ChannelList;
         private Object            _ChannelListSyncRoot = new Object();
         private AutoResetEvent    _ChannelListReceivedEvent;
