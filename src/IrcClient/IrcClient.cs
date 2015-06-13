@@ -906,9 +906,9 @@ namespace Meebey.SmartIrc4net
             // conform to RFC 2812
             from = linear[0];
             messagecode = linear[1];
-            exclamationpos = from.IndexOf("!");
-            atpos = from.IndexOf("@");
-            colonpos = line.IndexOf(" :");
+            exclamationpos = from.IndexOf("!", StringComparison.Ordinal);
+            atpos = from.IndexOf("@", StringComparison.Ordinal);
+            colonpos = line.IndexOf(" :", StringComparison.Ordinal);
             if (colonpos != -1) {
                 // we want the exact position of ":" not beginning from the space
                 colonpos += 1;
