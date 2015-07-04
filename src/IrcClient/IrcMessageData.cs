@@ -45,6 +45,7 @@ namespace Meebey.SmartIrc4net
         private string      _RawMessage;
         private string[]    _RawMessageArray;
         private ReceiveType _Type;
+        private string      _CustomType;
         private ReplyCode   _ReplyCode;
         
         /// <summary>
@@ -150,6 +151,17 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        /// Gets the custom message type for specialized IRC clients
+        /// </summary>
+        public string CustomType
+        {
+            get
+            {
+                return _CustomType;
+            }
+        }
+
+        /// <summary>
         /// Gets the message reply code
         /// </summary>
         public ReplyCode ReplyCode {
@@ -170,13 +182,15 @@ namespace Meebey.SmartIrc4net
         /// <param name="message">message</param>
         /// <param name="rawmessage">raw message sent by the server</param>
         /// <param name="type">message type</param>
+        /// <param name="customtype">custom message type</param>
         /// <param name="replycode">message reply code</param>
-        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode)
+        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, string customtype, ReplyCode replycode)
         {
             _Irc = ircclient;
             _RawMessage = rawmessage;
             _RawMessageArray = rawmessage.Split(new char[] {' '});
             _Type = type;
+            _CustomType = customtype;
             _ReplyCode = replycode;
             _From = from;
             _Nick = nick;
