@@ -101,8 +101,6 @@ namespace Meebey.SmartIrc4net
         private static Regex     _PartRegex               = new Regex("^:.*? PART .*$", RegexOptions.Compiled);
         private static Regex     _ModeRegex               = new Regex("^:.*? MODE (.*) .*$", RegexOptions.Compiled);
         private static Regex     _QuitRegex               = new Regex("^:.*? QUIT :.*$", RegexOptions.Compiled);
-        private static Regex     _UserStateRegex          = new Regex("^:.*? USERSTATE .*$", RegexOptions.Compiled);
-        private static Regex     _RoomStateRegex          = new Regex("^:.*? ROOMSTATE .*$", RegexOptions.Compiled);
         private static Regex     _BounceMessageRegex      = new Regex("^Try server (.+), port ([0-9]+)$", RegexOptions.Compiled);
 
         ChannelModeMap ChannelModeMap { get; set; }
@@ -143,8 +141,6 @@ namespace Meebey.SmartIrc4net
         public event MotdEventHandler           OnMotd;
         public event TopicEventHandler          OnTopic;
         public event TopicChangeEventHandler    OnTopicChange;
-        public event IrcEventHandler            OnUserState;
-        public event IrcEventHandler            OnRoomState;
         public event NickChangeEventHandler     OnNickChange;
         public event IrcEventHandler            OnModeChange;
         public event IrcEventHandler            OnUserModeChange;
@@ -959,8 +955,6 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.ChannelMessage:
                 case ReceiveType.ChannelAction:
                 case ReceiveType.ChannelNotice:
-                case ReceiveType.UserState:
-                case ReceiveType.RoomState:
                     channel = linear[2];
                 break;
                 case ReceiveType.Who:
@@ -1443,16 +1437,6 @@ namespace Meebey.SmartIrc4net
                 return ReceiveType.Quit;
             }
 
-            found = _UserStateRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.UserState;
-            }
-
-            found = _RoomStateRegex.Match(rawline);
-            if (found.Success) {
-                return ReceiveType.RoomState;
-            }
-
 #if LOG4NET
             Logger.MessageTypes.Warn("messagetype unknown: \""+rawline+"\"");
 #endif
@@ -1509,12 +1493,6 @@ namespace Meebey.SmartIrc4net
                 case "MODE":
                     _Event_MODE(ircdata);
                 break;
-                case "USERSTATE":
-                    _Event_USERSTATE(ircdata);
-                    break;
-                case "ROOMSTATE":
-                    _Event_ROOMSTATE(ircdata);
-                    break;
                 case "PONG":
                     _Event_PONG(ircdata);
                 break;
@@ -2615,29 +2593,6 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        /// <sumamry>
-        /// Event handler for userstate messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing userstate information</param>
-        private void _Event_USERSTATE(IrcMessageData ircdata)
-        {
-            if (OnUserState != null)
-            {
-                OnUserState(this, new IrcEventArgs(ircdata));
-            }
-        }
-
-        /// <summary>
-        /// Event handler for roomstate messages
-        /// </summary>
-        /// <param name="ircdata">Message data containing roomstate information</param>
-        private void _Event_ROOMSTATE(IrcMessageData ircdata)
-        {
-            if (OnRoomState != null)
-            {
-                OnRoomState(this, new IrcEventArgs(ircdata));
-            }
-        }
 
         /// <summary>
         /// Event handler for channel mode reply messages

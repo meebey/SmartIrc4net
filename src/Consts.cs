@@ -89,8 +89,6 @@ namespace Meebey.SmartIrc4net
         CtcpRequest,
         Error,
         ErrorMessage,
-        UserState,
-        RoomState,
         Unknown
     }
 
