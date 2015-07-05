@@ -819,6 +819,9 @@ namespace Meebey.SmartIrc4net
             _IsConnected = false;
             _IsRegistered = false;
             
+            // signal ReadLine() to check IsConnected state
+            _ReadThread.QueuedEvent.Set();
+            
             IsDisconnecting = false;
             
             if (OnDisconnected != null) {
