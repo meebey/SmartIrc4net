@@ -901,7 +901,7 @@ namespace Meebey.SmartIrc4net
                 line = rawline;
             }
 
-            linear = line.Split(new char[] {' '});
+            linear = Regex.Split(line, @"\s+");
 
             // conform to RFC 2812
             from = linear[0];
