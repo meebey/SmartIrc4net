@@ -8,6 +8,7 @@
  * This is a simple test client for the library.
  *
  * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -114,10 +115,7 @@ public class Test
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "Main";
-        
-        // UTF-8 test
-        irc.Encoding = System.Text.Encoding.UTF8;
-        
+
         // wait time between messages, we can set this lower on own irc servers
         irc.SendDelay = 200;
         
@@ -130,15 +128,78 @@ public class Test
         irc.OnError += new ErrorEventHandler(OnError);
         irc.OnRawMessage += new IrcEventHandler(OnRawMessage);
 
-        string[] serverlist;
-        // the server we want to connect to, could be also a simple string
-        serverlist = new string[] {"irc.freenode.org"};
-        int port = 6667;
+        // ===============================================
+        // Standard IRC over TCP
+        // ===============================================
+
+        // New single-address syntax:
+        //IrcTcpTransport transport = new IrcTcpTransport("irc.freenode.org", 6667);
+
+        // Alternative single-address syntax:
+        //IrcTcpTransport transport = new IrcTcpTransport();
+        //transport.Address = "irc.freenode.org";
+        //transport.Port = 6667;
+
+        // Alternative syntax for classic TCP backwards compatibility:
+        string[] serverlist = new string[] { "irc.freenode.org" };
+        int port = 6667; // use 6697 for SSL on Freenode
+
+        // Uncomment to set non-default encoding
+        //transport.Encoding = System.Text.Encoding.UTF8;
+
+        // Uncomment to use anonymous SOCKS or HTTP proxy
+        //transport.ProxyType = ProxyType.Socks5;
+        //transport.ProxyHost = "207.190.116.231";
+        //transport.ProxyPort = 30188;
+
+        // Uncomment to use SSL
+        //transport.UseSsl = true;
+
+        // ===============================================
+        // IRC over WebSockets
+        // ===============================================
+
+        // Example Twitch WebSockets server
+        //IrcWebSocketTransport transport = new IrcWebSocketTransport("ws://192.16.64.144");
+
+        // Uncomment to enable compression
+        //transport.Socket.Compression = WebSocketSharp.CompressionMethod.Deflate;
+
+        // Uncomment to enable HTTP auth
+        //transport.Socket.SetCredentials("username", "password", false);
+
+        // Uncomment to enable HTTP proxy
+        //transport.Socket.SetProxy("http://162.208.49.45:7808", "", "");
+
+        // Uncomment to send HTTP cookies with connection request
+        //transport.Socket.SetCookie(new WebSocketSharp.Net.Cookie("name", "value", "path", "domain"));
+
+        // For SSL, use: transport.Socket.SslConfiguration...
+
+        // ===============================================
+        // From this point, all usage is the same regardless of transport protocol
+        // ===============================================
+
+        // Uncomment to use AutoRetry
+        //irc.AutoRetry = true;
+        //irc.AutoRetryDelay = 5;
+        //irc.AutoRetryLimit = 4;
+
+        // Channel to join
         string channel = "#smartirc-test";
+
         try {
-            // here we try to connect to the server and exceptions get handled
+            // Connect to IRC server using any specified transport
+            // If the transport doesn't support multiple addresses, you must use this (eg. WebSockets)
+            //irc.Connect(transport);
+
+            // Alternative syntax:
+            //irc.Connect(transport, serverlist, port);
+
+            // Alternative syntax for classic TCP backwards compatibility:
             irc.Connect(serverlist, port);
-        } catch (ConnectionException e) {
+        }
+        catch (ConnectionException e) {
             // something went wrong, the reason will be shown
             System.Console.WriteLine("couldn't connect! Reason: "+e.Message);
             Exit();
@@ -147,6 +208,7 @@ public class Test
         try {
             // here we logon and register our nickname and so on 
             irc.Login("SmartIRC", "SmartIrc4net Test Bot");
+
             // join the channel
             irc.RfcJoin(channel);
             
@@ -198,7 +260,7 @@ public class Test
                 if (pos != -1) {
                     channel = cmd.Substring(pos + 1);
                 }
-                
+
                 IList<ChannelInfo> channelInfos = irc.GetChannelList(channel);
                 Console.WriteLine("channel count: {0}", channelInfos.Count);
                 foreach (ChannelInfo channelInfo in channelInfos) {
@@ -207,7 +269,14 @@ public class Test
                                       channelInfo.UserCount,
                                       channelInfo.Topic);
                 }
-            } else {
+            } else if (cmd.StartsWith("/reconnect")) {
+                irc.Reconnect();
+
+                // Don't forget to log in again after reconnecting!
+                irc.Login("SmartIRC", "SmartIrc4net Test Bot");
+                irc.RfcJoin("#smartirc-test");
+            }
+            else {
                 irc.WriteLine(cmd);
             }
         }
