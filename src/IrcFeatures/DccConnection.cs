@@ -20,11 +20,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 using System;
-using System.IO;
 using System.Net;
-using System.Threading;
 using System.Net.Sockets;
 
 namespace Meebey.SmartIrc4net
@@ -192,13 +190,10 @@ namespace Meebey.SmartIrc4net
         #endregion
         
         #region protected Helper Functions
-        protected long HostToDccInt(IPAddress ip)
+        public static long HostToDccInt(IPAddress ip)
         {
-            long temp = (ip.Address & 0xff) << 24;
-            temp |= (ip.Address & 0xff00)  << 8;
-            temp |= (ip.Address >> 8)  & 0xff00;
-            temp |= (ip.Address >> 24)  & 0xff;
-            return temp;
+            byte[] adb = ip.GetAddressBytes();
+            return (adb[0] << 24) | (adb[1] << 16) | (adb[2] << 8) | adb[3];
         }
         
         protected string DccIntToHost(long ip)

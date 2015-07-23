@@ -143,7 +143,7 @@ namespace Meebey.SmartIrc4net
                     
                     bytes = _File.Read(_Buffer, 0, _Buffer.Length);
                     try {
-                        Connection.GetStream().Write(_Buffer, 0, (int)bytes);
+                        Connection.GetStream().Write(_Buffer, 0, bytes);
                     } catch (IOException) {
                         bytes = 0;    // Connection Lost
                     }

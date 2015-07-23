@@ -27,7 +27,6 @@
  */
 
 
-using System;
 
 namespace Meebey.SmartIrc4net
 {
