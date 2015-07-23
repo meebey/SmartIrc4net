@@ -53,6 +53,8 @@ namespace Meebey.SmartIrc4net
         private string           _Password                = string.Empty;
         private bool             _IsAway;
         private string           _CtcpVersion;
+        private bool             _UseIrcV3;
+        private List<Capability> _Caps;
         private bool             _ActiveChannelSyncing;
         private bool             _PassiveChannelSyncing;
         private bool             _AutoJoinOnInvite;
@@ -88,6 +90,10 @@ namespace Meebey.SmartIrc4net
         private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
+        private static Regex     _CapLsRegex              = new Regex("^:.*? CAP .* LS (?:\\*\\s)?:.*$", RegexOptions.Compiled);
+        private static Regex     _CapListRegex            = new Regex("^:.*? CAP .* LIST (?:\\*\\s)?:.*$", RegexOptions.Compiled);
+        private static Regex     _CapAckRegex             = new Regex("^:.*? CAP .* ACK (?:\\*\\s)?:.*$", RegexOptions.Compiled);
+        private static Regex     _CapNakRegex             = new Regex("^:.*? CAP .* NAK (?:\\*\\s)?:.*$", RegexOptions.Compiled);
         private static Regex     _ActionRegex             = new Regex("^:.*? PRIVMSG (.).* :"+"\x1"+"ACTION .*"+"\x1"+"$", RegexOptions.Compiled);
         private static Regex     _CtcpRequestRegex        = new Regex("^:.*? PRIVMSG .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
         private static Regex     _MessageRegex            = new Regex("^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled);
@@ -155,7 +161,44 @@ namespace Meebey.SmartIrc4net
         public event IrcEventHandler            OnQueryNotice;
         public event CtcpEventHandler           OnCtcpRequest;
         public event CtcpEventHandler           OnCtcpReply;
+        public event CapEventHandler            OnCapLsReply;
+        public event CapEventHandler            OnCapListReply;
+        public event CapEventHandler            OnCapAckReply;
+        public event CapEventHandler            OnCapNakReply;
         public event BounceEventHandler         OnBounce;
+
+        /// <summary>
+        /// Enables/disables the use of supported aspects of the IRC v3 protocol
+        /// Default: false
+        /// </summary>
+        public bool UseIrcV3 {
+            get {
+                return _UseIrcV3;
+            }
+            set {
+#if LOG4NET
+                if (value) {
+                    Logger.Connection.Info("IRC v3 enabled");
+                } else {
+                    Logger.Connection.Info("IRC v3 disabled");
+                }
+#endif
+                _UseIrcV3 = value;
+            }
+        }
+
+        /// <summary>
+        /// Enables/disables the use of supported aspects of the IRC v3 protocol
+        /// Default: false
+        /// </summary>
+        public List<Capability> Caps {
+            get {
+                return _Caps;
+            }
+            set {
+                _Caps = value;
+            }
+        }
 
         /// <summary>
         /// Enables/disables the active channel sync feature.
@@ -474,6 +517,11 @@ namespace Meebey.SmartIrc4net
             _SupportNonRfcLocked = true;
             ChannelModeMap = new ChannelModeMap();
             base.Connect(addresslist, port);
+
+            // We get here only if the connection is successful
+            if (_UseIrcV3) {
+                _CapNegotiateStart();
+            }
         }
         
         /// <overloads>
@@ -487,6 +535,11 @@ namespace Meebey.SmartIrc4net
                 _StoreChannelsToRejoin();
             }
             base.Reconnect();
+
+            if (_UseIrcV3) {
+                _CapNegotiateStart();
+            }
+
             if (login) {
                 //reset the nick to the original nicklist
                 _CurrentNickname = 0;
@@ -641,7 +694,14 @@ namespace Meebey.SmartIrc4net
         {
             Login(new string[] {nick, nick+"_", nick+"__"}, realname, 0, "", "");
         }
-        
+
+        /// <summary>
+        /// Start negotiating IRCv3 caps by getting a list of the available capabilities supported by the server
+        /// </summary>
+        private void _CapNegotiateStart() {
+            CapLs();
+        }
+
         /// <summary>
         /// Determine if a specifier nickname is you
         /// </summary>
@@ -1339,6 +1399,26 @@ namespace Meebey.SmartIrc4net
                 return ReceiveType.Unknown;
             }
 
+            found = _CapLsRegex.Match(rawline);
+            if (found.Success) {
+                return ReceiveType.CapLs;
+            }
+
+            found = _CapListRegex.Match(rawline);
+            if (found.Success) {
+                return ReceiveType.CapList;
+            }
+
+            found = _CapAckRegex.Match(rawline);
+            if (found.Success) {
+                return ReceiveType.CapAck;
+            }
+
+            found = _CapNakRegex.Match(rawline);
+            if (found.Success) {
+                return ReceiveType.CapNak;
+            }
+
             found = _ErrorRegex.Match(rawline);
             if (found.Success) {
                 return ReceiveType.Error;
@@ -1495,6 +1575,9 @@ namespace Meebey.SmartIrc4net
                 break;
                 case "PONG":
                     _Event_PONG(ircdata);
+                break;
+                case "CAP":
+                    _Event_CAP(ircdata);
                 break;
             }
 
@@ -2148,6 +2231,36 @@ namespace Meebey.SmartIrc4net
                 OnError(this, new ErrorEventArgs(ircdata, message));
             }
         }
+
+        /// <summary>
+        /// Event handler for CAP messages
+        /// </summary>
+        /// <param name="ircdata">Message data containing capability response</param>
+        private void _Event_CAP(IrcMessageData ircdata)
+        {
+            switch (ircdata.Type) {
+                case ReceiveType.CapLs:
+                    if (OnCapLsReply != null)
+                        OnCapLsReply(this, new CapEventArgs(ircdata, Capability.FromStrings(ircdata.Message)));
+                break;
+
+                case ReceiveType.CapList:
+                    if (OnCapListReply != null)
+                        OnCapListReply(this, new CapEventArgs(ircdata, Capability.FromStrings(ircdata.Message)));
+                break;
+
+                case ReceiveType.CapAck:
+                    if (OnCapAckReply != null)
+                        OnCapAckReply(this, new CapEventArgs(ircdata, Capability.FromStrings(ircdata.Message)));
+                break;
+
+                case ReceiveType.CapNak:
+                    if (OnCapNakReply != null)
+                        OnCapNakReply(this, new CapEventArgs(ircdata, Capability.FromStrings(ircdata.Message)));
+                break;
+            }
+        }
+
 
         /// <summary>
         /// Event handler for join messages

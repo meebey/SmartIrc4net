@@ -32,6 +32,7 @@ namespace Meebey.SmartIrc4net
     public delegate void CtcpEventHandler(object sender, CtcpEventArgs e);
     public delegate void ActionEventHandler(object sender, ActionEventArgs e);
     public delegate void ErrorEventHandler(object sender, ErrorEventArgs e);
+    public delegate void CapEventHandler(object sender, CapEventArgs e);
     public delegate void PingEventHandler(object sender, PingEventArgs e);
     public delegate void KickEventHandler(object sender, KickEventArgs e);
     public delegate void JoinEventHandler(object sender, JoinEventArgs e);
