@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartIrc4net", "SmartIrc4net.csproj", "{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark", "examples\benchmark\benchmark.csproj", "{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}"
@@ -15,26 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Release|Any CPU = Release|Any CPU
 		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{154D83B3-A162-4886-B358-6188DBE376D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{154D83B3-A162-4886-B358-6188DBE376D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{154D83B3-A162-4886-B358-6188DBE376D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{154D83B3-A162-4886-B358-6188DBE376D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -43,6 +29,25 @@ Global
 		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD3D60C4-0A53-4B4C-B30C-1C4F2D68A21E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F25C6EA-D1C3-47AA-8300-B6D5D6DE33B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65CBCA77-4241-4D4C-ACCB-E640D972CDC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154D83B3-A162-4886-B358-6188DBE376D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = SmartIrc4net.csproj
@@ -52,11 +57,10 @@ Global
 		$1.MessageStyle = $2
 		$2.LineAlign = 0
 		$1.inheritsSet = Mono
-		$0.TextStylePolicy = $3
+		$0.TextStylePolicy = $4
 		$3.inheritsSet = VisualStudio
 		$3.inheritsScope = text/plain
 		$3.scope = text/plain
-		$0.TextStylePolicy = $4
 		$4.inheritsSet = null
 		$4.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $5
