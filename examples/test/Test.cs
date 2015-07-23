@@ -28,7 +28,6 @@
 
 using System;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
 
 using Meebey.SmartIrc4net;
@@ -66,9 +65,9 @@ public class Test
                 // hashtable key and nickname 
                 string nickname_list = "";
                 nickname_list += "Users: ";
-                foreach (DictionaryEntry de in channel.Users) {
-                    string      key         = (string)de.Key;
-                    ChannelUser channeluser = (ChannelUser)de.Value;
+                foreach (var de in channel.Users) {
+                    string      key         = de.Key;
+                    ChannelUser channeluser = de.Value;
                     nickname_list += "(";
                     if (channeluser.IsOp) {
                         nickname_list += "@";
