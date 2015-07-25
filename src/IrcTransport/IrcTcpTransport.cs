@@ -48,23 +48,6 @@ namespace Meebey.SmartIrc4net
     public class IrcTcpTransport : IIrcTransportManager
     {
         private TcpClient _TcpClient;
-        private int _SocketReceiveTimeout = 600;
-        private int _SocketSendTimeout = 600;
-
-        private string _Address;
-        private int _Port;
-
-        private string _ProxyHost;
-        private int _ProxyPort;
-        private ProxyType _ProxyType = ProxyType.None;
-        private string _ProxyUsername;
-        private string _ProxyPassword;
-
-        private bool _UseSsl;
-        private bool _ValidateServerCertificate;
-        private X509Certificate _SslClientCertificate;
-
-        private Encoding _Encoding = Encoding.Default;
 
         private bool _IsConnected;
         private bool _IsConnectionError;
@@ -83,146 +66,68 @@ namespace Meebey.SmartIrc4net
         /// Timeout in seconds for receiving data from the socket
         /// Default: 600
         /// </summary>
-        public int SocketReceiveTimeout {
-            get {
-                return _SocketReceiveTimeout;
-            }
-            set {
-                _SocketReceiveTimeout = value;
-            }
-        }
+        public int SocketReceiveTimeout { get; set; } = 600;
 
         /// <summary>
         /// Timeout in seconds for sending data to the socket
         /// Default: 600
         /// </summary>
-        public int SocketSendTimeout {
-            get {
-                return _SocketSendTimeout;
-            }
-            set {
-                _SocketSendTimeout = value;
-            }
-        }
+        public int SocketSendTimeout { get; set; } = 600;
 
-        public string Address {
-            get {
-                return _Address;
-            }
-            set {
-                _Address = value;
-            }
-        }
+        /// <summary>
+        /// Connection host
+        /// </summary>
+        public string Address { get; set; }
 
-        public int Port {
-            get {
-                return _Port;
-            }
-            set {
-                _Port = value;
-            }
-        }
+        /// <summary>
+        /// Connection port
+        /// </summary>
+        public int Port { get; set; }
 
         /// <summary>
         /// If you want to use a Proxy, set the ProxyHost to Host of the Proxy you want to use.
         /// </summary>
-        public string ProxyHost {
-            get {
-                return _ProxyHost;
-            }
-            set {
-                _ProxyHost = value;
-            }
-        }
+        public string ProxyHost { get; set; }
 
         /// <summary>
         /// If you want to use a Proxy, set the ProxyPort to Port of the Proxy you want to use.
         /// </summary>
-        public int ProxyPort {
-            get {
-                return _ProxyPort;
-            }
-            set {
-                _ProxyPort = value;
-            }
-        }
+        public int ProxyPort { get; set; }
 
         /// <summary>
         /// Standard Setting is to use no Proxy Server, if you Set this to any other value,
         /// you have to set the ProxyHost and ProxyPort aswell (and give credentials if needed)
         /// Default: ProxyType.None
         /// </summary>
-        public ProxyType ProxyType {
-            get {
-                return _ProxyType;
-            }
-            set {
-                _ProxyType = value;
-            }
-        }
+        public ProxyType ProxyType { get; set; } = ProxyType.None;
 
         /// <summary>
         /// Username to your Proxy Server
         /// </summary>
-        public string ProxyUsername {
-            get {
-                return _ProxyUsername;
-            }
-            set {
-                _ProxyUsername = value;
-            }
-        }
+        public string ProxyUsername { get; set; }
 
         /// <summary>
         /// Password to your Proxy Server
         /// </summary>
-        public string ProxyPassword {
-            get {
-                return _ProxyPassword;
-            }
-            set {
-                _ProxyPassword = value;
-            }
-        }
+        public string ProxyPassword { get; set; }
 
         /// <summary>
         /// Enables/disables using SSL for the connection
         /// Default: false
         /// </summary>
-        public bool UseSsl {
-            get {
-                return _UseSsl;
-            }
-            set {
-                _UseSsl = value;
-            }
-        }
+        public bool UseSsl { get; set; }
 
         /// <summary>
         /// Specifies if the certificate of the server is validated
         /// Default: true
         /// </summary>
-        public bool ValidateServerCertificate {
-            get {
-                return _ValidateServerCertificate;
-            }
-            set {
-                _ValidateServerCertificate = value;
-            }
-        }
+        public bool ValidateServerCertificate { get; set; }
 
         /// <summary>
         /// Specifies the client certificate used for the SSL connection
         /// Default: null
         /// </summary>
-        public X509Certificate SslClientCertificate {
-            get {
-                return _SslClientCertificate;
-            }
-            set {
-                _SslClientCertificate = value;
-            }
-        }
+        public X509Certificate SslClientCertificate { get; set; }
 
         /// <summary>
         /// The encoding to use to write to and read from the socket.
@@ -233,14 +138,7 @@ namespace Meebey.SmartIrc4net
         ///
         /// Default: encoding of the system
         /// </summary>
-        public Encoding Encoding {
-            get {
-                return _Encoding;
-            }
-            set {
-                _Encoding = value;
-            }
-        }
+        public Encoding Encoding { get; set; } = Encoding.Default;
 
         /// <summary>
         /// Enable UTF8 re-encoding
@@ -291,8 +189,8 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public IrcTcpTransport(string address, int port) : this()
         {
-            _Address = address;
-            _Port = port;
+            Address = address;
+            Port = port;
         }
 
         /// <summary>
@@ -304,54 +202,49 @@ namespace Meebey.SmartIrc4net
         /// <exception cref="CouldNotConnectException">Throws if the TCP connection failed</exception>
         public void Connect()
         {
-            try
-            {
+            try {
                 _TcpClient = new TcpClient();
                 _TcpClient.NoDelay = true;
                 _TcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                 // set timeout, after this the connection will be aborted
-                _TcpClient.ReceiveTimeout = _SocketReceiveTimeout * 1000;
-                _TcpClient.SendTimeout = _SocketSendTimeout * 1000;
+                _TcpClient.ReceiveTimeout = SocketReceiveTimeout * 1000;
+                _TcpClient.SendTimeout = SocketSendTimeout * 1000;
 
-                if (_ProxyType != ProxyType.None)
-                {
+                if (ProxyType != ProxyType.None) {
                     IProxyClient proxyClient = null;
                     ProxyClientFactory proxyFactory = new ProxyClientFactory();
                     // HACK: map our ProxyType to Starksoft's ProxyType
                     Starksoft.Net.Proxy.ProxyType proxyType =
                         (Starksoft.Net.Proxy.ProxyType)Enum.Parse(
-                            typeof(ProxyType), _ProxyType.ToString(), true
+                            typeof(ProxyType), ProxyType.ToString(), true
                         );
 
-                    if (_ProxyUsername == null && _ProxyPassword == null)
-                    {
+                    if (ProxyUsername == null && ProxyPassword == null) {
                         proxyClient = proxyFactory.CreateProxyClient(
                             proxyType
                         );
-                    }
-                    else
-                    {
+                    } else {
                         proxyClient = proxyFactory.CreateProxyClient(
                             proxyType,
-                            _ProxyHost,
-                            _ProxyPort,
-                            _ProxyUsername,
-                            _ProxyPassword
+                            ProxyHost,
+                            ProxyPort,
+                            ProxyUsername,
+                            ProxyPassword
                         );
                     }
 
-                    _TcpClient.Connect(_ProxyHost, _ProxyPort);
+                    _TcpClient.Connect(ProxyHost, ProxyPort);
                     proxyClient.TcpClient = _TcpClient;
-                    proxyClient.CreateConnection(_Address, _Port);
+                    proxyClient.CreateConnection(Address, Port);
                 } else {
-                    _TcpClient.Connect(_Address, _Port);
+                    _TcpClient.Connect(Address, Port);
                 }
 
                 Stream stream = _TcpClient.GetStream();
-                if (_UseSsl)
-                {
+
+                if (UseSsl) {
                     RemoteCertificateValidationCallback certValidation;
-                    if (_ValidateServerCertificate) {
+                    if (ValidateServerCertificate) {
                         certValidation = ServicePointManager.ServerCertificateValidationCallback;
                         if (certValidation == null) {
                             certValidation = delegate (object sender,
@@ -383,19 +276,18 @@ namespace Meebey.SmartIrc4net
                     SslStream sslStream = new SslStream(stream, false,
                                                         certValidationWithIrcAsSender);
                     try {
-                        if (_SslClientCertificate != null)
+                        if (SslClientCertificate != null)
                         {
                             var certs = new X509Certificate2Collection();
-                            certs.Add(_SslClientCertificate);
-                            sslStream.AuthenticateAsClient(_Address, certs,
+                            certs.Add(SslClientCertificate);
+                            sslStream.AuthenticateAsClient(Address, certs,
                                                             SslProtocols.Default,
                                                             false);
                         } else {
-                            sslStream.AuthenticateAsClient(_Address);
+                            sslStream.AuthenticateAsClient(Address);
                         }
                     }
-                    catch (IOException)
-                    {
+                    catch (IOException) {
 #if LOG4NET
                         Logger.Connection.Error(
                             "Connect(): AuthenticateAsClient() failed!"
@@ -406,13 +298,13 @@ namespace Meebey.SmartIrc4net
                     stream = sslStream;
                 }
                 if (EnableUTF8Recode) {
-                    _Reader = new StreamReader(stream, new PrimaryOrFallbackEncoding(new UTF8Encoding(false, true), _Encoding));
+                    _Reader = new StreamReader(stream, new PrimaryOrFallbackEncoding(new UTF8Encoding(false, true), Encoding));
                     _Writer = new StreamWriter(stream, new UTF8Encoding(false, false));
                 } else {
-                    _Reader = new StreamReader(stream, _Encoding);
-                    _Writer = new StreamWriter(stream, _Encoding);
+                    _Reader = new StreamReader(stream, Encoding);
+                    _Writer = new StreamWriter(stream, Encoding);
 
-                    if (_Encoding.GetPreamble().Length > 0) {
+                    if (Encoding.GetPreamble().Length > 0) {
                         // HACK: we have an encoding that has some kind of preamble
                         // like UTF-8 has a BOM, this will confuse the IRCd!
                         // Thus we send a \r\n so the IRCd can safely ignore that
@@ -443,7 +335,7 @@ namespace Meebey.SmartIrc4net
                 _IsConnected = false;
                 _SetConnectionError(true);
 
-                throw new CouldNotConnectException("Could not connect to: " + _Address + ":" + _Port + ": " + ex.Message, ex);
+                throw new CouldNotConnectException("Could not connect to: " + Address + ":" + Port + ": " + ex.Message, ex);
             }
 
             // updating the connection error state, so connecting is possible again
@@ -531,7 +423,7 @@ namespace Meebey.SmartIrc4net
             public void Start()
             {
                 _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "ReadThread (" + _Connection._Address + ":" + _Connection._Port + ")";
+                _Thread.Name = "ReadThread (" + _Connection.Address + ":" + _Connection.Port + ")";
                 _Thread.IsBackground = true;
                 _Thread.Start();
             }

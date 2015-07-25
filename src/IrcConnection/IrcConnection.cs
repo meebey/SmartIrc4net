@@ -30,7 +30,7 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -49,7 +49,7 @@ namespace Meebey.SmartIrc4net
         private string[]         _AddressList = {"localhost"};
         private int              _CurrentAddress;
         private int              _Port;
-        private Queue<string>    _ReadQueue;
+        private ConcurrentQueue<string> _ReadQueue;
         private AutoResetEvent   _ReadQueueEvent;
         private WriteController  _WriteController;
         private IdleWorkerThread _IdleWorkerThread;
@@ -372,7 +372,6 @@ namespace Meebey.SmartIrc4net
             // use default TCP transport for backwards compatibility if none supplied to Connect()
             _Transport = new IrcTcpTransport();
 
-            _ReadQueue = new Queue<string>();
             _ReadQueueEvent = new AutoResetEvent(false);
             _WriteController = new WriteController(this);
             _IdleWorkerThread = new IdleWorkerThread(this);
@@ -481,7 +480,7 @@ namespace Meebey.SmartIrc4net
                     _Transport.Connect();
 
                     // lets power up our queues
-                    _ReadQueue.Clear();
+                    _ReadQueue = new ConcurrentQueue<string>();
                     _WriteController.Start();
                     _IdleWorkerThread.Start();
 
@@ -649,14 +648,13 @@ namespace Meebey.SmartIrc4net
                 while (IsConnected &&
                        !IsConnectionError &&
                        _ReadQueue.Count == 0) {
-                    // Do we need lock (this) here?
                     _ReadQueueEvent.WaitOne();
                 }
             }
 
             if (IsConnected && !IsConnectionError &&
                 _ReadQueue.Count > 0) {
-                data = _ReadQueue.Dequeue();
+                _ReadQueue.TryDequeue(out data);
             }
 
             if (data != null && data.Length > 0) {
@@ -713,7 +711,6 @@ namespace Meebey.SmartIrc4net
         private void Transport_OnMessageReceived(object sender, ReadLineEventArgs e)
         {
             // Add it to the read queue
-            // Do we need lock (this) here?
             _ReadQueue.Enqueue(e.Line);
             _ReadQueueEvent.Set();
         }
@@ -879,8 +876,7 @@ namespace Meebey.SmartIrc4net
             /// <param name="priority">Priority level</param>
             public bool WriteLine(string data, Priority priority)
             {
-                if (priority == Priority.Critical)
-                {
+                if (priority == Priority.Critical) {
                     if (!_Connection.IsConnected) {
                         throw new NotConnectedException();
                     }
