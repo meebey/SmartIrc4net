@@ -2702,30 +2702,33 @@ namespace Meebey.SmartIrc4net
                     op = false;
                     halfop = false;
                     voice = false;
-                    switch (user[0]) {
-                        case '~':
-                            owner = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '&':
-                            chanadmin = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '@':
-                            op = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '+':
-                            voice = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '%':
-                            halfop = true;
-                            nickname = user.Substring(1);
-                        break;
-                        default:
-                            nickname = user;
-                        break;
+
+                    nickname = user;
+
+                    char mode;
+
+                    foreach (var kvp in _ServerProperties.ChannelPrivilegeModesPrefixes) {
+                        if (nickname[0] == kvp.Value) {
+                            nickname = nickname.Substring(1);
+
+                            switch(kvp.Key) {
+                                case 'q':
+                                    owner = true;
+                                    break;
+                                case 'a':
+                                    chanadmin = true;
+                                    break;
+                                case 'o':
+                                    op = true;
+                                    break;
+                                case 'h':
+                                    halfop = true;
+                                    break;
+                                case 'v':
+                                    voice = true;
+                                    break;
+                            }
+                        }
                     }
 
                     IrcUser     ircuser     = GetIrcUser(nickname);
@@ -2798,20 +2801,14 @@ namespace Meebey.SmartIrc4net
                     continue;
                 }
 
-                switch (user[0]) {
-                    case '@':
-                    case '+':
-                    case '&':
-                    case '%':
-                    case '~':
-                    case '!':
-                    case '.':
-                        filteredUserlist.Add(user.Substring(1));
-                        break;
-                    default:
-                        filteredUserlist.Add(user);
-                        break;
+                string temp = user;
+                foreach (var kvp in _ServerProperties.ChannelPrivilegeModesPrefixes) {
+                    if (temp[0] == kvp.Value) {
+                        temp = temp.Substring(1);
+                    }
                 }
+                filteredUserlist.Add(temp);
+
             }
 
             if (OnNames != null) {
@@ -3218,6 +3215,10 @@ namespace Meebey.SmartIrc4net
                     if (!String.IsNullOrEmpty(chanModes)) {
                         ChannelModeMap = new ChannelModeMap(chanModes);
                     }
+                }
+
+                if (keyval[0] == "NAMESX") {
+                    WriteLine("PROTOCTL NAMESX", Priority.Critical);
                 }
             }
         }
