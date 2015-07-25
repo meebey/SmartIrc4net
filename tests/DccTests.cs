@@ -23,10 +23,9 @@
 using System;
 using System.Net;
 
-using Meebey.SmartIrc4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace tests
+namespace Meebey.SmartIrc4net
 {
     /// <summary>
     /// Visual Studio Unit Testing Framework tests for DccConnection

@@ -21,7 +21,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
+ 
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -194,7 +194,7 @@ namespace Meebey.SmartIrc4net
         protected long HostToDccInt(IPAddress ip)
         {
             byte[] adb = ip.GetAddressBytes();
-              return ((long) adb[0] << 24) | (adb[1] << 16) | (adb[2] << 8) | adb[3];
+            return (long) (ulong) (((adb[0] << 24) | (adb[1] << 16) | (adb[2] << 8) | adb[3]) & 0xffffffff);
         }
         
         protected string DccIntToHost(long ip)
