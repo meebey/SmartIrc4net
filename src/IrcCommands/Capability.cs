@@ -58,7 +58,8 @@ namespace Meebey.SmartIrc4net
         /// Get the capability in human-readable format
         /// </summary>
         /// <returns></returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return (Vendor != "" ? Vendor + "/" : "") + Name + (Option != "" ? "=" + Option : "");
         }
 
@@ -68,7 +69,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="name"></param>
         /// <param name="vendor"></param>
         /// <param name="option"></param>
-        public Capability(string name, string vendor = "", string option = "") {
+        public Capability(string name, string vendor = "", string option = "")
+        {
             Vendor = vendor;
             Name = name;
             Option = option;
@@ -79,7 +81,8 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="capstr"></param>
         /// <returns></returns>
-        public static Capability FromString(string capstr) {
+        public static Capability FromString(string capstr)
+        {
             Match m = Regex.Match(capstr.Trim(), @"^(?<vendor>.*?(?=/))?/?(?<name>[^=]+)=?(?<option>.*)?$");
 
             if (m.Success)
@@ -93,7 +96,8 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="caplist"></param>
         /// <returns></returns>
-        public static IEnumerable<Capability> FromStrings(string caplist) {
+        public static IEnumerable<Capability> FromStrings(string caplist)
+        {
             return from cap in caplist.Trim().Split(new char[] { ' ' }) select FromString(cap);
         }
     }

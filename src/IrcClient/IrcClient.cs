@@ -9,6 +9,7 @@
  *
  * Copyright (c) 2003-2010, 2012-2014 Mirco Bauer <meebey@meebey.net>
  * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
+ * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -161,10 +162,10 @@ namespace Meebey.SmartIrc4net
         public event IrcEventHandler            OnQueryNotice;
         public event CtcpEventHandler           OnCtcpRequest;
         public event CtcpEventHandler           OnCtcpReply;
-        public event CapEventHandler            OnCapLsReply;
-        public event CapEventHandler            OnCapListReply;
-        public event CapEventHandler            OnCapAckReply;
-        public event CapEventHandler            OnCapNakReply;
+        public event EventHandler<CapEventArgs> OnCapLsReply;
+        public event EventHandler<CapEventArgs> OnCapListReply;
+        public event EventHandler<CapEventArgs> OnCapAckReply;
+        public event EventHandler<CapEventArgs> OnCapNakReply;
         public event BounceEventHandler         OnBounce;
 
         /// <summary>

@@ -166,10 +166,10 @@ public class Test
         irc.OnRawMessage += new IrcEventHandler(OnRawMessage);
 
         // Listen for caps messages
-        irc.OnCapLsReply += new CapEventHandler(OnCapLsReply);
-        irc.OnCapListReply += new CapEventHandler(OnCapListReply);
-        irc.OnCapAckReply += new CapEventHandler(OnCapReqReply);
-        irc.OnCapNakReply += new CapEventHandler(OnCapReqReply);
+        irc.OnCapLsReply += OnCapLsReply;
+        irc.OnCapListReply += OnCapListReply;
+        irc.OnCapAckReply += OnCapReqReply;
+        irc.OnCapNakReply += OnCapReqReply;
 
         string[] serverlist;
         // the server we want to connect to, could be also a simple string

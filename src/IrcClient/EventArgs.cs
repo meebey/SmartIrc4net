@@ -160,17 +160,14 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class CapEventArgs : IrcEventArgs
     {
-        private Capability[] _CapList;
-
-        public Capability[] CapList {
-            get {
-                return _CapList;
-            }
-        }
+        /// <summary>
+        /// List of capabilities
+        /// </summary>
+        public Capability[] CapList { get; }
 
         internal CapEventArgs(IrcMessageData data, IEnumerable<Capability> caplist) : base(data)
         {
-            _CapList = caplist.ToArray();
+            CapList = caplist.ToArray();
         }
     }
 
