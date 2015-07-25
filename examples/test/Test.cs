@@ -232,13 +232,9 @@ public class Test
             // an own loop 
             irc.Listen();
             
-            // when Listen() returns our IRC session is over, to be sure we call
-            // disconnect manually
-            irc.Disconnect();
-        } catch (ConnectionException) {
-            // this exception is handled because Disconnect() can throw a not
-            // connected exception
-            Exit();
+            // You should not call Disconnect() when Listen() returns as the connection
+            // will already be closed and a ConnectionException will be thrown.
+
         } catch (Exception e) {
             // this should not happen by just in case we handle it nicely
             System.Console.WriteLine("Error occurred! Message: "+e.Message);
@@ -275,8 +271,12 @@ public class Test
                 // Don't forget to log in again after reconnecting!
                 irc.Login("SmartIRC", "SmartIrc4net Test Bot");
                 irc.RfcJoin("#smartirc-test");
-            }
-            else {
+            } else if (cmd.StartsWith("/quit")) {
+
+                // This disconnects the connection then releases Listen() from blocking
+                irc.Disconnect();
+                break;
+            } else {
                 irc.WriteLine(cmd);
             }
         }

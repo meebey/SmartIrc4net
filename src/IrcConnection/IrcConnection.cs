@@ -542,17 +542,18 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("reconnecting...");
 #endif
-            Disconnect();
+            Disconnect(true);
             Connect(_Transport, _AddressList, _Port);
         }
         
         /// <summary>
         /// Disconnects from the server
         /// </summary>
+        /// <param name="reconnecting">Set to true if you intend to call Connect() again so that Listen() continues blocking</param>
         /// <exception cref="NotConnectedException">
         /// If there was no active connection
         /// </exception>
-        public void Disconnect()
+        public void Disconnect(bool reconnecting = false)
         {
             if (!IsConnected) {
                 throw new NotConnectedException("The connection could not be disconnected because there is no active connection");
@@ -580,6 +581,11 @@ namespace Meebey.SmartIrc4net
             
             if (OnDisconnected != null) {
                 OnDisconnected(this, EventArgs.Empty);
+            }
+
+            // Release Listen() from blocking - this MUST be called after _Transport.Disconnect() to ensure IsConnected == false
+            if (!reconnecting) {
+                _ReadQueueEvent.Set();
             }
 
 #if LOG4NET

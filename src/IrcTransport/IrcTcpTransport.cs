@@ -466,6 +466,9 @@ namespace Meebey.SmartIrc4net
             if (_TcpClient != null)
                 _TcpClient.Close();
 
+            // This is important so IrcConnection doesn't call OnConnectionError() on a clean disconnect
+            _SetConnectionError(false);
+
             _IsConnected = false;
         }
 
