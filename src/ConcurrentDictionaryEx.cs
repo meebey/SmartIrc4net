@@ -1,14 +1,6 @@
 ﻿/*
- * $Id$
- * $URL$
- * $Rev$
- * $Author$
- * $Date$
- *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2010, 2012-2014 Mirco Bauer <meebey@meebey.net>
- * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
@@ -47,7 +39,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="key">New key</param>
         /// <param name="value">New value</param>
         /// <returns>True on success, false on failure</returns>
-        public static bool Add<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> self, TKey key, TValue value) {
+        public static bool Add<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> self, TKey key, TValue value)
+        {
             return self.TryAdd(key, value);
         }
 
@@ -59,7 +52,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="self">Dictionary to use</param>
         /// <param name="key">Key of item to remove</param>
         /// <returns>True on success, false on failure</returns>
-        public static bool Remove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> self, TKey key) {
+        public static bool Remove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> self, TKey key)
+        {
             return ((IDictionary<TKey, TValue>) self).Remove(key);
         }
     }

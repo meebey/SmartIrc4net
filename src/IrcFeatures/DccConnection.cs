@@ -3,6 +3,7 @@
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
  * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
+ * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -190,10 +191,10 @@ namespace Meebey.SmartIrc4net
         #endregion
         
         #region protected Helper Functions
-        public static long HostToDccInt(IPAddress ip)
+        protected long HostToDccInt(IPAddress ip)
         {
             byte[] adb = ip.GetAddressBytes();
-            return (adb[0] << 24) | (adb[1] << 16) | (adb[2] << 8) | adb[3];
+              return ((long) adb[0] << 24) | (adb[1] << 16) | (adb[2] << 8) | adb[3];
         }
         
         protected string DccIntToHost(long ip)
