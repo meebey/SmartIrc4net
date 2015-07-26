@@ -29,6 +29,7 @@
  
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -39,20 +40,43 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class Capability
     {
+        private IdnMapping mapping = new IdnMapping();
+        private string _Vendor;
+
         /// <summary>
         /// Vendor
         /// </summary>
-        public string Vendor { get; }
+        public string Vendor {
+            get {
+                // If value is already Punycode, converts it to a normal string, otherwise does nothing
+                return mapping.GetUnicode(_Vendor);
+            }
+            private set {
+                // If value is already Punycode, does nothing, otherwise converts to Punycode
+                _Vendor = mapping.GetAscii(value);
+            }
+        }
+
+        /// <summary>
+        /// Vendor as Punycode
+        /// </summary>
+        public string VendorAsPunycode {
+            get {
+                return mapping.GetAscii(_Vendor);
+            }
+        }
+
+        // NOTE: These two properties have private set only to shut up the Travis CI build tester on github
 
         /// <summary>
         /// Capability name
         /// </summary>
-        public string Name { get; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Optional capability parameter
         /// </summary>
-        public string Option { get; }
+        public string Option { get; private set; }
 
         /// <summary>
         /// Get the capability in human-readable format
@@ -60,7 +84,7 @@ namespace Meebey.SmartIrc4net
         /// <returns></returns>
         public override string ToString()
         {
-            return (Vendor != "" ? Vendor + "/" : "") + Name + (Option != "" ? "=" + Option : "");
+            return (VendorAsPunycode != "" ? VendorAsPunycode + "/" : "") + Name + (Option != "" ? "=" + Option : "");
         }
 
         /// <summary>
