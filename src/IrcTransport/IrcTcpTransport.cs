@@ -7,8 +7,6 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2009 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
@@ -61,6 +59,11 @@ namespace Meebey.SmartIrc4net
         /// Event which fires when a message is received on the connection
         /// </summary>
         public event ReadLineEventHandler OnMessageReceived;
+
+        /// <summary>
+        /// Event which fires when a connection error occurs
+        /// </summary>
+        public event Action OnConnectionError;
 
         /// <summary>
         /// Timeout in seconds for receiving data from the socket
@@ -158,12 +161,20 @@ namespace Meebey.SmartIrc4net
 
         private void _SetConnectionError(bool value)
         {
+            bool _Previous;
+
             lock (this) {
+                _Previous = _IsConnectionError;
                 _IsConnectionError = value;
             }
-            if (value) {
+
+            // Don't send this event multiple times
+            if (value && !_Previous) {
                 // signal ReadLine() to check IsConnectionError state - probably don't need this anymore
                 //_ReadThread.QueuedEvent.Set();
+
+                if (OnConnectionError != null)
+                    OnConnectionError();
             }
         }
 
@@ -333,7 +344,9 @@ namespace Meebey.SmartIrc4net
                 }
 
                 _IsConnected = false;
-                _SetConnectionError(true);
+
+                // NOTE: We shouldn't call _SetConnectionError(true) here because it will fire an OnConnectionError event
+                // causing IrcConnection to try to disconnect a connection that hasn't been set up
 
                 throw new CouldNotConnectException("Could not connect to: " + Address + ":" + Port + ": " + ex.Message, ex);
             }
@@ -408,6 +421,8 @@ namespace Meebey.SmartIrc4net
             private IrcTcpTransport _Connection;
             private Thread _Thread;
 
+            private volatile bool _ThreadErrorRaised;
+
             /// <summary>
             /// 
             /// </summary>
@@ -423,7 +438,7 @@ namespace Meebey.SmartIrc4net
             public void Start()
             {
                 _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "ReadThread (" + _Connection.Address + ":" + _Connection.Port + ")";
+                _Thread.Name = "ReadThread (" + _Connection.Address + ") [" + DateTime.Now + "]";
                 _Thread.IsBackground = true;
                 _Thread.Start();
             }
@@ -443,7 +458,11 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                 _Logger.Debug("Stop(): joining thread...");
 #endif
-                _Thread.Join();
+                // Don't join if a connection error was raised from this thread because it will cause a deadlock.
+                // Closing the stream will be enough to make it exit.
+                if (!_ThreadErrorRaised) {
+                    _Thread.Join();
+                }
             }
 
             private void _Worker()
@@ -454,8 +473,7 @@ namespace Meebey.SmartIrc4net
                 try {
                     string data = "";
                     try {
-                        while (_Connection.IsConnected &&
-                               ((data = _Connection._Reader.ReadLine()) != null)) {
+                        while (((data = _Connection._Reader.ReadLine()) != null)) {
 #if LOG4NET
                             Logger.Socket.Debug("received: \"" + data + "\"");
 #endif
@@ -463,14 +481,22 @@ namespace Meebey.SmartIrc4net
                                 _Connection.OnMessageReceived(_Connection, new ReadLineEventArgs(data));
                         }
                     } catch (IOException e) {
+
+                        if (!(e.InnerException is SocketException))
+                            throw;
+
+                        SocketException se = e.InnerException as SocketException;
+
+                        // We get for one of two reasons:
+                        // 1. the stream was closed cleanly by a controlled call to Disconnect() - SocketErrorCode == Interrupted
+                        // 2. the stream was closed as a result of a dirty/unexpected disconnection - SocketErrorCode == something else
+                        if (se.SocketErrorCode != SocketError.Interrupted) {
 #if LOG4NET
-                        Logger.Socket.Warn("IOException: " + e.Message);
+                            Logger.Socket.Warn("IOException: " + e.Message);
 #endif
-                    } finally {
-#if LOG4NET
-                        Logger.Socket.Warn("connection lost");
-#endif
-                        _Connection._SetConnectionError(true);
+                            _ThreadErrorRaised = true;
+                            _Connection._SetConnectionError(true);
+                        }
                     }
                 } catch (Exception ex) {
 #if LOG4NET

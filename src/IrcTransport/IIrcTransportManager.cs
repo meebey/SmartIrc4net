@@ -7,8 +7,6 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2009 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
@@ -27,6 +25,8 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+using System;
 
 namespace Meebey.SmartIrc4net
 {
@@ -82,5 +82,10 @@ namespace Meebey.SmartIrc4net
         /// Event which fires when a line of text is received from the connection
         /// </summary>
         event ReadLineEventHandler OnMessageReceived;
+
+        /// <summary>
+        /// Event which fires when a connection error occurs
+        /// </summary>
+        event Action OnConnectionError;
     }
 }

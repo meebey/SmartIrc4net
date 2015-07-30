@@ -7,8 +7,6 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2009 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
@@ -29,7 +27,10 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using WebSocketSharp;
+using WebSocketSharp.Net;
 
 namespace Meebey.SmartIrc4net
 {
@@ -40,6 +41,7 @@ namespace Meebey.SmartIrc4net
     {
         private bool _IsConnected;
         private bool _IsConnectionError;
+        private bool _IsDisconnecting;
 
         /// <summary>
         /// Event which fires when a line of text is received from the connection
@@ -47,35 +49,42 @@ namespace Meebey.SmartIrc4net
         public event ReadLineEventHandler OnMessageReceived;
 
         /// <summary>
+        /// Event which fires when a connection error occurs
+        /// </summary>
+        public event Action OnConnectionError;
+
+        /// <summary>
         /// The underlying WebSocket of the connection
         /// </summary>
         [CLSCompliant(false)]
-        public WebSocket Socket {
-            get; set;
-        }
+        public WebSocket Socket { get; set; }
 
+        /// <summary>
+        /// Return true if the connection is connected, false otherwise.
+        /// </summary>
         public bool IsConnected {
             get {
                 return _IsConnected;
             }
         }
 
+        /// <summary>
+        /// Return true on connection error, false otherwise.
+        /// </summary>
         public bool IsConnectionError {
             get {
                 return _IsConnectionError;
             }
         }
 
-        public string Address {
-            get {
-                return Socket.Url.OriginalString;
-            }
+        /// <summary>
+        /// The address of the connection in the format "ws://hostname-or-ip" or "wss://hostname-or-ip" for SSL/TLS connections
+        /// </summary>
+        public string Address { get; set; }
 
-            set {
-                throw new NotImplementedException();
-            }
-        }
-
+        /// <summary>
+        /// Not used in WebSockets. Inferred from ws:// or wss:// Address protocol prefix.
+        /// </summary>
         public int Port {
             get {
                 return 0;
@@ -100,34 +109,144 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Create a new WebSocket instance with the specified host address
+        /// Array of Sec-WebSocket-Protocol items to accept in the server handshake response (default = none)
         /// </summary>
-        /// <param name="address"></param>
-        public IrcWebSocketTransport(string address)
+        public IEnumerable<string> Protocols { private get; set; }
+
+        /// <summary>
+        /// The compression method to use (default = none)
+        /// </summary>
+        [CLSCompliant(false)]
+        public CompressionMethod Compression { private get; set; } = CompressionMethod.None;
+
+        /// <summary>
+        /// Generate an OnMessageReceived event in response to ping messages from the server (default = false)
+        /// </summary>
+        public bool EmitOnPing { private get; set; }
+
+        /// <summary>
+        /// Follow HTTP Location header redirects on connection (default = true)
+        /// </summary>
+        public bool EnableRedirection { private get; set; } = true;
+
+        /// <summary>
+        /// HTTP Origin header to transmit during connection upgrade handshake (default = none)
+        /// </summary>
+        public string Origin { private get; set; }
+
+        /// <summary>
+        /// HTTP cookies to send during connection handshake
+        /// </summary>
+        [CLSCompliant(false)]
+        public IEnumerable<WebSocketSharp.Net.Cookie> Cookies { private get; set; }
+
+        /// <summary>
+        /// HTTP Basic Auth username
+        /// </summary>
+        public string HttpUsername { private get; set; }
+
+        /// <summary>
+        /// HTTP Basic auth password
+        /// </summary>
+        public string HttpPassword { private get; set; }
+
+        /// <summary>
+        /// Use HTTP pre-authorization
+        /// </summary>
+        public bool HttpPreAuth { private get; set; }
+
+        /// <summary>
+        /// Proxy URL to connect to
+        /// </summary>
+        public string ProxyUrl { private get; set; }
+
+        /// <summary>
+        /// Proxy username
+        /// </summary>
+        public string ProxyUsername { private get; set; }
+
+        /// <summary>
+        /// Proxy password
+        /// </summary>
+        public string ProxyPassword { private get; set; }
+
+        /// <summary>
+        /// SSL certificate and other configuration to use
+        /// </summary>
+        [CLSCompliant(false)]
+        public ClientSslConfiguration SslConfiguration { private get; set; }
+
+        /// <summary>
+        /// Length of time to wait for a ping response before timing out the connection (default = 5 seconds)
+        /// </summary>
+        public TimeSpan WaitTime { private get; set; } = TimeSpan.FromSeconds(5);
+
+        /// <summary>
+        /// Create a new WebSocket instan.ce with the specified host address
+        /// </summary>
+        /// <param name="address">Optional address to connect to. If not supplied, set with Address before connecting.</param>
+        public IrcWebSocketTransport(string address = null)
         {
-            Socket = new WebSocket(address);
-            Socket.OnOpen += Socket_OnOpen;
-            Socket.OnMessage += Socket_OnMessage;
-            Socket.OnClose += Socket_OnClose;
-            Socket.OnError += Socket_OnError;
+            Address = address ?? "";
         }
 
         public void Connect()
         {
-            _IsConnected = _IsConnectionError = false;
+            _IsConnected = _IsDisconnecting = _IsConnectionError = false;
+
+            // Configure new WebSocket client
+            // Unfortunately we have to do this on every connect
+            // because dirty disconnects leave the WebSocket instance in an unusable state
+
+            if (Protocols == null) {
+                Socket = new WebSocket(Address);
+            } else {
+                Socket = new WebSocket(Address, Protocols.ToArray());
+            }
+
+            Socket.Compression = Compression;
+            Socket.EmitOnPing = EmitOnPing;
+            Socket.EnableRedirection = EnableRedirection;
+            Socket.Origin = Origin;
+
+            if (Cookies != null) {
+                foreach (Cookie cookie in Cookies)
+                    Socket.SetCookie(cookie);
+            }
+
+            if (HttpUsername != null && HttpUsername.Length > 0) {
+                Socket.SetCredentials(HttpUsername, HttpPassword, HttpPreAuth);
+            }
+
+            if (ProxyUrl != null && ProxyUrl.Length > 0) {
+                Socket.SetProxy(ProxyUrl, ProxyUsername, ProxyPassword);
+            }
+
+            Socket.SslConfiguration = SslConfiguration;
+
+            Socket.WaitTime = WaitTime;
+
+            // Hook events
+            Socket.OnOpen += Socket_OnOpen;
+            Socket.OnMessage += Socket_OnMessage;
+            Socket.OnClose += Socket_OnClose;
+            Socket.OnError += Socket_OnError;
 
             // Blocks until connection is established or fails
             Socket.Connect();
 
-            if (!Socket.IsAlive)
+            if (!Socket.IsAlive) {
                 throw new CouldNotConnectException("could not connect to WebSocket");
+            }
         }
 
         public void Disconnect()
         {
+            _IsDisconnecting = true;
+
             Socket.Close();
 
-            _IsConnected = _IsConnectionError = false;
+            _IsConnected = _IsDisconnecting = _IsConnectionError = false;
         }
 
         public bool WriteLine(string data)
@@ -164,8 +283,9 @@ namespace Meebey.SmartIrc4net
         /// <param name="e"></param>
         private void Socket_OnMessage(object sender, MessageEventArgs e)
         {
-            if (OnMessageReceived != null)
+            if (OnMessageReceived != null) {
                 OnMessageReceived(sender, new ReadLineEventArgs(e.Data.Substring(0, e.Data.Length - 2)));
+            }
         }
 
         /// <summary>
@@ -175,7 +295,18 @@ namespace Meebey.SmartIrc4net
         /// <param name="e"></param>
         private void Socket_OnError(object sender, WebSocketSharp.ErrorEventArgs e)
         {
+            // Don't send errors if we are disconnecting or already disconnected
+            // (the latter can happen when websocket-sharp is a bit lagged about noticing the connection has been closed)
+            if (_IsDisconnecting || !_IsConnected)
+                return;
+
+            bool _Previous = _IsConnectionError;
             _IsConnectionError = true;
+
+            // Only send a connection error once
+            if (OnConnectionError != null && !_Previous) {
+                OnConnectionError();
+            }
         }
     }
 }

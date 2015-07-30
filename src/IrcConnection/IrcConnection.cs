@@ -51,7 +51,7 @@ namespace Meebey.SmartIrc4net
         private int              _Port;
         private ConcurrentQueue<string> _ReadQueue;
         private AutoResetEvent   _ReadQueueEvent;
-        private WriteController  _WriteController;
+        private WriteManager  _WriteManager;
         private IdleWorkerThread _IdleWorkerThread;
         private int              _SendDelay = 200;
         private bool             _IsDisconnecting;
@@ -61,9 +61,9 @@ namespace Meebey.SmartIrc4net
         private int              _AutoRetryDelay = 30;
         private int              _AutoRetryLimit = 3;
         private bool             _AutoReconnect;
-        private int              _IdleWorkerInterval = 60;
+        private int              _IdleWorkerInterval = 5;
         private int              _PingInterval = 60;
-        private int              _PingTimeout = 300;
+        private int              _PingTimeout = 10;
         private DateTime         _LastPingSent;
         private DateTime         _LastPongReceived;
         private TimeSpan         _Lag;
@@ -85,6 +85,10 @@ namespace Meebey.SmartIrc4net
         /// Raised on successful connect
         /// </event>
         public event EventHandler           OnConnected;
+        /// <event cref="OnConnect">
+        /// Raised on successful re-connect
+        /// </event>
+        public event EventHandler           OnReconnected;
         /// <event cref="OnConnect">
         /// Raised before the connection is closed
         /// </event>
@@ -358,6 +362,16 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        /// Returns true if the connection is established and working properly, no errors have been reported and we are not disconnecting
+        /// Internal use only.
+        /// </summary>
+        private bool _ConnectionEstablished {
+            get {
+                return IsConnected && !IsDisconnecting && !IsConnectionError;
+            }
+        }
+
+        /// <summary>
         /// Initializes the message queues and write thread
         /// </summary>
         public IrcConnection()
@@ -367,16 +381,15 @@ namespace Meebey.SmartIrc4net
 #endif
             // setup own callbacks
             OnReadLine        += new ReadLineEventHandler(_SimpleParser);
-            OnConnectionError += new EventHandler(_OnConnectionError);
 
             // use default TCP transport for backwards compatibility if none supplied to Connect()
             _Transport = new IrcTcpTransport();
 
             _ReadQueueEvent = new AutoResetEvent(false);
-            _WriteController = new WriteController(this);
+            _WriteManager = new WriteManager(this);
             _IdleWorkerThread = new IdleWorkerThread(this);
 
-            _WriteController.OnWriteLine += new WriteLineEventHandler(_OnWriteLine);
+            _WriteManager.OnWriteLine += new WriteLineEventHandler(_OnWriteLine);
 
             Assembly assm = Assembly.GetAssembly(this.GetType());
             AssemblyName assm_name = assm.GetName(false);
@@ -394,7 +407,6 @@ namespace Meebey.SmartIrc4net
         }
 #endif
 
-        /// <overloads>this method has 3 overloads</overloads>
         /// <summary>
         /// Connects to the specified server and port using the current transport, or default TCP if none pre-specified.
         /// When the connection fails the next server in the list will be used.
@@ -403,7 +415,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="port">Portnumber to connect to</param>
         /// <exception cref="CouldNotConnectException">The connection failed</exception>
         /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
-        public void Connect(string[] addresslist, int port)
+        public virtual void Connect(string[] addresslist, int port = 0)
         {
             Connect(_Transport, addresslist, port);
         }
@@ -413,7 +425,9 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="address">Server address to connect to</param>
         /// <param name="port">Port number to connect to</param>
-        public void Connect(string address, int port)
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public virtual void Connect(string address, int port = 0)
         {
             Connect(_Transport, new string[] { address }, port);
         }
@@ -422,7 +436,9 @@ namespace Meebey.SmartIrc4net
         /// Connects to the specified transport. The transport must be pre-populated with the host address
         /// </summary>
         /// <param name="transport">Transport protocol to use</param>
-        public void Connect(IIrcTransportManager transport)
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public virtual void Connect(IIrcTransportManager transport)
         {
             Connect(transport, new string[] { transport.Address }, transport.Port);
         }
@@ -437,12 +453,15 @@ namespace Meebey.SmartIrc4net
         /// <param name="port">Portnumber to connect to</param>
         /// <exception cref="CouldNotConnectException">The connection failed</exception>
         /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
-        public void Connect(IIrcTransportManager transport, string[] addresslist, int port)
+        public virtual void Connect(IIrcTransportManager transport, string[] addresslist, int port = 0)
         {
             if (IsConnected) {
                 throw new AlreadyConnectedException("Already connected to: " + Address + ":" + Port);
             }
 
+            if (_IdleWorkerInterval >= _PingTimeout || _IdleWorkerInterval >= _PingInterval) {
+                throw new CouldNotConnectException("Idle worker polling interval (IdleWorkerInterval) MUST be less than PingTimeout and PingInterval!");
+            }
 #if LOG4NET
             Logger.Connection.Info(String.Format("connecting... (attempt: {0})",
                                                  _AutoRetryAttempt));
@@ -468,6 +487,7 @@ namespace Meebey.SmartIrc4net
                 try {
                     // Connect with transport
                     _Transport.OnMessageReceived += Transport_OnMessageReceived;
+                    _Transport.OnConnectionError += Transport_OnConnectionError;
 
                     // Not all transports support changing the address or port once created
                     try {
@@ -481,7 +501,7 @@ namespace Meebey.SmartIrc4net
 
                     // lets power up our queues
                     _ReadQueue = new ConcurrentQueue<string>();
-                    _WriteController.Start();
+                    _WriteManager.Start();
                     _IdleWorkerThread.Start();
 
 #if LOG4NET
@@ -496,6 +516,7 @@ namespace Meebey.SmartIrc4net
                     Logger.Connection.Info("connection failed: " + e.Message, e);
 #endif
                     _Transport.OnMessageReceived -= Transport_OnMessageReceived;
+                    _Transport.OnConnectionError -= Transport_OnConnectionError;
 
                     // fatal error
                     if (e is System.Security.Authentication.AuthenticationException)
@@ -514,7 +535,7 @@ namespace Meebey.SmartIrc4net
                         Thread.Sleep(_AutoRetryDelay * 1000);
 
                         _NextAddress();
-                    } else {
+                    } else if (!_AutoRetry) {
                         throw new CouldNotConnectException(e.Message, e);
                     }
                 }
@@ -522,6 +543,9 @@ namespace Meebey.SmartIrc4net
                     (_AutoRetryLimit == -1 ||
                     _AutoRetryLimit == 0 ||
                     _AutoRetryAttempt < _AutoRetryLimit));
+
+            if (!IsConnected && _AutoRetry && _AutoRetryAttempt == _AutoRetryLimit)
+                throw new CouldNotConnectException("Maximum number of connection retries exceeded");
         }
 
         /// <summary>
@@ -543,6 +567,9 @@ namespace Meebey.SmartIrc4net
 #endif
             Disconnect(true);
             Connect(_Transport, _AddressList, _Port);
+
+            if (OnReconnected != null)
+                OnReconnected(this, EventArgs.Empty);
         }
         
         /// <summary>
@@ -557,22 +584,24 @@ namespace Meebey.SmartIrc4net
             if (!IsConnected) {
                 throw new NotConnectedException("The connection could not be disconnected because there is no active connection");
             }
-            
 #if LOG4NET
             Logger.Connection.Info("disconnecting...");
 #endif
+            IsDisconnecting = true;
+
             if (OnDisconnecting != null) {
                 OnDisconnecting(this, EventArgs.Empty);
             }
-            
-            IsDisconnecting = true;
 
+            // NOTE: In the event of a connection error, these threads will have stopped themselves cleanly
+            // but there is no harm in making sure. If there is no connection error, they will need to be stopped.
             _IdleWorkerThread.Stop();
-            _WriteController.Stop();
+            _WriteManager.Stop();
 
             // make sure we do this after the threads are stopped otherwise we could write to a non-existent connection
             _Transport.Disconnect();
             _Transport.OnMessageReceived -= Transport_OnMessageReceived;
+            _Transport.OnConnectionError -= Transport_OnConnectionError;
 
             _IsRegistered = false;
 
@@ -599,6 +628,9 @@ namespace Meebey.SmartIrc4net
         public void Listen(bool blocking)
         {
             if (blocking) {
+                // We don't use _ConnectionEstablished here because we don't want Listen() to return until
+                // all disconnection steps are finished, so instead we raise _ReadQueueEvent once
+                // IsConnected == false
                 while (IsConnected) {
                     ReadLine(true);
                 }
@@ -643,16 +675,19 @@ namespace Meebey.SmartIrc4net
         public string ReadLine(bool blocking)
         {
             string data = "";
+
             if (blocking) {
                 // block till the queue has data, but bail out on connection error
+                // We don't use _ConnectionEstablished here because we don't want Listen() to return until
+                // all disconnection steps are finished, so instead we raise _ReadQueueEvent once
+                // IsConnected == false
                 while (IsConnected &&
-                       !IsConnectionError &&
                        _ReadQueue.Count == 0) {
                     _ReadQueueEvent.WaitOne();
                 }
             }
 
-            if (IsConnected && !IsConnectionError &&
+            if (_ConnectionEstablished &&
                 _ReadQueue.Count > 0) {
                 _ReadQueue.TryDequeue(out data);
             }
@@ -661,12 +696,6 @@ namespace Meebey.SmartIrc4net
                 if (OnReadLine != null) {
                     OnReadLine(this, new ReadLineEventArgs(data));
                 }
-            }
-
-            if (IsConnectionError &&
-                !IsDisconnecting &&
-                OnConnectionError != null) {
-                OnConnectionError(this, EventArgs.Empty);
             }
 
             return data;
@@ -679,7 +708,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void WriteLine(string data, Priority priority)
         {
-            _WriteController.WriteLine(data, priority);
+            _WriteManager.WriteLine(data, priority);
         }
 
         /// <summary>
@@ -713,6 +742,34 @@ namespace Meebey.SmartIrc4net
             // Add it to the read queue
             _ReadQueue.Enqueue(e.Line);
             _ReadQueueEvent.Set();
+        }
+
+        /// <summary>
+        /// Received from the transport when a connection error occurs
+        /// </summary>
+        private void Transport_OnConnectionError()
+        {
+            // We will now always funnel all connection errors into this method so fire the event here
+            // Apart from centralizing it, this also means we can raise OnConnectionError when an error
+            // occurs in this class (eg. ping timeout) that will not raise _Transport.IsConnectionError.
+            if (OnConnectionError != null) {
+                OnConnectionError(this, EventArgs.Empty);
+            }
+
+            try {
+                if (AutoReconnect) {
+                    // prevent connect -> exception -> connect flood loop
+                    // TODO: But not on first disconnect
+                    // TODO: We really need to clean up all the threads and stuff before sleeping
+                    Thread.Sleep(AutoRetryDelay * 1000);
+                    // lets try to recover the connection
+                    Reconnect();
+                } else {
+                    // make sure we clean up
+                    Disconnect();
+                }
+            } catch (ConnectionException) {
+            }
         }
 
         private void _NextAddress()
@@ -776,26 +833,10 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-        private void _OnConnectionError(object sender, EventArgs e)
-        {
-            try {
-                if (AutoReconnect) {
-                    // prevent connect -> exception -> connect flood loop
-                    Thread.Sleep(AutoRetryDelay * 1000);
-                    // lets try to recover the connection
-                    Reconnect();
-                } else {
-                    // make sure we clean up
-                    Disconnect();
-                }
-            } catch (ConnectionException) {
-            }
-        }
-        
         /// <summary>
         /// A write thread and helper functions to write data to the connection
         /// </summary>
-        private class WriteController
+        private class WriteManager
         {                                        
             private IrcConnection  _Connection;
             private Thread         _Thread;
@@ -824,7 +865,7 @@ namespace Meebey.SmartIrc4net
             /// Set up using the specified connection
             /// </summary>
             /// <param name="connection"></param>
-            public WriteController(IrcConnection connection)
+            public WriteManager(IrcConnection connection)
             {
                 _Connection = connection;
                 _QueuedEvent = new AutoResetEvent(false);
@@ -850,7 +891,7 @@ namespace Meebey.SmartIrc4net
                 ((Queue)_SendBuffer[Priority.Low]).Clear();
 
                 _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "WriteThread ("+_Connection.Address+":"+_Connection.Port+")";
+                _Thread.Name = "WriteThread (" + _Connection.Address + ") [" + DateTime.Now + "]";
                 _Thread.IsBackground = true;
                 _Thread.Start();
             }
@@ -863,7 +904,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                 Logger.Connection.Debug("Stopping WriteThread...");
 #endif
-                _Thread.Abort();
+                _QueuedEvent.Set();
                 // make sure we close the stream after the thread is gone, else
                 // the thread will think the connection is broken!
                 _Thread.Join();
@@ -877,8 +918,10 @@ namespace Meebey.SmartIrc4net
             public bool WriteLine(string data, Priority priority)
             {
                 if (priority == Priority.Critical) {
+                    // We don't use _ConnectionEstablished here because we want it to fall through without exceptions
+                    // if there's a connection error
                     if (!_Connection.IsConnected) {
-                        throw new NotConnectedException();
+                        throw new NotConnectedException("Not connected when trying to call WriteLine on stream");
                     }
 
                     if (_Connection.Transport.WriteLine(data)) {
@@ -887,7 +930,7 @@ namespace Meebey.SmartIrc4net
 
                         return true;
                     } else {
-                        // Transport.ConnectionError will have been set automatically if we reach this point
+                        // Transport.ConnectionError will have been set automatically if we reach this point: CONFIRMED by Unit test 'ClientDirtyDisconnect'
                         return false;
                     }
                 } else {
@@ -909,14 +952,21 @@ namespace Meebey.SmartIrc4net
 #endif
                 try {
                     try {
-                        while (_Connection.Transport.IsConnected) {
+                        do {
                             _QueuedEvent.WaitOne();
-                            var isBufferEmpty = false;
-                            do {
-                                isBufferEmpty = _CheckBuffer() == 0;
-                                Thread.Sleep(_Connection._SendDelay);
-                            } while (!isBufferEmpty);
-                        }
+
+                            if (_Connection._ConnectionEstablished) {
+                                bool isBufferEmpty = false;
+                                do {
+                                    isBufferEmpty = _CheckBuffer() == 0;
+                                    Thread.Sleep(_Connection._SendDelay);
+                                    
+                                    // We must check _ConnectionEstablished here because when the write fails,
+                                    // it will re-queue and the buffer will never empty, causing this loop
+                                    // to repeat endlessly
+                                } while (!isBufferEmpty && _Connection._ConnectionEstablished);
+                            }
+                        } while (_Connection._ConnectionEstablished);
                     } catch (IOException e) {
 #if LOG4NET
                         Logger.Socket.Warn("IOException: " + e.Message);
@@ -925,7 +975,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                         Logger.Socket.Warn("connection lost");
 #endif
-                        // CHECK: shouldn't be necessary any longer
+                        // CHECK: shouldn't be necessary any longer - CONFIRMED
                         // only flag this as connection error if we are not
                         // cleanly disconnecting
                         //if (!_Connection.IsDisconnecting) {
@@ -1111,6 +1161,8 @@ namespace Meebey.SmartIrc4net
             private IrcConnection   _Connection;
             private Thread          _Thread;
 
+            private volatile bool _ThreadErrorRaised;
+
             /// <summary>
             /// 
             /// </summary>
@@ -1125,12 +1177,9 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Start()
             {
-                DateTime now = DateTime.Now;
-                _Connection._LastPingSent = now;
-                _Connection._LastPongReceived = now;
-                
+                _ThreadErrorRaised = false;
                 _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "IdleWorkerThread ("+_Connection.Address+":"+_Connection.Port+")";
+                _Thread.Name = "IdleWorkerThread (" + _Connection.Address + ") [" + DateTime.Now + "]";
                 _Thread.IsBackground = true;
                 _Thread.Start();
             }
@@ -1140,51 +1189,74 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Stop()
             {
-                _Thread.Abort();
-                _Thread.Join();
+                if (!_ThreadErrorRaised) {
+                    _Thread.Abort();
+                    _Thread.Join();
+                }
             }
 
             private void _Worker()
             {
+                bool wasRegistered = false;
 #if LOG4NET
                 Logger.Socket.Debug("IdleWorkerThread started");
 #endif
                 try {
-                    while (_Connection.Transport.IsConnected ) {
+                    while (_Connection._ConnectionEstablished) {
+                        // TODO: We need to deal with this so we can get rid of _Thread.Abort()
                         Thread.Sleep(_Connection._IdleWorkerInterval * 1000);
                         
                         // only send active pings if we are registered
                         if (!_Connection.IsRegistered) {
                             continue;
                         }
-                        
+
                         DateTime now = DateTime.Now;
-                        int last_ping_sent = (int)(now - _Connection._LastPingSent).TotalSeconds;
-                        int last_pong_rcvd = (int)(now - _Connection._LastPongReceived).TotalSeconds;
-                        // determins if the resoponse time is ok
-                        if (last_ping_sent < _Connection._PingTimeout) {
-                            if (_Connection._LastPingSent > _Connection._LastPongReceived) {
-                                // there is a pending ping request, we have to wait
-                                continue;
+
+                        // Don't start counting time or sending ping requests until we are registered
+                        if (!wasRegistered) {
+                            _Connection._LastPingSent = now - TimeSpan.FromSeconds(1);
+                            _Connection._LastPongReceived = now;
+                            wasRegistered = true;
+                        }
+
+                        bool timeout = false;
+
+                        // We haven't received a pong since our last ping
+                        // The "=" is critical here.
+                        if (_Connection._LastPongReceived <= _Connection._LastPingSent) {
+
+                            // Has it been long enough to trigger a ping timeout?
+                            if (now.Subtract(_Connection._LastPingSent).TotalSeconds >= _Connection._PingTimeout) {
+                                timeout = true;
                             }
-                            
-                            // determines if it need to send another ping yet
-                            if (last_pong_rcvd > _Connection._PingInterval) {
+
+                        // We have received a pong since our last ping
+                        } else {
+
+                            // Is it time to send a new ping?
+                            if (now.Subtract(_Connection._LastPongReceived).TotalSeconds >= _Connection.PingInterval) {
                                 _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
                                 _Connection._LastPingSent = now;
-                                //_Connection._LastPongReceived = now;
-                            } // else connection is fine, just continue
-                        } else {
+                            }
+                        }
+
+                        // Ping timeout
+                        if (timeout) {
+                            System.Diagnostics.Debug.WriteLine("Ping timeout");
+                            System.Diagnostics.Debug.WriteLine("Last ping: " + _Connection._LastPingSent + "; Last pong: " + _Connection._LastPongReceived);
+
                             if (_Connection.IsDisconnecting) {
                                 break;
                             }
 #if LOG4NET
                             Logger.Socket.Warn("ping timeout, connection lost");
 #endif
-                            // CHECK: shouldn't be necessary any longer
-                            // only flag this as connection error if we are not
-                            // cleanly disconnecting
-                            //_Connection.IsConnectionError = true;
+                            // Transport_OnConnectionError() will block here until either the disconnect or a re-connect completes
+                            // In the event of a re-connect, a 2nd worker thread will be created before this one terminates,
+                            // however the termination will still happen cleanly.
+                            _ThreadErrorRaised = true;
+                            _Connection.Transport_OnConnectionError();
                             break;
                         }
                     }

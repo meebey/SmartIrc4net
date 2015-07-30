@@ -9,6 +9,7 @@
  *
  * Copyright (c) 2003-2010, 2012-2014 Mirco Bauer <meebey@meebey.net>
  * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
+ * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -465,17 +466,58 @@ namespace Meebey.SmartIrc4net
 #endif
 
         /// <summary>
-        /// Connection parameters required to establish an server connection.
+        /// Connects to the specified server and port using the current transport, or default TCP if none pre-specified.
+        /// When the connection fails the next server in the list will be used.
         /// </summary>
-        /// <param name="addresslist">The list of server hostnames.</param>
-        /// <param name="port">The TCP port the server listens on.</param>
-        public new void Connect(string[] addresslist, int port)
+        /// <param name="addresslist">List of servers to connect to</param>
+        /// <param name="port">Portnumber to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public override void Connect(string[] addresslist, int port = 0)
+        {
+            Connect(Transport, addresslist, port);
+        }
+
+        /// <summary>
+        /// Connects to the specified server and port using the current transport, or default TCP if none pre-specified
+        /// </summary>
+        /// <param name="address">Server address to connect to</param>
+        /// <param name="port">Port number to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public override void Connect(string address, int port = 0)
+        {
+            Connect(Transport, new string[] { address }, port);
+        }
+
+        /// <summary>
+        /// Connects to the specified transport. The transport must be pre-populated with the host address
+        /// </summary>
+        /// <param name="transport">Transport protocol to use</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public override void Connect(IIrcTransportManager transport)
+        {
+            Connect(transport, new string[] { transport.Address }, transport.Port);
+        }
+
+        /// <overloads>this method has 3 overloads</overloads>
+        /// <summary>
+        /// Connects to the specified server and port using the specified transport, when the connection fails
+        /// the next server in the list will be used.
+        /// </summary>
+        /// <param name="transport">Transport protocol to use</param>
+        /// <param name="addresslist">List of servers to connect to</param>
+        /// <param name="port">Portnumber to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public new void Connect(IIrcTransportManager transport, string[] addresslist, int port = 0)
         {
             _SupportNonRfcLocked = true;
             ChannelModeMap = new ChannelModeMap();
-            base.Connect(addresslist, port);
+            base.Connect(transport, addresslist, port);
         }
-        
+
         /// <overloads>
         /// Reconnects to the current server.
         /// </overloads>
@@ -1181,6 +1223,7 @@ namespace Meebey.SmartIrc4net
         
         private void _OnConnectionError(object sender, EventArgs e)
         {
+            // TODO: This code is in the wrong place
             try {
                 // AutoReconnect is handled in IrcConnection._OnConnectionError
                 if (AutoReconnect && AutoRelogin) {

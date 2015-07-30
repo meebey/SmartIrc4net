@@ -128,6 +128,12 @@ public class Test
         irc.OnError += new ErrorEventHandler(OnError);
         irc.OnRawMessage += new IrcEventHandler(OnRawMessage);
 
+        irc.OnReconnected += (s, e) => {
+            // Don't forget to log in again after reconnecting!
+            irc.Login("SmartIRC", "SmartIrc4net Test Bot");
+            irc.RfcJoin("#smartirc-test");
+        };
+
         // ===============================================
         // Standard IRC over TCP
         // ===============================================
@@ -163,18 +169,21 @@ public class Test
         //IrcWebSocketTransport transport = new IrcWebSocketTransport("ws://192.16.64.144");
 
         // Uncomment to enable compression
-        //transport.Socket.Compression = WebSocketSharp.CompressionMethod.Deflate;
+        //transport.Compression = WebSocketSharp.CompressionMethod.Deflate;
 
         // Uncomment to enable HTTP auth
-        //transport.Socket.SetCredentials("username", "password", false);
+        //transport.SetCredentials("username", "password", false);
 
         // Uncomment to enable HTTP proxy
-        //transport.Socket.SetProxy("http://162.208.49.45:7808", "", "");
+        //transport.SetProxy("http://162.208.49.45:7808", "", "");
 
         // Uncomment to send HTTP cookies with connection request
-        //transport.Socket.SetCookie(new WebSocketSharp.Net.Cookie("name", "value", "path", "domain"));
+        //transport.Cookies = new WebSocketSharp.Net.Cookie[] {
+        //  new WebSocketSharp.Net.Cookie("name", "value", "path", "domain"),
+        //  ...
+        //};
 
-        // For SSL, use: transport.Socket.SslConfiguration...
+        // For SSL, use: transport.SslConfiguration...
 
         // ===============================================
         // From this point, all usage is the same regardless of transport protocol
@@ -195,6 +204,10 @@ public class Test
 
             // Alternative syntax:
             //irc.Connect(transport, serverlist, port);
+
+            // Multi-server WebSocket syntax example:
+            // irc.AutoRetry = true;
+            // irc.Connect(new IrcWebSocketTransport(), new string[] { "ws://1.2.3.4", "ws://192.16.64.144" });
 
             // Alternative syntax for classic TCP backwards compatibility:
             irc.Connect(serverlist, port);
@@ -268,9 +281,6 @@ public class Test
             } else if (cmd.StartsWith("/reconnect")) {
                 irc.Reconnect();
 
-                // Don't forget to log in again after reconnecting!
-                irc.Login("SmartIRC", "SmartIrc4net Test Bot");
-                irc.RfcJoin("#smartirc-test");
             } else if (cmd.StartsWith("/quit")) {
 
                 // This disconnects the connection then releases Listen() from blocking
