@@ -42,6 +42,7 @@ namespace Meebey.SmartIrc4net
         private bool _IsConnected;
         private bool _IsConnectionError;
         private bool _IsDisconnecting;
+        private bool _IsConnecting;
 
         /// <summary>
         /// Event which fires when a line of text is received from the connection
@@ -233,20 +234,45 @@ namespace Meebey.SmartIrc4net
             Socket.OnError += Socket_OnError;
 
             // Blocks until connection is established or fails
-            Socket.Connect();
+            _IsConnecting = true;
 
-            if (!Socket.IsAlive) {
-                throw new CouldNotConnectException("could not connect to WebSocket");
+            // Default timeout on Windows 7's TCP/IP stack seems to be 5 seconds, must fix with threading
+            Socket.Connect(); // Might raise OnError, which we don't actually want
+
+            if (!_IsConnecting) {
+                throw new CouldNotConnectException("Could not connect to WebSocket: " + Address + ": Error during connection");
             }
+
+            // I don't trust Socket.IsAlive
+            if (!Socket.IsAlive) {
+                throw new CouldNotConnectException("Could not connect to WebSocket: " + Address + ": Socket dead");
+            }
+
+            // Set this here rather than in Socket_OnOpen to make sure no errors occurred during connect/negotiation
+            // before we signal that we are connected
+            _IsConnected = true;
+            _IsConnecting = false;
         }
 
         public void Disconnect()
         {
-            _IsDisconnecting = true;
+            // If there's a connection error, websocket-sharp will have already closed the connection
+            // Calling Close() again will cause a hang while the system figures out the socket is closed
+            if (!_IsConnectionError) {
+                _IsDisconnecting = true;
 
-            Socket.Close();
+                // Unhook events
+                Socket.OnOpen -= Socket_OnOpen;
+                Socket.OnMessage -= Socket_OnMessage;
+                Socket.OnClose -= Socket_OnClose;
+                Socket.OnError -= Socket_OnError;
 
-            _IsConnected = _IsDisconnecting = _IsConnectionError = false;
+                Socket.Close();
+
+                _IsDisconnecting = false;
+            }
+
+            _IsConnected = _IsConnectionError = false;
         }
 
         public bool WriteLine(string data)
@@ -263,7 +289,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="e"></param>
         private void Socket_OnOpen(object sender, EventArgs e)
         {
-            _IsConnected = true;
+            // Don't set _IsConnected here. Negotiation might fail before the connection finishes being established.
         }
 
         /// <summary>
@@ -273,7 +299,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="e"></param>
         private void Socket_OnClose(object sender, CloseEventArgs e)
         {
-            _IsConnected = _IsConnectionError = false;
+            // Don't set _IsConnected here. We might arrive here via thread lag after we have re-connected.
         }
 
         /// <summary>
@@ -283,8 +309,12 @@ namespace Meebey.SmartIrc4net
         /// <param name="e"></param>
         private void Socket_OnMessage(object sender, MessageEventArgs e)
         {
+            // It is possible to receive multiple lines
+            string[] lines = e.Data.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
             if (OnMessageReceived != null) {
-                OnMessageReceived(sender, new ReadLineEventArgs(e.Data.Substring(0, e.Data.Length - 2)));
+                foreach (string line in lines)
+                    OnMessageReceived(sender, new ReadLineEventArgs(line));
             }
         }
 
@@ -295,7 +325,13 @@ namespace Meebey.SmartIrc4net
         /// <param name="e"></param>
         private void Socket_OnError(object sender, WebSocketSharp.ErrorEventArgs e)
         {
-            // Don't send errors if we are disconnecting or already disconnected
+            // Error while trying to connect?
+            if (_IsConnecting) {
+                _IsConnecting = false;
+                return;
+            }
+
+            // Don't send errors if we are connecting (!_IsConnected) or disconnecting (IsDisconnecting) or already disconnected (!_IsConnected)
             // (the latter can happen when websocket-sharp is a bit lagged about noticing the connection has been closed)
             if (_IsDisconnecting || !_IsConnected)
                 return;

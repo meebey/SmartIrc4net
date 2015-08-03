@@ -39,6 +39,10 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Connect using pre-specified settings
         /// </summary>
+        /// <remarks>
+        /// Implementations MUST NOT set IsConnectionError for any kind of connection problem.
+        /// Throw an exception instead.
+        /// </remarks>
         void Connect();
 
         /// <summary>

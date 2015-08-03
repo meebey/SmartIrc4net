@@ -276,21 +276,6 @@ namespace Meebey.SmartIrc4net
             // Prove event flow succeeded
             irc.OnConnecting += (s, e) => {
                 Debug.WriteLine("OnConnecting fired");
-
-                // Wait 60 seconds after each 5 connection attempts to the same server avoid throttling
-                if (irc.Address != lastServer) {
-                    totalConnects = 1;
-                    lastServer = irc.Address;
-                } else {
-                    totalConnects++;
-                }
-
-                if (totalConnects >= 5 && !lastServer.Contains("127.0.0.1") && !lastServer.Contains("localhost")) {
-                    reconnectDelay = 60000;
-                    totalConnects = 0;
-                } else {
-                    reconnectDelay = 1000;
-                }
             };
 
             irc.OnConnected += (s, e) => {
@@ -329,12 +314,6 @@ namespace Meebey.SmartIrc4net
                 Task.Run(connectionMethod);
             };
 
-            // Try to avert throttling exceptions
-            irc.OnDisconnected += (s, e) => {
-                Debug.WriteLine("Waiting for " + reconnectDelay + "ms cooldown period");
-                Thread.Sleep(reconnectDelay);
-            };
-
             // Enable auto-reconnect if applicable to test
             enableAutoReconnect(reconnect);
 
@@ -343,6 +322,25 @@ namespace Meebey.SmartIrc4net
 
             // Connect
             Debug.WriteLine("Connecting to IRC server " + transport.Address + ":" + transport.Port);
+
+            // Wait 60 seconds after each 5 connection attempts to the same server avoid throttling
+            if (irc.Address != lastServer) {
+                totalConnects = 1;
+                lastServer = irc.Address;
+            } else {
+                totalConnects++;
+            }
+
+            if ((totalConnects >= 8 && !lastServer.Contains("127.0.0.1") && !lastServer.Contains("localhost")) || irc.AutoReconnect) {
+                reconnectDelay = 30000;
+                totalConnects = 1;
+            } else {
+                reconnectDelay = 1000;
+            }
+
+            // Try to avert throttling exceptions
+            Debug.WriteLine("Waiting for " + reconnectDelay + "ms cooldown period");
+            Thread.Sleep(reconnectDelay);
 
             irc.Connect(transport);
             irc.Login("SmartIRC", "SmartIrc4net Test Bot");

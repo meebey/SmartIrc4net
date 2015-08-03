@@ -49,6 +49,7 @@ namespace Meebey.SmartIrc4net
 
         private bool _IsConnected;
         private bool _IsConnectionError;
+        private bool _IsDisconnecting;
 
         private StreamReader _Reader;
         private StreamWriter _Writer;
@@ -170,9 +171,6 @@ namespace Meebey.SmartIrc4net
 
             // Don't send this event multiple times
             if (value && !_Previous) {
-                // signal ReadLine() to check IsConnectionError state - probably don't need this anymore
-                //_ReadThread.QueuedEvent.Set();
-
                 if (OnConnectionError != null)
                     OnConnectionError();
             }
@@ -202,6 +200,15 @@ namespace Meebey.SmartIrc4net
         {
             Address = address;
             Port = port;
+        }
+
+        /// <summary>
+        /// Create a new TCP transport with the specified address and port in the format hostname:port
+        /// </summary>
+        public IrcTcpTransport(string address) : this()
+        {
+            Address = address.Substring(0, address.IndexOf(":"));
+            Port = int.Parse(address.Substring(address.IndexOf(":") + 1));
         }
 
         /// <summary>
@@ -360,6 +367,8 @@ namespace Meebey.SmartIrc4net
 
         public void Disconnect()
         {
+            _IsDisconnecting = true;
+
             _ReadThread.Stop();
 
             try {
@@ -375,6 +384,7 @@ namespace Meebey.SmartIrc4net
             _SetConnectionError(false);
 
             _IsConnected = false;
+            _IsDisconnecting = false;
         }
 
         public bool WriteLine(string data)
@@ -386,10 +396,13 @@ namespace Meebey.SmartIrc4net
                         _Writer.Flush();
                     }
 
-                } catch (IOException) {
+                } catch (IOException ex) {
 #if LOG4NET
                     Logger.Socket.Warn("sending data failed, connection lost");
 #endif
+                    System.Diagnostics.Debug.WriteLine("Sending data failed: " + ex.Message);
+                    System.Diagnostics.Debug.WriteLine(System.Environment.StackTrace);
+
                     _SetConnectionError(true);
                     return false;
 
@@ -490,6 +503,7 @@ namespace Meebey.SmartIrc4net
                         // We get for one of two reasons:
                         // 1. the stream was closed cleanly by a controlled call to Disconnect() - SocketErrorCode == Interrupted
                         // 2. the stream was closed as a result of a dirty/unexpected disconnection - SocketErrorCode == something else
+                        // 3. the stream was closed as a result of the host disconnecting us - SocketErrorCode == ConnectionReset
                         if (se.SocketErrorCode != SocketError.Interrupted) {
 #if LOG4NET
                             Logger.Socket.Warn("IOException: " + e.Message);
