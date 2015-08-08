@@ -27,8 +27,6 @@
  */
 
 #if LOG4NET
-using System.IO;
-using System.Collections;
 using log4net;
 
 namespace Meebey.SmartIrc4net

@@ -27,7 +27,6 @@
  */
 
 using System;
-using System.Collections.Specialized;
 using System.Collections.Generic;
 
 namespace Meebey.SmartIrc4net

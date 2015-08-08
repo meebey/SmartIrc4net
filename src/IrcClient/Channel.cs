@@ -27,9 +27,10 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Meebey.SmartIrc4net
 {
@@ -41,9 +42,9 @@ namespace Meebey.SmartIrc4net
     {
         private string           _Name;
         private string           _Key       = String.Empty;
-        private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private ConcurrentDictionary<string, ChannelUser> _Users = new ConcurrentDictionary<string, ChannelUser>(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, ChannelUser> _Ops = new ConcurrentDictionary<string, ChannelUser>(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, ChannelUser> _Voices = new ConcurrentDictionary<string, ChannelUser>(StringComparer.OrdinalIgnoreCase);
         private StringCollection _Bans      = new StringCollection();
         private List<string>     _BanExcepts = new List<string>();
         private List<string>     _InviteExcepts = new List<string>();
@@ -99,9 +100,9 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Users {
+        public Dictionary<string, ChannelUser> Users {
             get {
-                return (Hashtable)_Users.Clone();
+                return _Users.ToDictionary(item => item.Key, item => item.Value);
             }
         }
 
@@ -109,7 +110,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeUsers {
+        internal ConcurrentDictionary<string, ChannelUser> UnsafeUsers {
             get {
                 return _Users;
             }
@@ -119,9 +120,9 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Ops {
+        public Dictionary<string, ChannelUser> Ops {
             get {
-                return (Hashtable)_Ops.Clone();
+                return _Ops.ToDictionary(item => item.Key, item => item.Value);
             }
         }
 
@@ -129,7 +130,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeOps {
+        internal ConcurrentDictionary<string, ChannelUser> UnsafeOps {
             get {
                 return _Ops;
             }
@@ -139,9 +140,9 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Voices {
+        public Dictionary<string, ChannelUser> Voices {
             get {
-                return (Hashtable)_Voices.Clone();
+                return _Voices.ToDictionary(item => item.Key, item => item.Value);
             }
         }
 
@@ -149,7 +150,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeVoices {
+        internal ConcurrentDictionary<string, ChannelUser> UnsafeVoices {
             get {
                 return _Voices;
             }
