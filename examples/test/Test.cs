@@ -109,13 +109,48 @@ public class Test
     {
         System.Console.WriteLine("Received: "+e.Data.RawMessage);
     }
-    
+
+    public static void OnCapLsReply(object sender, CapEventArgs e) {
+        Console.WriteLine("Available caps:");
+
+        foreach (var c in e.CapList) {
+            Console.WriteLine(c);
+        }
+
+        ((IrcClient) sender).CapReq(e.CapList);
+    }
+
+    public static void OnCapListReply(object sender, CapEventArgs e) {
+        Console.WriteLine("Activated caps:");
+
+        foreach (var c in e.CapList) {
+            Console.WriteLine(c);
+        }
+    }
+
+    public static void OnCapReqReply(object sender, CapEventArgs e) {
+        if (e.Data.Type == ReceiveType.CapAck)
+            Console.WriteLine("Allowed caps:");
+
+        if (e.Data.Type == ReceiveType.CapNak)
+            Console.WriteLine("Denied caps:");
+
+        foreach (var c in e.CapList) {
+            Console.WriteLine(c);
+        }
+
+        ((IrcClient) sender).CapList();
+    }
+
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "Main";
         
         // UTF-8 test
         irc.Encoding = System.Text.Encoding.UTF8;
+
+        // Enable IRCv3 protocol features
+        irc.UseIrcV3 = true;
         
         // wait time between messages, we can set this lower on own irc servers
         irc.SendDelay = 200;
@@ -128,6 +163,12 @@ public class Test
         irc.OnQueryMessage += new IrcEventHandler(OnQueryMessage);
         irc.OnError += new ErrorEventHandler(OnError);
         irc.OnRawMessage += new IrcEventHandler(OnRawMessage);
+
+        // Listen for caps messages
+        irc.OnCapLsReply += OnCapLsReply;
+        irc.OnCapListReply += OnCapListReply;
+        irc.OnCapAckReply += OnCapReqReply;
+        irc.OnCapNakReply += OnCapReqReply;
 
         string[] serverlist;
         // the server we want to connect to, could be also a simple string

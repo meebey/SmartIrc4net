@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Meebey.SmartIrc4net
 {
@@ -537,6 +538,96 @@ namespace Meebey.SmartIrc4net
                 WriteLine(Rfc2812.Mode(target, newModeChunks.ToArray(),
                                        newModeParameterChunks.ToArray()));
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="priority"></param>
+        public void CapLs(Priority priority)
+        {
+            WriteLine("CAP LS 302", priority);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CapLs()
+        {
+            CapLs(Priority.Critical);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="priority"></param>
+        public void CapList(Priority priority)
+        {
+            WriteLine("CAP LIST", priority);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CapList()
+        {
+            CapList(Priority.Critical);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="caplist"></param>
+        /// <param name="priority"></param>
+        public void CapReq(Capability[] caplist, Priority priority)
+        {
+            CapReq(from cap in caplist select cap.ToString(), priority);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="caplist"></param>
+        /// <param name="priority"></param>
+        public void CapReq(IEnumerable<string> caplist, Priority priority)
+        {
+            WriteLine("CAP REQ :" + String.Join(" ", caplist), priority);
+            CapEnd(priority);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="caplist"></param>
+        public void CapReq(Capability[] caplist)
+        {
+            CapReq(from cap in caplist select cap.ToString(), Priority.Critical);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="caplist"></param>
+        public void CapReq(IEnumerable<string> caplist)
+        {
+            CapReq(caplist, Priority.Critical);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="priority"></param>
+        public void CapEnd(Priority priority)
+        {
+            WriteLine("CAP END", priority);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CapEnd()
+        {
+            CapEnd(Priority.Critical);
         }
         
 #region RFC commands

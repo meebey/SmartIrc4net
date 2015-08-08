@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="src\AssemblyInfo.cs" />
     <Compile Include="src\ConcurrentDictionaryEx.cs" />
+    <Compile Include="src\IrcCommands\Capability.cs" />
     <Compile Include="src\Logger.cs" />
     <Compile Include="src\Consts.cs" />
     <Compile Include="src\EventArgs.cs" />
