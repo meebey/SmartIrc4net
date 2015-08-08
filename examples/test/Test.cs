@@ -147,7 +147,7 @@ public class Test
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "Main";
-
+        
         // Enable IRCv3 protocol features
         irc.UseIrcV3 = true;
         
@@ -253,8 +253,7 @@ public class Test
 
             // Alternative syntax for classic TCP backwards compatibility:
             irc.Connect(serverlist, port);
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             // something went wrong, the reason will be shown
             System.Console.WriteLine("couldn't connect! Reason: "+e.Message);
             Exit();

@@ -10,7 +10,7 @@
  * Copyright (c) 2003-2009 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
  * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
  * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
- *
+ * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
  * This library is free software; you can redistribute it and/or
@@ -105,7 +105,7 @@ namespace Meebey.SmartIrc4net
         /// Raised when the connection got into an error state during auto connect loop
         /// </event>
         public event AutoConnectErrorEventHandler   OnAutoConnectError;
-
+        
         /// <summary>
         /// Get the transport being used for the connection
         /// </summary>
@@ -399,14 +399,14 @@ namespace Meebey.SmartIrc4net
             _VersionNumber = assm_name.Version.ToString();
             _VersionString = pr.Product+" "+_VersionNumber;
         }
-
+        
 #if LOG4NET
         ~IrcConnection()
         {
             Logger.Main.Debug("IrcConnection destroyed");
         }
 #endif
-
+        
         /// <summary>
         /// Connects to the specified server and port using the current transport, or default TCP if none pre-specified.
         /// When the connection fails the next server in the list will be used.
@@ -585,7 +585,7 @@ namespace Meebey.SmartIrc4net
             if (!IsConnected) {
                 throw new NotConnectedException("The connection could not be disconnected because there is no active connection");
             }
-
+            
             // Disconnect() is not re-entrant.
             // If a call is made to Disconnect() while already disconnecting, it returns immediately
             if (IsDisconnecting) {
@@ -595,7 +595,7 @@ namespace Meebey.SmartIrc4net
             Logger.Connection.Info("disconnecting...");
 #endif
             IsDisconnecting = true;
-
+            
             if (OnDisconnecting != null) {
                 OnDisconnecting(this, EventArgs.Empty);
             }
@@ -1234,7 +1234,7 @@ namespace Meebey.SmartIrc4net
                         if (!_Connection.IsRegistered) {
                             continue;
                         }
-
+                        
                         DateTime now = DateTime.Now;
 
                         // Don't start counting time or sending ping requests until we are registered
