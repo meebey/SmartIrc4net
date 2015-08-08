@@ -2853,20 +2853,20 @@ namespace Meebey.SmartIrc4net
 
                             switch (kvp.Key) {
                                 case 'q':
-                                owner = true;
-                                break;
+                                    owner = true;
+                                    break;
                                 case 'a':
-                                chanadmin = true;
-                                break;
+                                    chanadmin = true;
+                                    break;
                                 case 'o':
-                                op = true;
-                                break;
+                                    op = true;
+                                    break;
                                 case 'h':
-                                halfop = true;
-                                break;
+                                    halfop = true;
+                                    break;
                                 case 'v':
-                                voice = true;
-                                break;
+                                    voice = true;
+                                    break;
                             }
                         }
                     }
