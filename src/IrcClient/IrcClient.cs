@@ -219,7 +219,7 @@ namespace Meebey.SmartIrc4net
                 _ActiveChannelSyncing = value;
             }
         }
-
+        
         /// <summary>
         /// Sets the ctcp version that should be replied on ctcp version request.
         /// </summary>
@@ -487,11 +487,52 @@ namespace Meebey.SmartIrc4net
 #endif
 
         /// <summary>
-        /// Connection parameters required to establish an server connection.
+        /// Connects to the specified server and port using the current transport, or default TCP if none pre-specified.
+        /// When the connection fails the next server in the list will be used.
         /// </summary>
-        /// <param name="addresslist">The list of server hostnames.</param>
-        /// <param name="port">The TCP port the server listens on.</param>
-        public new void Connect(string[] addresslist, int port)
+        /// <param name="addresslist">List of servers to connect to</param>
+        /// <param name="port">Portnumber to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public override void Connect(string[] addresslist, int port = 0)
+        {
+            Connect(Transport, addresslist, port);
+        }
+
+        /// <summary>
+        /// Connects to the specified server and port using the current transport, or default TCP if none pre-specified
+        /// </summary>
+        /// <param name="address">Server address to connect to</param>
+        /// <param name="port">Port number to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public override void Connect(string address, int port = 0)
+        {
+            Connect(Transport, new string[] { address }, port);
+        }
+
+        /// <summary>
+        /// Connects to the specified transport. The transport must be pre-populated with the host address
+        /// </summary>
+        /// <param name="transport">Transport protocol to use</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public override void Connect(IIrcTransportManager transport)
+        {
+            Connect(transport, new string[] { transport.Address }, transport.Port);
+        }
+
+        /// <overloads>this method has 3 overloads</overloads>
+        /// <summary>
+        /// Connects to the specified server and port using the specified transport, when the connection fails
+        /// the next server in the list will be used.
+        /// </summary>
+        /// <param name="transport">Transport protocol to use</param>
+        /// <param name="addresslist">List of servers to connect to</param>
+        /// <param name="port">Portnumber to connect to</param>
+        /// <exception cref="CouldNotConnectException">The connection failed</exception>
+        /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
+        public new void Connect(IIrcTransportManager transport, string[] addresslist, int port = 0)
         {
             _SupportNonRfcLocked = true;
             ChannelModeMap = new ChannelModeMap();
@@ -673,7 +714,7 @@ namespace Meebey.SmartIrc4net
         {
             Login(new string[] {nick, nick+"_", nick+"__"}, realname, 0, "", "");
         }
-
+        
         /// <summary>
         /// Start negotiating IRCv3 caps by getting a list of the available capabilities supported by the server
         /// </summary>
@@ -777,7 +818,7 @@ namespace Meebey.SmartIrc4net
             if (channelname == null) {
                 throw new System.ArgumentNullException("channelname");
             }
-
+            
             Channel channel;
             return _Channels.TryGetValue(channelname, out channel) ? channel : null;
         }
@@ -1223,6 +1264,7 @@ namespace Meebey.SmartIrc4net
         
         private void _OnConnectionError(object sender, EventArgs e)
         {
+            // TODO: This code is in the wrong place
             try {
                 // AutoReconnect is handled in IrcConnection._OnConnectionError
                 if (AutoReconnect && AutoRelogin) {
@@ -2811,21 +2853,21 @@ namespace Meebey.SmartIrc4net
 
                             switch(kvp.Key) {
                                 case 'q':
-                                    owner = true;
-                                    break;
+                            owner = true;
+                        break;
                                 case 'a':
-                                    chanadmin = true;
-                                    break;
+                            chanadmin = true;
+                        break;
                                 case 'o':
-                                    op = true;
-                                    break;
+                            op = true;
+                        break;
                                 case 'h':
-                                    halfop = true;
-                                    break;
+                            halfop = true;
+                        break;
                                 case 'v':
                                     voice = true;
-                                    break;
-                            }
+                        break;
+                    }
                         }
                     }
 

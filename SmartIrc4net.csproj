@@ -44,6 +44,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\AssemblyInfo.cs" />
+    <Compile Include="src\IrcTransport\IIrcTransportManager.cs" />
+    <Compile Include="src\IrcTransport\IrcTcpTransport.cs" />
+    <Compile Include="src\IrcTransport\IrcWebSocketTransport.cs" />
     <Compile Include="src\ConcurrentDictionaryEx.cs" />
     <Compile Include="src\IrcCommands\Capability.cs" />
     <Compile Include="src\Logger.cs" />
@@ -75,18 +78,21 @@
     <Compile Include="src\IrcFeatures\EventArgs.cs" />
     <Compile Include="src\IrcFeatures\IrcConstants.cs" />
     <Compile Include="src\IrcFeatures\IrcFeatures.cs" />
-    <Compile Include="src\IrcConnection\ProxyType.cs" />
     <Compile Include="src\IrcConnection\PrimaryOrFallbackEncoding.cs" />
     <Compile Include="src\IrcClient\ServerProperties.cs" />
     <Compile Include="src\IrcClient\ChannelModeChangeInfo.cs" />
+    <Compile Include="src\IrcTransport\ProxyType.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=a5715cc6d5c3540b">
-      <Package>log4net</Package>
+    <Reference Include="System.Core" />
+    <Reference Include="websocket-sharp, Version=1.0.2.9373, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="System.Core" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -94,5 +100,8 @@
       <Project>{3F8CF2C1-EA37-444F-8693-A3A00B1131D2}</Project>
       <Name>StarkSoftProxy</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
