@@ -151,7 +151,7 @@ namespace Meebey.SmartIrc4net
         }
         #endregion
         
-        internal DccConnection()
+        public DccConnection()
         {
             //Each DccConnection gets a Unique Identifier (just used internally until we have a TcpClient connected)
             session = Session.Next;

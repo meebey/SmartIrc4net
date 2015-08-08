@@ -23,20 +23,27 @@
 using System;
 using System.Net;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
     /// Visual Studio Unit Testing Framework tests for DccConnection
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class DccTests
     {
+        private class DccConnectionTester : DccConnection
+        {
+            public new long HostToDccInt(IPAddress ip) {
+                return base.HostToDccInt(ip);
+            }
+        }
+
         /// <summary>
         /// Test DccConnection.HostToDccInt() as updated for .NET 4.0 compliance
         /// </summary>
-        [TestMethod]
+        [Test]
         public void DccConnection_HostToDccInt()
         {
             // arbitrary IP addresses with bytes <0x80 and >=0x80 to test signed-ness
@@ -48,10 +55,10 @@ namespace Meebey.SmartIrc4net
         {
             IPAddress ip = IPAddress.Parse(ipstr);
 
-            PrivateObject o = new PrivateObject(typeof(DccConnection));
+            DccConnectionTester o = new DccConnectionTester();
 
             // Result of calling HostToDccInt() in .NET 4.5 code
-            long dccIntBytes = Convert.ToInt64(o.Invoke("HostToDccInt", ip));
+            long dccIntBytes = o.HostToDccInt(ip);
 
 #pragma warning disable CS0618 // Type or member is obsolete
                               // Compare result with old-style using obsolete IPAddress.Address property from old HostToDccInt() code

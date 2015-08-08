@@ -49,7 +49,6 @@ namespace Meebey.SmartIrc4net
 
         private bool _IsConnected;
         private bool _IsConnectionError;
-        private bool _IsDisconnecting;
 
         private StreamReader _Reader;
         private StreamWriter _Writer;
@@ -367,8 +366,6 @@ namespace Meebey.SmartIrc4net
 
         public void Disconnect()
         {
-            _IsDisconnecting = true;
-
             _ReadThread.Stop();
 
             try {
@@ -384,7 +381,6 @@ namespace Meebey.SmartIrc4net
             _SetConnectionError(false);
 
             _IsConnected = false;
-            _IsDisconnecting = false;
         }
 
         public bool WriteLine(string data)

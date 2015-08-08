@@ -170,7 +170,7 @@ namespace Meebey.SmartIrc4net
                     buffSubPointer = (IntPtr) ((int) buffSubPointer + sizeOfCI);
                 }
 
-            } catch (Exception ex) {
+            } catch (Exception) {
                 // Make NUnit fail if we couldn't fetch the table
                 Assert.Fail("Could not get TCP table");
             } finally {
@@ -182,6 +182,8 @@ namespace Meebey.SmartIrc4net
             IPAddress ip = IPAddress.Parse(remoteIp);
             int ipInt = BitConverter.ToInt32(ip.GetAddressBytes(), 0); // NOTE: relies on little-endian CPU architecture
             ConnectionInfo c;
+            c.dwLocalAddr = c.dwLocalPort = c.dwRemoteAddr = c.dwRemotePort = c.dwState = 0;
+
             int result = -1;
             IntPtr pConn = (IntPtr) 0;
 

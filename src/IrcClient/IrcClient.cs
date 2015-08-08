@@ -536,7 +536,7 @@ namespace Meebey.SmartIrc4net
         {
             _SupportNonRfcLocked = true;
             ChannelModeMap = new ChannelModeMap();
-            base.Connect(addresslist, port);
+            base.Connect(transport, addresslist, port);
 
             // We get here only if the connection is successful
             if (_UseIrcV3) {
