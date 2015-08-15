@@ -130,8 +130,8 @@ namespace Meebey.SmartIrc4net
 
             DccChatStartEvent(new DccEventArgs(this));
 
-            _sr = new StreamReader(Connection.GetStream(), Irc.Encoding);
-            _sw = new StreamWriter(Connection.GetStream(), Irc.Encoding);
+            _sr = new StreamReader(Connection.GetStream(), Irc.Transport.Encoding);
+            _sw = new StreamWriter(Connection.GetStream(), Irc.Transport.Encoding);
             _sw.AutoFlush = true;
 
             string line; 
