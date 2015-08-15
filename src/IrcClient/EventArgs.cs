@@ -27,8 +27,8 @@
  */
 
 using System;
-using System.Collections.Specialized;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Meebey.SmartIrc4net
 {
@@ -151,6 +151,22 @@ namespace Meebey.SmartIrc4net
         internal PongEventArgs(IrcMessageData data, TimeSpan lag) : base(data)
         {
             _Lag = lag;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class CapEventArgs : IrcEventArgs
+    {
+        /// <summary>
+        /// List of capabilities
+        /// </summary>
+        public Capability[] CapList { get; }
+
+        internal CapEventArgs(IrcMessageData data, IEnumerable<Capability> caplist) : base(data)
+        {
+            CapList = caplist.ToArray();
         }
     }
 

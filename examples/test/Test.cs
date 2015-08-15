@@ -8,6 +8,7 @@
  * This is a simple test client for the library.
  *
  * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2015 Katy Coe <djkaty@start.no> <http://www.djkaty.com>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -66,9 +67,9 @@ public class Test
                 // hashtable key and nickname 
                 string nickname_list = "";
                 nickname_list += "Users: ";
-                foreach (DictionaryEntry de in channel.Users) {
-                    string      key         = (string)de.Key;
-                    ChannelUser channeluser = (ChannelUser)de.Value;
+                foreach (var de in channel.Users) {
+                    string      key         = de.Key;
+                    ChannelUser channeluser = de.Value;
                     nickname_list += "(";
                     if (channeluser.IsOp) {
                         nickname_list += "@";
@@ -110,13 +111,45 @@ public class Test
     {
         System.Console.WriteLine("Received: "+e.Data.RawMessage);
     }
+
+    public static void OnCapLsReply(object sender, CapEventArgs e) {
+        Console.WriteLine("Available caps:");
+
+        foreach (var c in e.CapList) {
+            Console.WriteLine(c);
+        }
+
+        ((IrcClient) sender).CapReq(e.CapList);
+    }
+
+    public static void OnCapListReply(object sender, CapEventArgs e) {
+        Console.WriteLine("Activated caps:");
+
+        foreach (var c in e.CapList) {
+            Console.WriteLine(c);
+        }
+    }
+
+    public static void OnCapReqReply(object sender, CapEventArgs e) {
+        if (e.Data.Type == ReceiveType.CapAck)
+            Console.WriteLine("Allowed caps:");
+
+        if (e.Data.Type == ReceiveType.CapNak)
+            Console.WriteLine("Denied caps:");
+
+        foreach (var c in e.CapList) {
+            Console.WriteLine(c);
+        }
     
+        ((IrcClient) sender).CapList();
+    }
+
     public static void Main(string[] args)
     {
         Thread.CurrentThread.Name = "Main";
         
-        // UTF-8 test
-        irc.Encoding = System.Text.Encoding.UTF8;
+        // Enable IRCv3 protocol features
+        irc.UseIrcV3 = true;
         
         // wait time between messages, we can set this lower on own irc servers
         irc.SendDelay = 200;
@@ -130,13 +163,95 @@ public class Test
         irc.OnError += new ErrorEventHandler(OnError);
         irc.OnRawMessage += new IrcEventHandler(OnRawMessage);
 
-        string[] serverlist;
-        // the server we want to connect to, could be also a simple string
-        serverlist = new string[] {"irc.freenode.org"};
-        int port = 6667;
+        irc.OnReconnected += (s, e) => {
+            // Don't forget to log in again after reconnecting!
+            irc.Login("SmartIRC", "SmartIrc4net Test Bot");
+            irc.RfcJoin("#smartirc-test");
+        };
+
+        // Listen for caps messages
+        irc.OnCapLsReply += OnCapLsReply;
+        irc.OnCapListReply += OnCapListReply;
+        irc.OnCapAckReply += OnCapReqReply;
+        irc.OnCapNakReply += OnCapReqReply;
+        
+        // ===============================================
+        // Standard IRC over TCP
+        // ===============================================
+
+        // New single-address syntax:
+        //IrcTcpTransport transport = new IrcTcpTransport("irc.freenode.org", 6667);
+
+        // Alternative single-address syntax:
+        //IrcTcpTransport transport = new IrcTcpTransport();
+        //transport.Address = "irc.freenode.org";
+        //transport.Port = 6667;
+
+        // Alternative syntax for classic TCP backwards compatibility:
+        string[] serverlist = new string[] { "irc.freenode.org" };
+        int port = 6667; // use 6697 for SSL on Freenode
+
+        // Uncomment to set non-default encoding
+        //transport.Encoding = System.Text.Encoding.UTF8;
+
+        // Uncomment to use anonymous SOCKS or HTTP proxy
+        //transport.ProxyType = ProxyType.Socks5;
+        //transport.ProxyHost = "207.190.116.231";
+        //transport.ProxyPort = 30188;
+
+        // Uncomment to use SSL
+        //transport.UseSsl = true;
+
+        // ===============================================
+        // IRC over WebSockets
+        // ===============================================
+
+        // Example Twitch WebSockets server
+        //IrcWebSocketTransport transport = new IrcWebSocketTransport("ws://192.16.64.144");
+
+        // Uncomment to enable compression
+        //transport.Compression = WebSocketSharp.CompressionMethod.Deflate;
+
+        // Uncomment to enable HTTP auth
+        //transport.SetCredentials("username", "password", false);
+
+        // Uncomment to enable HTTP proxy
+        //transport.SetProxy("http://162.208.49.45:7808", "", "");
+
+        // Uncomment to send HTTP cookies with connection request
+        //transport.Cookies = new WebSocketSharp.Net.Cookie[] {
+        //  new WebSocketSharp.Net.Cookie("name", "value", "path", "domain"),
+        //  ...
+        //};
+
+        // For SSL, use: transport.SslConfiguration...
+
+        // ===============================================
+        // From this point, all usage is the same regardless of transport protocol
+        // ===============================================
+
+        // Uncomment to use AutoRetry
+        //irc.AutoRetry = true;
+        //irc.AutoRetryDelay = 5;
+        //irc.AutoRetryLimit = 4;
+
+        // Channel to join
+
         string channel = "#smartirc-test";
+
         try {
-            // here we try to connect to the server and exceptions get handled
+            // Connect to IRC server using any specified transport
+            // If the transport doesn't support multiple addresses, you must use this (eg. WebSockets)
+            //irc.Connect(transport);
+
+            // Alternative syntax:
+            //irc.Connect(transport, serverlist, port);
+
+            // Multi-server WebSocket syntax example:
+            // irc.AutoRetry = true;
+            // irc.Connect(new IrcWebSocketTransport(), new string[] { "ws://1.2.3.4", "ws://192.16.64.144" });
+
+            // Alternative syntax for classic TCP backwards compatibility:
             irc.Connect(serverlist, port);
         } catch (ConnectionException e) {
             // something went wrong, the reason will be shown
@@ -147,6 +262,7 @@ public class Test
         try {
             // here we logon and register our nickname and so on 
             irc.Login("SmartIRC", "SmartIrc4net Test Bot");
+
             // join the channel
             irc.RfcJoin(channel);
             
@@ -170,13 +286,9 @@ public class Test
             // an own loop 
             irc.Listen();
             
-            // when Listen() returns our IRC session is over, to be sure we call
-            // disconnect manually
-            irc.Disconnect();
-        } catch (ConnectionException) {
-            // this exception is handled because Disconnect() can throw a not
-            // connected exception
-            Exit();
+            // You should not call Disconnect() when Listen() returns as the connection
+            // will already be closed and a ConnectionException will be thrown.
+
         } catch (Exception e) {
             // this should not happen by just in case we handle it nicely
             System.Console.WriteLine("Error occurred! Message: "+e.Message);
@@ -207,6 +319,14 @@ public class Test
                                       channelInfo.UserCount,
                                       channelInfo.Topic);
                 }
+            } else if (cmd.StartsWith("/reconnect")) {
+                irc.Reconnect();
+
+            } else if (cmd.StartsWith("/quit")) {
+
+                // This disconnects the connection then releases Listen() from blocking
+                irc.Disconnect();
+                break;
             } else {
                 irc.WriteLine(cmd);
             }
