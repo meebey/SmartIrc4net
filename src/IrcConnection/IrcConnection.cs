@@ -850,7 +850,7 @@ namespace Meebey.SmartIrc4net
         /// A write thread and helper functions to write data to the connection
         /// </summary>
         private class WriteManager
-        {                                        
+        {
             private IrcConnection  _Connection;
             private Thread         _Thread;
             private Hashtable _SendBuffer = Hashtable.Synchronized(new Hashtable());
@@ -903,13 +903,10 @@ namespace Meebey.SmartIrc4net
                 ((Queue)_SendBuffer[Priority.BelowMedium]).Clear();
                 ((Queue)_SendBuffer[Priority.Low]).Clear();
 
-                // Using lock for thread-safe access to _Thread
-                lock (this) {
-                    _Thread = new Thread(new ThreadStart(_Worker));
-                    _Thread.Name = "WriteThread (" + _Connection.Address + ") [" + DateTime.Now + "]";
-                    _Thread.IsBackground = true;
-                    _Thread.Start();
-                }
+                _Thread = new Thread(new ThreadStart(_Worker));
+                _Thread.Name = "WriteThread (" + _Connection.Address + ") [" + DateTime.Now + "]";
+                _Thread.IsBackground = true;
+                _Thread.Start();
             }
 
             /// <summary>
@@ -923,10 +920,8 @@ namespace Meebey.SmartIrc4net
                 _QueuedEvent.Set();
 
                 // We have to check _Thread here in case the connection is disconnected before the thread starts
-                lock (this) {
-                    if (_Thread != null) {
-                        _Thread.Join();
-                    }
+                if (_Thread != null) {
+                    _Thread.Join();
                 }
             }
 
@@ -1267,9 +1262,10 @@ namespace Meebey.SmartIrc4net
 
                         // Ping timeout
                         if (timeout) {
-                            System.Diagnostics.Debug.WriteLine("Ping timeout");
-                            System.Diagnostics.Debug.WriteLine("Last ping: " + _Connection._LastPingSent + "; Last pong: " + _Connection._LastPongReceived);
-
+#if LOG4NET
+                            Logger.Connection.Warn("Ping timeout");
+                            Logger.Connection.Warn("Last ping: " + _Connection._LastPingSent + "; Last pong: " + _Connection._LastPongReceived);
+#endif
                             if (_Connection.IsDisconnecting) {
                                 break;
                             }

@@ -398,11 +398,9 @@ namespace Meebey.SmartIrc4net
 
                 } catch (IOException ex) {
 #if LOG4NET
-                    Logger.Socket.Warn("sending data failed, connection lost");
+                    Logger.Socket.Warn("Sending data failed: " + ex.Message);
+                    Logger.Socket.Warn(System.Environment.StackTrace);
 #endif
-                    System.Diagnostics.Debug.WriteLine("Sending data failed: " + ex.Message);
-                    System.Diagnostics.Debug.WriteLine(System.Environment.StackTrace);
-
                     _SetConnectionError(true);
                     return false;
 
