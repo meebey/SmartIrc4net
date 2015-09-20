@@ -29,6 +29,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections;
@@ -885,6 +886,8 @@ namespace Meebey.SmartIrc4net
             string         host = null;
             string         channel = null;
             string         message = null;
+            string         rawTags = null;
+            Dictionary<string, string> tags = new Dictionary<string, string>();
             ReceiveType    type;
             ReplyCode      replycode;
             int            exclamationpos;
@@ -893,6 +896,24 @@ namespace Meebey.SmartIrc4net
 
             if (rawline.Length == 0) {
                 throw new ArgumentException("Value must not be empty.", "rawline");
+            }
+
+            if (rawline[0] == '@') {
+                int spcidx = rawline.IndexOf(' ');
+                rawTags = rawline.Substring(1, spcidx);
+                rawline = rawline.Substring(spcidx + 1);
+
+                string[] sTags = rawTags.Split(new char[] { ';' });
+
+                foreach (string s in sTags) {
+                    int eqidx = s.IndexOf("=");
+
+                    if (eqidx != -1) {
+                        tags.Add(s.Substring(0, eqidx), _UnescapeTagValue(s.Substring(eqidx + 1)));
+                    } else {
+                        tags.Add(s, null);
+                    }
+                }
             }
 
             if (rawline[0] == ':') {
@@ -985,7 +1006,7 @@ namespace Meebey.SmartIrc4net
             }
 
             IrcMessageData data;
-            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, replycode);
+            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, replycode, rawTags, tags);
 #if LOG4NET
             Logger.MessageParser.Debug("IrcMessageData "+
                                        "nick: '"+data.Nick+"' "+
@@ -994,7 +1015,8 @@ namespace Meebey.SmartIrc4net
                                        "type: '"+data.Type.ToString()+"' "+
                                        "from: '"+data.From+"' "+
                                        "channel: '"+data.Channel+"' "+
-                                       "message: '"+data.Message+"' "
+                                       "message: '"+data.Message+"' "+
+                                       "tags: '"+data.RawTags+"' "
                                        );
 #endif
             return data;
@@ -1257,6 +1279,40 @@ namespace Meebey.SmartIrc4net
                 _CurrentNickname--;
             }
             return NicknameList[_CurrentNickname];
+        }
+
+        private string _UnescapeTagValue(string tagValue)
+        {
+            int lastPos = 0;
+            int pos = 0;
+            string sequence;
+            StringBuilder unescaped = new StringBuilder();
+
+            while (lastPos < tagValue.Length && (pos = tagValue.IndexOf('\\', lastPos)) >= 0) {
+                unescaped.Append(tagValue.Substring(lastPos, pos - lastPos));
+                sequence = tagValue.Substring(pos, 2);
+
+                if (sequence == "\\:") {
+                    unescaped.Append(";");
+                } else if (sequence == "\\s") {
+                    unescaped.Append(" ");
+                } else if (sequence == "\\\\") {
+                    unescaped.Append("\\");
+                } else if (sequence == "\\r") {
+                    unescaped.Append((char)13);
+                } else if (sequence == "\\n") {
+                    unescaped.Append((char)10);
+                }
+
+                lastPos = pos + sequence.Length;
+            }
+
+            if (lastPos < tagValue.Length)
+            {
+                unescaped.Append(tagValue.Substring(lastPos));
+            }
+
+            return unescaped.ToString();
         }
         
         private ReceiveType _GetMessageType(string rawline)
