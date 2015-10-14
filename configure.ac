@@ -1,5 +1,5 @@
 AC_PREREQ([2.54])
-AC_INIT([smartirc4net], [0.5])
+AC_INIT([smartirc4net], [1.0])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 

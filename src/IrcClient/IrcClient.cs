@@ -906,9 +906,9 @@ namespace Meebey.SmartIrc4net
             // conform to RFC 2812
             from = linear[0];
             messagecode = linear[1];
-            exclamationpos = from.IndexOf("!");
-            atpos = from.IndexOf("@");
-            colonpos = line.IndexOf(" :");
+            exclamationpos = from.IndexOf("!", StringComparison.Ordinal);
+            atpos = from.IndexOf("@", StringComparison.Ordinal);
+            colonpos = line.IndexOf(" :", StringComparison.Ordinal);
             if (colonpos != -1) {
                 // we want the exact position of ":" not beginning from the space
                 colonpos += 1;
@@ -934,11 +934,13 @@ namespace Meebey.SmartIrc4net
                 host = from.Substring(atpos+1);
             }
 
-            try {
-                replycode = (ReplyCode)int.Parse(messagecode);
-            } catch (FormatException) {
+            int tmp;
+            if (int.TryParse(messagecode, out tmp)) {
+                replycode = (ReplyCode) tmp;
+            } else {
                 replycode = ReplyCode.Null;
             }
+
             type = _GetMessageType(rawline);
             if (colonpos != -1) {
                 message = line.Substring(colonpos + 1);
@@ -2700,30 +2702,33 @@ namespace Meebey.SmartIrc4net
                     op = false;
                     halfop = false;
                     voice = false;
-                    switch (user[0]) {
-                        case '~':
-                            owner = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '&':
-                            chanadmin = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '@':
-                            op = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '+':
-                            voice = true;
-                            nickname = user.Substring(1);
-                        break;
-                        case '%':
-                            halfop = true;
-                            nickname = user.Substring(1);
-                        break;
-                        default:
-                            nickname = user;
-                        break;
+
+                    nickname = user;
+
+                    char mode;
+
+                    foreach (var kvp in _ServerProperties.ChannelPrivilegeModesPrefixes) {
+                        if (nickname[0] == kvp.Value) {
+                            nickname = nickname.Substring(1);
+
+                            switch(kvp.Key) {
+                                case 'q':
+                                    owner = true;
+                                    break;
+                                case 'a':
+                                    chanadmin = true;
+                                    break;
+                                case 'o':
+                                    op = true;
+                                    break;
+                                case 'h':
+                                    halfop = true;
+                                    break;
+                                case 'v':
+                                    voice = true;
+                                    break;
+                            }
+                        }
                     }
 
                     IrcUser     ircuser     = GetIrcUser(nickname);
@@ -2796,20 +2801,14 @@ namespace Meebey.SmartIrc4net
                     continue;
                 }
 
-                switch (user[0]) {
-                    case '@':
-                    case '+':
-                    case '&':
-                    case '%':
-                    case '~':
-                    case '!':
-                    case '.':
-                        filteredUserlist.Add(user.Substring(1));
-                        break;
-                    default:
-                        filteredUserlist.Add(user);
-                        break;
+                string temp = user;
+                foreach (var kvp in _ServerProperties.ChannelPrivilegeModesPrefixes) {
+                    if (temp[0] == kvp.Value) {
+                        temp = temp.Substring(1);
+                    }
                 }
+                filteredUserlist.Add(temp);
+
             }
 
             if (OnNames != null) {
@@ -3216,6 +3215,10 @@ namespace Meebey.SmartIrc4net
                     if (!String.IsNullOrEmpty(chanModes)) {
                         ChannelModeMap = new ChannelModeMap(chanModes);
                     }
+                }
+
+                if (keyval[0] == "NAMESX") {
+                    WriteLine("PROTOCTL NAMESX", Priority.Critical);
                 }
             }
         }

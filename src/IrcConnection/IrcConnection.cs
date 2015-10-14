@@ -650,8 +650,15 @@ namespace Meebey.SmartIrc4net
                                  X509Chain chain, SslPolicyErrors sslPolicyErrors) {
                         return certValidation(this, certificate, chain, sslPolicyErrors);
                     };
+                    LocalCertificateSelectionCallback selectionCallback = delegate(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers) {
+                        if (localCertificates == null || localCertificates.Count == 0) {
+                            return null;
+                        }
+                        return localCertificates[0];
+                    };
                     SslStream sslStream = new SslStream(stream, false,
-                                                        certValidationWithIrcAsSender);
+                                                        certValidationWithIrcAsSender,
+                                                        selectionCallback);
                     try {
                         if (_SslClientCertificate != null) {
                             var certs = new X509Certificate2Collection();
@@ -818,6 +825,9 @@ namespace Meebey.SmartIrc4net
             _TcpClient.Close();
             _IsConnected = false;
             _IsRegistered = false;
+            
+            // signal ReadLine() to check IsConnected state
+            _ReadThread.QueuedEvent.Set();
             
             IsDisconnecting = false;
             
