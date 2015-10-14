@@ -87,6 +87,10 @@ namespace Meebey.SmartIrc4net
         QueryNotice,
         CtcpReply,
         CtcpRequest,
+        CapLs,
+        CapList,
+        CapAck,
+        CapNak,
         Error,
         ErrorMessage,
         Unknown
@@ -191,6 +195,7 @@ namespace Meebey.SmartIrc4net
         ErrorTooManyTargets =            407,
         ErrorNoSuchService =             408,
         ErrorNoOrigin =                  409,
+        ErrorInvalidCapCommand =         410,
         ErrorNoRecipient =               411,
         ErrorNoTextToSend =              412,
         ErrorNoTopLevel =                413,
