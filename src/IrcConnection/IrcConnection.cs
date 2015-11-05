@@ -819,9 +819,9 @@ namespace Meebey.SmartIrc4net
             
             IsDisconnecting = true;
             
-            _IdleWorkerThread.Stop();
-            _ReadThread.Stop();
-            _WriteThread.Stop();
+            _IdleWorkerThread.RequestStop();
+            _ReadThread.RequestStop();
+            _WriteThread.RequestStop();
             _TcpClient.Close();
             _IsConnected = false;
             _IsRegistered = false;
@@ -1060,17 +1060,65 @@ namespace Meebey.SmartIrc4net
             } catch (ConnectionException) {
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
-        private class ReadThread
+        private abstract class FiniteThread
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public Thread Thread { get; internal set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public bool IsStopRequested { get; internal set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public string ThreadName { get; internal set; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public void RequestStop()
+            {
+                IsStopRequested = true;
+            }
+
+            protected FiniteThread()
+            {
+                IsStopRequested = false;
+                ThreadName = "(unnamed thread)";
+            }
+
+            protected abstract void PrepareStart();
+
+            protected abstract void Worker();
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public void Start() {
+                PrepareStart();
+
+                Thread = new Thread(Worker) { IsBackground = true, Name = ThreadName};
+                Thread.Start();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class ReadThread : FiniteThread
         {
 #if LOG4NET
             private static readonly log4net.ILog _Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 #endif
             private IrcConnection  _Connection;
-            private Thread         _Thread;
             private Queue          _Queue = Queue.Synchronized(new Queue());
 
             public AutoResetEvent  QueuedEvent;
@@ -1089,61 +1137,20 @@ namespace Meebey.SmartIrc4net
             {
                 _Connection = connection;
                 QueuedEvent = new AutoResetEvent(false);
+                ThreadName = "ReadThread ("+_Connection.Address+":"+_Connection.Port+")";
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            public void Start()
-            {
-                _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "ReadThread ("+_Connection.Address+":"+_Connection.Port+")";
-                _Thread.IsBackground = true;
-                _Thread.Start();
-            }
+            protected override void PrepareStart() { }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            public void Stop()
+            protected override void Worker()
             {
 #if LOG4NET
-                _Logger.Debug("Stop()");
-#endif
-                
-#if LOG4NET
-                _Logger.Debug("Stop(): aborting thread...");
-#endif
-                _Thread.Abort();
-                // make sure we close the stream after the thread is gone, else
-                // the thread will think the connection is broken!
-#if LOG4NET
-                _Logger.Debug("Stop(): joining thread...");
-#endif
-                _Thread.Join();
-                
-#if LOG4NET
-                _Logger.Debug("Stop(): closing reader...");
-#endif
-                try {
-                    _Connection._Reader.Close();
-                } catch (ObjectDisposedException) {
-                }
-
-                // clean up our receive queue else we continue processing old
-                // messages when the read thread is restarted!
-                _Queue.Clear();
-            }
-
-            private void _Worker()
-            {
-#if LOG4NET
-                Logger.Socket.Debug("ReadThread started");
+                Logger.Socket.Debug("ReadThread Worker(): starting");
 #endif
                 try {
                     string data = "";
                     try {
-                        while (_Connection.IsConnected &&
+                        while (!IsStopRequested && _Connection.IsConnected &&
                                ((data = _Connection._Reader.ReadLine()) != null)) {
                             _Queue.Enqueue(data);
                             QueuedEvent.Set();
@@ -1151,6 +1158,15 @@ namespace Meebey.SmartIrc4net
                             Logger.Socket.Debug("received: \""+data+"\"");
 #endif
                         }
+#if LOG4NET
+                        Logger.Socket.Debug("ReadThread Worker(): loop ended");
+                        Logger.Socket.Debug("ReadThread Worker(): closing reader");
+#endif
+                        _Connection._Reader.Close();
+
+                        // clean up our receive queue else we continue processing old
+                        // messages when the read thread is restarted!
+                        _Queue.Clear();
                     } catch (IOException e) {
 #if LOG4NET
                         Logger.Socket.Warn("IOException: "+e.Message);
@@ -1165,11 +1181,6 @@ namespace Meebey.SmartIrc4net
                             _Connection.IsConnectionError = true;
                         }
                     }
-                } catch (ThreadAbortException) {
-                    Thread.ResetAbort();
-#if LOG4NET
-                    Logger.Socket.Debug("ReadThread aborted");
-#endif
                 } catch (Exception ex) {
 #if LOG4NET
                     Logger.Socket.Error(ex);
@@ -1181,10 +1192,9 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        private class WriteThread
+        private class WriteThread : FiniteThread
         {
             private IrcConnection  _Connection;
-            private Thread         _Thread;
             private int            _HighCount;
             private int            _AboveMediumCount;
             private int            _MediumCount;
@@ -1208,47 +1218,19 @@ namespace Meebey.SmartIrc4net
             {
                 _Connection = connection;
                 QueuedEvent = new AutoResetEvent(false);
+                ThreadName = "WriteThread (" + _Connection.Address + ":" + _Connection.Port + ")";
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            public void Start()
-            {
-                _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "WriteThread ("+_Connection.Address+":"+_Connection.Port+")";
-                _Thread.IsBackground = true;
-                _Thread.Start();
-            }
+            protected override void PrepareStart() { }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            public void Stop()
+            protected override void Worker()
             {
 #if LOG4NET
-                Logger.Connection.Debug("Stopping WriteThread...");
-#endif
-                
-                _Thread.Abort();
-                // make sure we close the stream after the thread is gone, else
-                // the thread will think the connection is broken!
-                _Thread.Join();
-                
-                try {
-                    _Connection._Writer.Close();
-                } catch (ObjectDisposedException) {
-                }
-            }
-
-            private void _Worker()
-            {
-#if LOG4NET
-                Logger.Socket.Debug("WriteThread started");
+                Logger.Socket.Debug("WriteThread Worker(): starting");
 #endif
                 try {
                     try {
-                        while (_Connection.IsConnected) {
+                        while (!IsStopRequested && _Connection.IsConnected) {
                             QueuedEvent.WaitOne();
                             var isBufferEmpty = false;
                             do {
@@ -1256,6 +1238,11 @@ namespace Meebey.SmartIrc4net
                                 Thread.Sleep(_Connection._SendDelay);
                             } while (!isBufferEmpty);
                         }
+#if LOG4NET
+                        Logger.Socket.Debug("WriteThread Worker(): loop ended");
+                        Logger.Socket.Debug("WriteThread Worker(): closing writer");
+#endif
+                        _Connection._Writer.Close();
                     } catch (IOException e) {
 #if LOG4NET
                         Logger.Socket.Warn("IOException: " + e.Message);
@@ -1270,11 +1257,6 @@ namespace Meebey.SmartIrc4net
                             _Connection.IsConnectionError = true;
                         }
                     }
-                } catch (ThreadAbortException) {
-                    Thread.ResetAbort();
-#if LOG4NET
-                    Logger.Socket.Debug("WriteThread aborted");
-#endif
                 } catch (Exception ex) {
 #if LOG4NET
                     Logger.Socket.Error(ex);
@@ -1443,10 +1425,9 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// 
         /// </summary>
-        private class IdleWorkerThread
+        private class IdleWorkerThread : FiniteThread
         {
             private IrcConnection   _Connection;
-            private Thread          _Thread;
 
             /// <summary>
             /// 
@@ -1455,39 +1436,26 @@ namespace Meebey.SmartIrc4net
             public IdleWorkerThread(IrcConnection connection)
             {
                 _Connection = connection;
+                ThreadName = "IdleWorkerThread ("+_Connection.Address+":"+_Connection.Port+")";
             }
 
             /// <summary>
             /// 
             /// </summary>
-            public void Start()
+            protected override void PrepareStart()
             {
                 DateTime now = DateTime.Now;
                 _Connection._LastPingSent = now;
                 _Connection._LastPongReceived = now;
-                
-                _Thread = new Thread(new ThreadStart(_Worker));
-                _Thread.Name = "IdleWorkerThread ("+_Connection.Address+":"+_Connection.Port+")";
-                _Thread.IsBackground = true;
-                _Thread.Start();
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            public void Stop()
-            {
-                _Thread.Abort();
-                _Thread.Join();
-            }
-
-            private void _Worker()
+            protected override void Worker()
             {
 #if LOG4NET
-                Logger.Socket.Debug("IdleWorkerThread started");
+                Logger.Socket.Debug("IdleWorkerThread Worker(): starting");
 #endif
                 try {
-                    while (_Connection.IsConnected ) {
+                    while (!IsStopRequested && _Connection.IsConnected ) {
                         Thread.Sleep(_Connection._IdleWorkerInterval * 1000);
                         
                         // only send active pings if we are registered
@@ -1524,10 +1492,8 @@ namespace Meebey.SmartIrc4net
                             break;
                         }
                     }
-                } catch (ThreadAbortException) {
-                    Thread.ResetAbort();
 #if LOG4NET
-                    Logger.Socket.Debug("IdleWorkerThread aborted");
+                    Logger.Socket.Debug("IdleWorkerThread Worker(): loop ended");
 #endif
                 } catch (Exception ex) {
 #if LOG4NET
