@@ -777,7 +777,7 @@ namespace Meebey.SmartIrc4net
         internal BounceEventArgs(IrcMessageData data, string server, int port) : base(data)
         {
             Server = server;
-            Port = Port;
+            Port = port;
         }
     }
 
