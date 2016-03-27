@@ -1503,10 +1503,10 @@ namespace Meebey.SmartIrc4net
                             
                             // determines if it need to send another ping yet
                             if (last_pong_rcvd > _Connection._PingInterval) {
-                                _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
                                 _Connection.NextPingStopwatch.Stop();
                                 _Connection.PingStopwatch.Reset();
                                 _Connection.PingStopwatch.Start();
+                                _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
                             } // else connection is fine, just continue
                         } else {
                             if (_Connection.IsDisconnecting) {
