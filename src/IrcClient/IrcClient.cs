@@ -519,7 +519,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="username">The user's machine logon name</param>        
         /// <param name="password">The optional password can and MUST be set before any attempt to register
         ///  the connection is made.</param>        
-        public void Login(string[] nicklist, string realname, int usermode, string username, string password)
+        protected void _Login(string[] nicklist, string realname, int usermode, string username, string password)
         {
 #if LOG4NET
             Logger.Connection.Info("logging in");
@@ -542,6 +542,26 @@ namespace Meebey.SmartIrc4net
             }
 
             RfcNick(Nickname, Priority.Critical);
+        }
+
+        /// <summary>
+        /// Login parameters required identify with server connection
+        /// </summary>
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
+        /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
+        /// <param name="realname">The users 'real' name which may contain space characters</param>
+        /// <param name="usermode">A numeric mode parameter.  
+        ///   <remark>
+        ///     Set to 0 to recieve wallops and be invisible. 
+        ///     Set to 4 to be invisible and not receive wallops.
+        ///   </remark>
+        /// </param>
+        /// <param name="username">The user's machine logon name</param>        
+        /// <param name="password">The optional password can and MUST be set before any attempt to register
+        ///  the connection is made.</param>        
+        public void Login(string[] nicklist, string realname, int usermode, string username, string password)
+        {
+            _Login(nicklist, realname, usermode, username, password);
             RfcUser(Username, IUsermode, Realname, Priority.Critical);
         }
 
@@ -886,6 +906,7 @@ namespace Meebey.SmartIrc4net
             string         channel = null;
             string         message = null;
             ReceiveType    type;
+            string         customtype;
             ReplyCode      replycode;
             int            exclamationpos;
             int            atpos;
@@ -942,6 +963,8 @@ namespace Meebey.SmartIrc4net
             }
 
             type = _GetMessageType(rawline);
+            customtype = _GetCustomMessageType(rawline);
+
             if (colonpos != -1) {
                 message = line.Substring(colonpos + 1);
             }
@@ -955,6 +978,7 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.ChannelMessage:
                 case ReceiveType.ChannelAction:
                 case ReceiveType.ChannelNotice:
+                case ReceiveType.Custom:
                     channel = linear[2];
                 break;
                 case ReceiveType.Who:
@@ -985,7 +1009,7 @@ namespace Meebey.SmartIrc4net
             }
 
             IrcMessageData data;
-            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, replycode);
+            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, customtype, replycode);
 #if LOG4NET
             Logger.MessageParser.Debug("IrcMessageData "+
                                        "nick: '"+data.Nick+"' "+
@@ -1259,7 +1283,7 @@ namespace Meebey.SmartIrc4net
             return NicknameList[_CurrentNickname];
         }
         
-        private ReceiveType _GetMessageType(string rawline)
+        protected virtual ReceiveType _GetMessageType(string rawline)
         {
             Match found = _ReplyCodeRegex.Match(rawline);
             if (found.Success) {
@@ -1442,8 +1466,13 @@ namespace Meebey.SmartIrc4net
 #endif
             return ReceiveType.Unknown;
         }
+
+        protected virtual string _GetCustomMessageType(string rawline)
+        {
+            return null;
+        }
         
-        private void _HandleEvents(IrcMessageData ircdata)
+        protected virtual void _HandleEvents(IrcMessageData ircdata)
         {
             if (OnRawMessage != null) {
                 OnRawMessage(this, new IrcEventArgs(ircdata));
@@ -2153,7 +2182,17 @@ namespace Meebey.SmartIrc4net
         /// Event handler for join messages
         /// </summary>
         /// <param name="ircdata">Message data containing join information</param>
-        private void _Event_JOIN(IrcMessageData ircdata)
+        protected virtual void _Event_JOIN(IrcMessageData ircdata)
+        {
+            __Event_JOIN(ircdata, true);
+        }
+
+        /// <summary>
+        /// Event handler for join messages
+        /// </summary>
+        /// <param name="ircdata">Message data containing join information</param>
+        /// <param name="doWho">True to request the joined user's mode and whois</param>
+        protected void __Event_JOIN(IrcMessageData ircdata, bool doWho)
         {
             string who = ircdata.Nick;
             string channelname = ircdata.Channel;
@@ -2172,8 +2211,10 @@ namespace Meebey.SmartIrc4net
                     channel = CreateChannel(channelname);
                     _Channels.Add(channelname, channel);
                     // request channel mode
+                    if (doWho)
                     RfcMode(channelname);
                     // request wholist
+                    if (doWho)
                     RfcWho(channelname);
                     // request ban exception list
                     if (_ServerProperties.BanExceptionCharacter.HasValue) {
@@ -2188,6 +2229,7 @@ namespace Meebey.SmartIrc4net
                 } else {
                     // someone else joined the channel
                     // request the who data
+                    if (doWho)
                     RfcWho(who);
                 }
 
