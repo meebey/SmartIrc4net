@@ -1268,9 +1268,6 @@ namespace Meebey.SmartIrc4net
 
                 // check if this replycode is known in the RFC
                 if (Array.IndexOf(_ReplyCodes, replycode) == -1) {
-#if LOG4NET
-                    Logger.MessageTypes.Warn("This IRC server ("+Address+") doesn't conform to the RFC 2812! ignoring unrecognized replycode '"+replycode+"'");
-#endif
                     return ReceiveType.Unknown;
                 }
 
@@ -1327,7 +1324,7 @@ namespace Meebey.SmartIrc4net
                             return ReceiveType.ErrorMessage;
                         } else {
 #if LOG4NET
-                            Logger.MessageTypes.Warn("replycode unknown ("+code+"): \""+rawline+"\"");
+                            Logger.MessageTypes.Debug("replycode unknown ("+code+"): \""+rawline+"\"");
 #endif
                             return ReceiveType.Unknown;
                         }                        
@@ -1438,7 +1435,7 @@ namespace Meebey.SmartIrc4net
             }
 
 #if LOG4NET
-            Logger.MessageTypes.Warn("messagetype unknown: \""+rawline+"\"");
+            Logger.MessageTypes.Debug("messagetype unknown: \""+rawline+"\"");
 #endif
             return ReceiveType.Unknown;
         }
