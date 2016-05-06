@@ -9,10 +9,10 @@ SmartIrc4net an API that handles all IRC protocol messages and is designed for
 creating IRC bots or even GUI clients.
 
 Please report bugs to:
-http://sourceforge.net/tracker/?group_id=114302&atid=667874
+https://github.com/meebey/SmartIrc4net/issues
 
 Project Homepage:
-http://smartirc4net.sf.net
+https://www.meebey.net/projects/smartirc4net/
 
 files included in SmartIrc4net
 --------------------------
