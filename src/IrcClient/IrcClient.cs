@@ -29,6 +29,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections;
@@ -897,20 +898,19 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentException("Value must not be empty.", "rawline");
             }
 
-            if (rawline[0] == '@')
-            {
-                rawTags = rawline.Substring(1, rawline.IndexOf(' '));
-                rawline = rawline.Substring(rawline.IndexOf(' ') + 1);
+            if (rawline[0] == '@') {
+                int spcidx = rawline.IndexOf(' ');
+                rawTags = rawline.Substring(1, spcidx);
+                rawline = rawline.Substring(spcidx + 1);
 
                 string[] sTags = rawTags.Split(new char[] { ';' });
 
-                foreach (string s in sTags)
-                {
-                    if (s.IndexOf("=") != -1)
-                    {
-                        tags.Add(s.Substring(0, s.IndexOf("=")), _UnescapeTagValue(s.Substring(s.IndexOf("=") + 1)));
-                    } else
-                    {
+                foreach (string s in sTags) {
+                    int eqidx = s.IndexOf("=");
+
+                    if (eqidx != -1) {
+                        tags.Add(s.Substring(0, eqidx), _UnescapeTagValue(s.Substring(eqidx + 1)));
+                    } else {
                         tags.Add(s, null);
                     }
                 }
@@ -1286,30 +1286,22 @@ namespace Meebey.SmartIrc4net
             int lastPos = 0;
             int pos = 0;
             string sequence;
-            string unescaped = "";
+            StringBuilder unescaped = new StringBuilder();
 
-            while (lastPos < tagValue.Length && (pos = tagValue.IndexOf('\\', lastPos)) >= 0)
-            {
-                unescaped += tagValue.Substring(lastPos, pos - lastPos);
+            while (lastPos < tagValue.Length && (pos = tagValue.IndexOf('\\', lastPos)) >= 0) {
+                unescaped.Append(tagValue.Substring(lastPos, pos - lastPos));
                 sequence = tagValue.Substring(pos, 2);
 
-                if (sequence == "\\:")
-                {
-                    unescaped += ";";
-                } else if (sequence == "\\s")
-                {
-                    unescaped += " ";
-                } else if (sequence == "\\\\")
-                {
-                    unescaped += "\\";
-                }
-                else if (sequence == "\\r")
-                {
-                    unescaped += (char)13;
-                }
-                else if (sequence == "\\n")
-                {
-                    unescaped += (char)10;
+                if (sequence == "\\:") {
+                    unescaped.Append(";");
+                } else if (sequence == "\\s") {
+                    unescaped.Append(" ");
+                } else if (sequence == "\\\\") {
+                    unescaped.Append("\\");
+                } else if (sequence == "\\r") {
+                    unescaped.Append((char)13);
+                } else if (sequence == "\\n") {
+                    unescaped.Append((char)10);
                 }
 
                 lastPos = pos + sequence.Length;
@@ -1317,10 +1309,10 @@ namespace Meebey.SmartIrc4net
 
             if (lastPos < tagValue.Length)
             {
-                unescaped += tagValue.Substring(lastPos);
+                unescaped.Append(tagValue.Substring(lastPos));
             }
 
-            return unescaped;
+            return unescaped.ToString();
         }
         
         private ReceiveType _GetMessageType(string rawline)

@@ -147,10 +147,8 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the raw tags sent by the server
         /// </summary>
-        public string RawTags
-        {
-            get
-            {
+        public string RawTags {
+            get {
                 return _RawTags;
             }
         }
@@ -158,10 +156,8 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the tags sent by the server as a dictionary
         /// </summary>
-        public Dictionary<string, string> Tags
-        {
-            get
-            {
+        public Dictionary<string, string> Tags {
+            get {
                 return _Tags;
             }
         }
