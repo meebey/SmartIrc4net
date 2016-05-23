@@ -31,6 +31,11 @@ if test x$GACUTIL = x; then
 	AC_MSG_ERROR(You need gacutil)
 fi
 
+AC_PATH_PROG(NUGET, nuget)
+if test x$NUGET = x; then
+	AC_MSG_ERROR(You need nuget)
+fi
+
 #PKG_CHECK_MODULES([LOG4NET], [log4net])
                         
 GACUTIL_FLAGS='-root $(DESTDIR)$(libdir)'
