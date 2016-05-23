@@ -8,6 +8,19 @@ mono:
     - 3.12.0
     - 3.8.0
 
+addons:
+    apt:
+        packages:
+        - autoconf
+        - automake
+        - make
+        - libtool
+
+script:
+    - ./autogen.sh MCS=mcs
+    - xbuild /p:Configuration=Release SmartIrc4net.sln
+    - make clean; make distcheck MCS=mcs
+
 notifications:
     irc:
         channels: "chat.freenode.net#smuxi-devel"
