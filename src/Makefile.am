@@ -1,5 +1,3 @@
-CSC_FLAGS += -reference:$(top_srcdir)/packages/log4net.2.0.3/lib/net40-full/log4net.dll
-
 TARGET_DIR = $(top_builddir)/bin
 KEYFILE = $(top_srcdir)/$(PACKAGE_NAME).snk
 ASSEMBLY = $(ASSEMBLY_NAME).dll

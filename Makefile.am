@@ -11,6 +11,3 @@ EXTRA_DIST = \
 	LICENSE \
 	README \
 	TODO
-
-fetch-packages:
-	$(NUGET) restore packages.config -PackagesDirectory ./packages

@@ -17,9 +17,9 @@ addons:
         - libtool
 
 script:
-    - ./autogen.sh
+    - ./autogen.sh MCS=mcs
     - xbuild /p:Configuration=Release SmartIrc4net.sln
-    - make clean; make fetch-packages; make distcheck
+    - make clean; make distcheck MCS=mcs
 
 notifications:
     irc:
