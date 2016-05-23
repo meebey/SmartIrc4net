@@ -1,13 +1,8 @@
-language: c
+language: csharp
+solution: SmartIrc4net.sln
 
-install:
-    - sudo apt-get update > /dev/null
-    - sudo apt-get install mono-devel > /dev/null
-
-script:
-    - ./autogen.sh MCS=/usr/bin/dmcs
-    - xbuild SmartIrc4net.sln
-    - make clean; make distcheck MCS=/usr/bin/dmcs
+mono:
+    - latest
 
 notifications:
     irc:
