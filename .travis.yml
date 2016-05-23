@@ -3,6 +3,10 @@ solution: SmartIrc4net.sln
 
 mono:
     - latest
+    - 3.0.0
+    - 3.12.1
+    - 4.0.0
+    - 4.2.3
 
 notifications:
     irc:
