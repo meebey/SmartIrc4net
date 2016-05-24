@@ -1286,29 +1286,28 @@ namespace Meebey.SmartIrc4net
             int lastPos = 0;
             int pos = 0;
             string sequence;
-            StringBuilder unescaped = new StringBuilder();
+            var unescaped = new StringBuilder(tagValue.Length);
 
             while (lastPos < tagValue.Length && (pos = tagValue.IndexOf('\\', lastPos)) >= 0) {
                 unescaped.Append(tagValue.Substring(lastPos, pos - lastPos));
                 sequence = tagValue.Substring(pos, 2);
 
-                if (sequence == "\\:") {
+                if (sequence == @"\:") {
                     unescaped.Append(";");
-                } else if (sequence == "\\s") {
+                } else if (sequence == @"\s") {
                     unescaped.Append(" ");
-                } else if (sequence == "\\\\") {
-                    unescaped.Append("\\");
-                } else if (sequence == "\\r") {
-                    unescaped.Append((char)13);
-                } else if (sequence == "\\n") {
-                    unescaped.Append((char)10);
+                } else if (sequence == @"\\") {
+                    unescaped.Append(@"\");
+                } else if (sequence == @"\r") {
+                    unescaped.Append("\r");
+                } else if (sequence == @"\n") {
+                    unescaped.Append("\n");
                 }
 
                 lastPos = pos + sequence.Length;
             }
 
-            if (lastPos < tagValue.Length)
-            {
+            if (lastPos < tagValue.Length) {
                 unescaped.Append(tagValue.Substring(lastPos));
             }
 
