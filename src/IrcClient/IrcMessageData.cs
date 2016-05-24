@@ -46,7 +46,6 @@ namespace Meebey.SmartIrc4net
         private string[]    _MessageArray;
         private string      _RawMessage;
         private string[]    _RawMessageArray;
-        private string      _RawTags;
         private Dictionary<string, string> _Tags;
         private ReceiveType _Type;
         private ReplyCode   _ReplyCode;
@@ -145,16 +144,7 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Gets the raw tags sent by the server
-        /// </summary>
-        public string RawTags {
-            get {
-                return _RawTags;
-            }
-        }
-
-        /// <summary>
-        /// Gets the tags sent by the server as a dictionary
+        /// Gets the message tags sent by the server as a dictionary
         /// </summary>
         public Dictionary<string, string> Tags {
             get {
@@ -195,7 +185,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="replycode">message reply code</param>
         /// <param name="rawTags">raw tags data sent by the server</param>
         /// <param name="tags">Dictionary of separated and unescaped tags</param>
-        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode, string rawTags, Dictionary<string, string> tags)
+        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode, Dictionary<string, string> tags)
         {
             _Irc = ircclient;
             _RawMessage = rawmessage;
@@ -212,7 +202,6 @@ namespace Meebey.SmartIrc4net
                 _Message = message;
                 _MessageArray = message.Split(new char[] {' '});
             }
-            _RawTags = rawTags;
             _Tags = tags;
         }
     }
