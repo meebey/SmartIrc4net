@@ -3168,7 +3168,7 @@ namespace Meebey.SmartIrc4net
         private void _Event_RPL_BOUNCE(IrcMessageData ircdata)
         {
             // HACK: might be BOUNCE or ISUPPORT; try to detect
-            if (ircdata.Message.StartsWith("Try server ")) {
+            if (ircdata.Message != null && ircdata.Message.StartsWith("Try server ")) {
                 // BOUNCE
                 string host = null;
                 int port = -1;
