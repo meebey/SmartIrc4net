@@ -39,6 +39,7 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
+[assembly: InternalsVisibleToAttribute("Meebey.SmartIrc4net.Tests")]
 
 [assembly: AssemblyTitle("SmartIrc4net")]
 [assembly: AssemblyDescription("IRC library for CLI")]

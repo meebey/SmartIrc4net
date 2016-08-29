@@ -90,5 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="src\AssemblyInfo.cs.in" />
   </ItemGroup>
 </Project>
