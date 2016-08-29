@@ -31,7 +31,7 @@ all: $(ASSEMBLY_TARGET)
 
 $(ASSEMBLY_TARGET): $(SOURCE_FILES)
 	$(INSTALL) -d $(TARGET_DIR)
-	$(CSC) $(CSC_FLAGS) -keyfile:$(KEYFILE) -doc:$(ASSEMBLY_XML_TARGET) -target:library -out:$@ $^
+	$(CSC) $(CSC_FLAGS) -keyfile:$(KEYFILE) -define:SIGN -doc:$(ASSEMBLY_XML_TARGET) -target:library -out:$@ $^
 
 docs: $(ASSEMBLY_TARGET)
 	$(NDOC) $(ASSEMBLY) \

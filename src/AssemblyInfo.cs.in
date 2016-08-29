@@ -39,7 +39,9 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
+#if !SIGN && !DELAY_SIGN
 [assembly: InternalsVisibleToAttribute("Meebey.SmartIrc4net.Tests")]
+#endif
 
 [assembly: AssemblyTitle("@ASSEMBLY_TITLE@")]
 [assembly: AssemblyDescription("@ASSEMBLY_DESCRIPTION@")]
