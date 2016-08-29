@@ -3241,37 +3241,15 @@ namespace Meebey.SmartIrc4net
             }
 
             // ISUPPORT
-            // split the message (0 = server, 1 = code, 2 = my nick)
-            for (int i = 3; i < ircdata.RawMessageArray.Length; ++i) {
-                var msg = ircdata.RawMessageArray [i];
-                if (msg.StartsWith(":")) {
-                    // addendum; we're done
-                    break;
+            _ServerProperties.ParseFromRawMessage(ircdata.RawMessageArray);
+            if (ircdata.RawMessageArray.Any(x => x.StartsWith("CHANMODES="))) {
+                var chanModes = _ServerProperties.RawProperties["CHANMODES"];
+                if (!String.IsNullOrEmpty(chanModes)) {
+                    ChannelModeMap = new ChannelModeMap(chanModes);
                 }
-
-                var keyval = msg.Split('=');
-                if (keyval.Length == 1) {
-                    // keyword only
-                    _ServerProperties.RawProperties [keyval [0]] = null;
-                } else if (keyval.Length == 2) {
-                    // key and value
-                    _ServerProperties.RawProperties [keyval [0]] = keyval [1];
-                } else {
-#if LOG4NET
-                    Logger.Connection.Warn("confusing ISUPPORT message, ignoring: " + msg);
-#endif
-                }
-
-                if (keyval.Length == 2 && keyval[0] == "CHANMODES") {
-                    var chanModes = keyval[1];
-                    if (!String.IsNullOrEmpty(chanModes)) {
-                        ChannelModeMap = new ChannelModeMap(chanModes);
-                    }
-                }
-
-                if (keyval[0] == "NAMESX") {
-                    WriteLine("PROTOCTL NAMESX", Priority.Critical);
-                }
+            }
+            if (_ServerProperties.RawProperties.ContainsKey("NAMESX")) {
+                WriteLine("PROTOCTL NAMESX", Priority.Critical);
             }
         }
 #endregion
