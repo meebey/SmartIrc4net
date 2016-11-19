@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -80,9 +81,8 @@ namespace Meebey.SmartIrc4net
         private int              _IdleWorkerInterval = 60;
         private int              _PingInterval = 60;
         private int              _PingTimeout = 300;
-        private DateTime         _LastPingSent;
-        private DateTime         _LastPongReceived;
-        private TimeSpan         _Lag;
+        private Stopwatch PingStopwatch { get; set; }
+        private Stopwatch NextPingStopwatch { get; set; }
         private string           _ProxyHost;
         private int              _ProxyPort;
         private ProxyType        _ProxyType = ProxyType.None;
@@ -444,12 +444,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public TimeSpan Lag {
             get {
-                if (_LastPingSent > _LastPongReceived) {
-                    // there is an outstanding ping, thus we don't have a current lag value
-                    return DateTime.Now - _LastPingSent;
-                }
-                
-                return _Lag;
+                return PingStopwatch.Elapsed;
             }
         }
 
@@ -537,6 +532,8 @@ namespace Meebey.SmartIrc4net
             _ReadThread  = new ReadThread(this);
             _WriteThread = new WriteThread(this);
             _IdleWorkerThread = new IdleWorkerThread(this);
+            PingStopwatch = new Stopwatch();
+            NextPingStopwatch = new Stopwatch();
 
             Assembly assm = Assembly.GetAssembly(this.GetType());
             AssemblyName assm_name = assm.GetName(false);
@@ -1033,12 +1030,12 @@ namespace Meebey.SmartIrc4net
                         //IsConnectionError = true;
                         break;
                     case "PONG":
-                        DateTime now = DateTime.Now;
-                        _LastPongReceived = now;
-                        _Lag = now - _LastPingSent;
+                        PingStopwatch.Stop();
+                        NextPingStopwatch.Reset();
+                        NextPingStopwatch.Start();
 
 #if LOG4NET
-                        Logger.Connection.Debug("PONG received, took: " + _Lag.TotalMilliseconds + " ms");
+                        Logger.Connection.Debug("PONG received, took: " + PingStopwatch.ElapsedMilliseconds + " ms");
 #endif
                         break;
                 }
@@ -1462,9 +1459,9 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Start()
             {
-                DateTime now = DateTime.Now;
-                _Connection._LastPingSent = now;
-                _Connection._LastPongReceived = now;
+                _Connection.PingStopwatch.Reset();
+                _Connection.NextPingStopwatch.Reset();
+                _Connection.NextPingStopwatch.Start();
                 
                 _Thread = new Thread(new ThreadStart(_Worker));
                 _Thread.Name = "IdleWorkerThread ("+_Connection.Address+":"+_Connection.Port+")";
@@ -1494,22 +1491,22 @@ namespace Meebey.SmartIrc4net
                         if (!_Connection.IsRegistered) {
                             continue;
                         }
-                        
-                        DateTime now = DateTime.Now;
-                        int last_ping_sent = (int)(now - _Connection._LastPingSent).TotalSeconds;
-                        int last_pong_rcvd = (int)(now - _Connection._LastPongReceived).TotalSeconds;
+
+                        int last_ping_sent = (int)_Connection.PingStopwatch.Elapsed.TotalSeconds;
+                        int last_pong_rcvd = (int)_Connection.NextPingStopwatch.Elapsed.TotalSeconds;
                         // determins if the resoponse time is ok
                         if (last_ping_sent < _Connection._PingTimeout) {
-                            if (_Connection._LastPingSent > _Connection._LastPongReceived) {
+                            if (_Connection.PingStopwatch.IsRunning) {
                                 // there is a pending ping request, we have to wait
                                 continue;
                             }
                             
                             // determines if it need to send another ping yet
                             if (last_pong_rcvd > _Connection._PingInterval) {
+                                _Connection.NextPingStopwatch.Stop();
+                                _Connection.PingStopwatch.Reset();
+                                _Connection.PingStopwatch.Start();
                                 _Connection.WriteLine(Rfc2812.Ping(_Connection.Address), Priority.Critical);
-                                _Connection._LastPingSent = now;
-                                //_Connection._LastPongReceived = now;
                             } // else connection is fine, just continue
                         } else {
                             if (_Connection.IsDisconnecting) {
