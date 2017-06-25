@@ -2218,11 +2218,29 @@ namespace Meebey.SmartIrc4net
                 Channel channel;
                 if (IsMe(who)) {
                     // we joined the channel
+                    // we joined the channel
+                    // HACK: only create and add the channel to _Channels if it
+                    // doesn't exist yet. This check should not be needed but
+                    // the IRCd could send a duplicate JOIN message and break
+                    // our client state
+                    channel = GetChannel(channelname);
+                    if (channel == null) {
 #if LOG4NET
-                    Logger.ChannelSyncing.Debug("joining channel: "+channelname);
+                        Logger.ChannelSyncing.DebugFormat(
+                            "joining channel: '{0}'", channelname
+                        );
 #endif
-                    channel = CreateChannel(channelname);
-                    _Channels.Add(channelname, channel);
+                        channel = CreateChannel(channelname);
+                    } else {
+#if LOG4NET
+                        Logger.ChannelSyncing.WarnFormat(
+                            "joining already joined channel: '{0}', ignoring...",
+                            channelname
+                        );
+#endif
+                    }
+                    _Channels[channelname] = channel;
+
                     // request channel mode
                     RfcMode(channelname);
                     // request wholist
