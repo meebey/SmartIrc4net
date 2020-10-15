@@ -534,7 +534,7 @@ namespace Meebey.SmartIrc4net
             if (username != null && username.Length > 0) {
                 _Username = username.Replace(" ", "");
             } else {
-                _Username = Environment.UserName.Replace(" ", "");
+                _Username = Guid.NewGuid().ToString("n").Substring(0, 8);
             }
 
             if (password != null && password.Length > 0) {
