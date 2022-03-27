@@ -29,6 +29,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections;
@@ -85,22 +86,22 @@ namespace Meebey.SmartIrc4net
         private Object           _InviteExceptListSyncRoot = new Object();
         private AutoResetEvent   _InviteExceptListReceivedEvent;
         private ServerProperties _ServerProperties = new ServerProperties();
-        private static Regex     _ReplyCodeRegex          = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
+        private static Regex     _ReplyCodeRegex          = new Regex("^:?[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
         private static Regex     _PingRegex               = new Regex("^PING :.*", RegexOptions.Compiled);
         private static Regex     _ErrorRegex              = new Regex("^ERROR :.*", RegexOptions.Compiled);
-        private static Regex     _ActionRegex             = new Regex("^:.*? PRIVMSG (.).* :"+"\x1"+"ACTION .*"+"\x1"+"$", RegexOptions.Compiled);
-        private static Regex     _CtcpRequestRegex        = new Regex("^:.*? PRIVMSG .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
-        private static Regex     _MessageRegex            = new Regex("^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled);
-        private static Regex     _CtcpReplyRegex          = new Regex("^:.*? NOTICE .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
-        private static Regex     _NoticeRegex             = new Regex("^:.*? NOTICE (.).* :.*$", RegexOptions.Compiled);
-        private static Regex     _InviteRegex             = new Regex("^:.*? INVITE .* .*$", RegexOptions.Compiled);
-        private static Regex     _JoinRegex               = new Regex("^:.*? JOIN .*$", RegexOptions.Compiled);
-        private static Regex     _TopicRegex              = new Regex("^:.*? TOPIC .* :.*$", RegexOptions.Compiled);
-        private static Regex     _NickRegex               = new Regex("^:.*? NICK .*$", RegexOptions.Compiled);
-        private static Regex     _KickRegex               = new Regex("^:.*? KICK .* .*$", RegexOptions.Compiled);
-        private static Regex     _PartRegex               = new Regex("^:.*? PART .*$", RegexOptions.Compiled);
-        private static Regex     _ModeRegex               = new Regex("^:.*? MODE (.*) .*$", RegexOptions.Compiled);
-        private static Regex     _QuitRegex               = new Regex("^:.*? QUIT :.*$", RegexOptions.Compiled);
+        private static Regex     _ActionRegex             = new Regex("^:?.*? PRIVMSG (.).* :"+"\x1"+"ACTION .*"+"\x1"+"$", RegexOptions.Compiled);
+        private static Regex     _CtcpRequestRegex        = new Regex("^:?.*? PRIVMSG .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
+        private static Regex     _MessageRegex            = new Regex("^:?.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled);
+        private static Regex     _CtcpReplyRegex          = new Regex("^:?.*? NOTICE .* :"+"\x1"+".*"+"\x1"+"$", RegexOptions.Compiled);
+        private static Regex     _NoticeRegex             = new Regex("^:?.*? NOTICE (.).* :.*$", RegexOptions.Compiled);
+        private static Regex     _InviteRegex             = new Regex("^:?.*? INVITE .* .*$", RegexOptions.Compiled);
+        private static Regex     _JoinRegex               = new Regex("^:?.*? JOIN .*$", RegexOptions.Compiled);
+        private static Regex     _TopicRegex              = new Regex("^:?.*? TOPIC .* :.*$", RegexOptions.Compiled);
+        private static Regex     _NickRegex               = new Regex("^:?.*? NICK .*$", RegexOptions.Compiled);
+        private static Regex     _KickRegex               = new Regex("^:?.*? KICK .* .*$", RegexOptions.Compiled);
+        private static Regex     _PartRegex               = new Regex("^:?.*? PART .*$", RegexOptions.Compiled);
+        private static Regex     _ModeRegex               = new Regex("^:?.*? MODE (.*) .*$", RegexOptions.Compiled);
+        private static Regex     _QuitRegex               = new Regex("^:?.*? QUIT :.*$", RegexOptions.Compiled);
         private static Regex     _BounceMessageRegex      = new Regex("^Try server (.+), port ([0-9]+)$", RegexOptions.Compiled);
 
         ChannelModeMap ChannelModeMap { get; set; }
@@ -885,6 +886,8 @@ namespace Meebey.SmartIrc4net
             string         host = null;
             string         channel = null;
             string         message = null;
+            string         rawTags = null;
+            Dictionary<string, string> tags = new Dictionary<string, string>();
             ReceiveType    type;
             ReplyCode      replycode;
             int            exclamationpos;
@@ -895,12 +898,30 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentException("Value must not be empty.", "rawline");
             }
 
-            if (rawline[0] == ':') {
-                line = rawline.Substring(1);
+            // IRCv3.2 message tags: http://ircv3.net/specs/core/message-tags-3.2.html
+            if (rawline[0] == '@') {
+                int spcidx = rawline.IndexOf(' ');
+                rawTags = rawline.Substring(1, spcidx - 1);
+                // strip tags from further parsing for backwards compatibility
+                line = rawline.Substring(spcidx + 1);
+
+                string[] sTags = rawTags.Split(new char[] { ';' });
+                foreach (string s in sTags) {
+                    int eqidx = s.IndexOf("=");
+
+                    if (eqidx != -1) {
+                        tags.Add(s.Substring(0, eqidx), _UnescapeTagValue(s.Substring(eqidx + 1)));
+                    } else {
+                        tags.Add(s, null);
+                    }
+                }
             } else {
                 line = rawline;
             }
 
+            if (line[0] == ':') {
+                line = line.Substring(1);
+            }
             linear = line.Split(new char[] {' '});
 
             // conform to RFC 2812
@@ -941,7 +962,7 @@ namespace Meebey.SmartIrc4net
                 replycode = ReplyCode.Null;
             }
 
-            type = _GetMessageType(rawline);
+            type = _GetMessageType(line);
             if (colonpos != -1) {
                 message = line.Substring(colonpos + 1);
             }
@@ -985,7 +1006,7 @@ namespace Meebey.SmartIrc4net
             }
 
             IrcMessageData data;
-            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, replycode);
+            data = new IrcMessageData(this, from, nick, ident, host, channel, message, rawline, type, replycode, tags);
 #if LOG4NET
             Logger.MessageParser.Debug("IrcMessageData "+
                                        "nick: '"+data.Nick+"' "+
@@ -994,7 +1015,8 @@ namespace Meebey.SmartIrc4net
                                        "type: '"+data.Type.ToString()+"' "+
                                        "from: '"+data.From+"' "+
                                        "channel: '"+data.Channel+"' "+
-                                       "message: '"+data.Message+"' "
+                                       "message: '"+data.Message+"' "+
+                                       "tags: '"+rawTags+"' "
                                        );
 #endif
             return data;
@@ -1257,6 +1279,39 @@ namespace Meebey.SmartIrc4net
                 _CurrentNickname--;
             }
             return NicknameList[_CurrentNickname];
+        }
+
+        private string _UnescapeTagValue(string tagValue)
+        {
+            int lastPos = 0;
+            int pos = 0;
+            string sequence;
+            var unescaped = new StringBuilder(tagValue.Length);
+
+            while (lastPos < tagValue.Length && (pos = tagValue.IndexOf('\\', lastPos)) >= 0) {
+                unescaped.Append(tagValue.Substring(lastPos, pos - lastPos));
+                sequence = tagValue.Substring(pos, 2);
+
+                if (sequence == @"\:") {
+                    unescaped.Append(";");
+                } else if (sequence == @"\s") {
+                    unescaped.Append(" ");
+                } else if (sequence == @"\\") {
+                    unescaped.Append(@"\");
+                } else if (sequence == @"\r") {
+                    unescaped.Append("\r");
+                } else if (sequence == @"\n") {
+                    unescaped.Append("\n");
+                }
+
+                lastPos = pos + sequence.Length;
+            }
+
+            if (lastPos < tagValue.Length) {
+                unescaped.Append(tagValue.Substring(lastPos));
+            }
+
+            return unescaped.ToString();
         }
         
         private ReceiveType _GetMessageType(string rawline)
@@ -3186,37 +3241,15 @@ namespace Meebey.SmartIrc4net
             }
 
             // ISUPPORT
-            // split the message (0 = server, 1 = code, 2 = my nick)
-            for (int i = 3; i < ircdata.RawMessageArray.Length; ++i) {
-                var msg = ircdata.RawMessageArray [i];
-                if (msg.StartsWith(":")) {
-                    // addendum; we're done
-                    break;
+            _ServerProperties.ParseFromRawMessage(ircdata.RawMessageArray);
+            if (ircdata.RawMessageArray.Any(x => x.StartsWith("CHANMODES="))) {
+                var chanModes = _ServerProperties.RawProperties["CHANMODES"];
+                if (!String.IsNullOrEmpty(chanModes)) {
+                    ChannelModeMap = new ChannelModeMap(chanModes);
                 }
-
-                var keyval = msg.Split('=');
-                if (keyval.Length == 1) {
-                    // keyword only
-                    _ServerProperties.RawProperties [keyval [0]] = null;
-                } else if (keyval.Length == 2) {
-                    // key and value
-                    _ServerProperties.RawProperties [keyval [0]] = keyval [1];
-                } else {
-#if LOG4NET
-                    Logger.Connection.Warn("confusing ISUPPORT message, ignoring: " + msg);
-#endif
-                }
-
-                if (keyval.Length == 2 && keyval[0] == "CHANMODES") {
-                    var chanModes = keyval[1];
-                    if (!String.IsNullOrEmpty(chanModes)) {
-                        ChannelModeMap = new ChannelModeMap(chanModes);
-                    }
-                }
-
-                if (keyval[0] == "NAMESX") {
-                    WriteLine("PROTOCTL NAMESX", Priority.Critical);
-                }
+            }
+            if (_ServerProperties.RawProperties.ContainsKey("NAMESX")) {
+                WriteLine("PROTOCTL NAMESX", Priority.Critical);
             }
         }
 #endregion

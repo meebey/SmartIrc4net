@@ -26,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+using System.Collections.Generic;
+
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
@@ -44,6 +46,7 @@ namespace Meebey.SmartIrc4net
         private string[]    _MessageArray;
         private string      _RawMessage;
         private string[]    _RawMessageArray;
+        private Dictionary<string, string> _Tags;
         private ReceiveType _Type;
         private ReplyCode   _ReplyCode;
         
@@ -141,6 +144,15 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
+        /// Gets the message tags sent by the server as a dictionary
+        /// </summary>
+        public Dictionary<string, string> Tags {
+            get {
+                return _Tags;
+            }
+        }
+
+        /// <summary>
         /// Gets the message type
         /// </summary>
         public ReceiveType Type {
@@ -159,7 +171,7 @@ namespace Meebey.SmartIrc4net
         }
 
         /// <summary>
-        /// Constructor to create an instace of IrcMessageData
+        /// Constructor to create an instance of IrcMessageData
         /// </summary>
         /// <param name="ircclient">IrcClient the message originated from</param>
         /// <param name="from">combined nickname, identity and host of the user that sent the message (nick!ident@host)</param>
@@ -171,7 +183,9 @@ namespace Meebey.SmartIrc4net
         /// <param name="rawmessage">raw message sent by the server</param>
         /// <param name="type">message type</param>
         /// <param name="replycode">message reply code</param>
-        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode)
+        /// <param name="rawTags">raw tags data sent by the server</param>
+        /// <param name="tags">Dictionary of separated and unescaped tags</param>
+        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode, Dictionary<string, string> tags)
         {
             _Irc = ircclient;
             _RawMessage = rawmessage;
@@ -188,6 +202,7 @@ namespace Meebey.SmartIrc4net
                 _Message = message;
                 _MessageArray = message.Split(new char[] {' '});
             }
+            _Tags = tags;
         }
     }
 }

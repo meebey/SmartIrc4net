@@ -39,13 +39,16 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
+#if !SIGN && !DELAY_SIGN
+[assembly: InternalsVisibleToAttribute("Meebey.SmartIrc4net.Tests")]
+#endif
 
 [assembly: AssemblyTitle("@ASSEMBLY_TITLE@")]
 [assembly: AssemblyDescription("@ASSEMBLY_DESCRIPTION@")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("qNETp")]
 [assembly: AssemblyProduct("SmartIrc4net")]
-[assembly: AssemblyCopyright("2003-2008 (C) Mirco Bauer <meebey@meebey.net>")]
+[assembly: AssemblyCopyright("2003-2016 (C) Mirco Bauer <meebey@meebey.net> and other contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

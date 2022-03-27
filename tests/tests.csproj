@@ -35,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChannelModeChangeInfoTests.cs" />
+    <Compile Include="IrcClientTests.cs" />
+    <Compile Include="ServerPropertiesTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

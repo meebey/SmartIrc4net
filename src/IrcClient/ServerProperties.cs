@@ -491,6 +491,31 @@ namespace Meebey.SmartIrc4net
             RawProperties = new Dictionary<string, string>();
         }
 
+        internal void ParseFromRawMessage(string[] rawMessage)
+        {
+            // split the message (0 = server, 1 = code, 2 = my nick)
+            for (int i = 3; i < rawMessage.Length; ++i) {
+                var msg = rawMessage [i];
+                if (msg.StartsWith(":")) {
+                    // addendum; we're done
+                    break;
+                }
+
+                var keyval = msg.Split('=');
+                if (keyval.Length == 1) {
+                    // keyword only
+                    RawProperties [keyval [0]] = null;
+                } else if (keyval.Length == 2) {
+                    // key and value
+                    RawProperties [keyval [0]] = keyval [1];
+                } else {
+#if LOG4NET
+                    Logger.Connection.Warn("confusing ISUPPORT message, ignoring: " + msg);
+#endif
+                }
+            }
+        }
+
         /// <summary>
         /// Returns whether the property dictionary contains the given key and
         /// it is not null.

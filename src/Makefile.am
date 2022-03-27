@@ -4,7 +4,7 @@ ASSEMBLY = $(ASSEMBLY_NAME).dll
 ASSEMBLY_TARGET = $(TARGET_DIR)/$(ASSEMBLY)
 ASSEMBLY_XML = $(ASSEMBLY_NAME).xml
 ASSEMBLY_XML_TARGET = $(TARGET_DIR)/$(ASSEMBLY_XML)
-ASSEMBLY_PC = $(top_srcdir)/$(PACKAGE_NAME).pc
+ASSEMBLY_PC = $(top_builddir)/$(PACKAGE_NAME).pc
 NDOC = ndoc-console
 NDOC_TARGET_DIR = docs/html
 SOURCE_PATTERNS = *.cs */*.cs */*/*.cs
@@ -31,7 +31,7 @@ all: $(ASSEMBLY_TARGET)
 
 $(ASSEMBLY_TARGET): $(SOURCE_FILES)
 	$(INSTALL) -d $(TARGET_DIR)
-	$(CSC) $(CSC_FLAGS) -keyfile:$(KEYFILE) -doc:$(ASSEMBLY_XML_TARGET) -target:library -out:$@ $^
+	$(CSC) $(CSC_FLAGS) -keyfile:$(KEYFILE) -define:SIGN -doc:$(ASSEMBLY_XML_TARGET) -target:library -out:$@ $^
 
 docs: $(ASSEMBLY_TARGET)
 	$(NDOC) $(ASSEMBLY) \
