@@ -60,7 +60,7 @@ using System.Runtime.InteropServices;
 // numbers with the '*' character (the default):
 
 [assembly: AssemblyVersion("0.4.5.0")]
-[assembly: AssemblyInformationalVersion("1.0")]
+[assembly: AssemblyInformationalVersion("1.1")]
 
 // The following attributes specify the key for the sign of your assembly. See the
 // .NET Framework documentation for more information about signing.

@@ -23,7 +23,7 @@ script:
 
 notifications:
     irc:
-        channels: "chat.freenode.net#smuxi-devel"
+        channels: "irc.oftc.net#smuxi"
         skip_join: true
         template:
             - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"

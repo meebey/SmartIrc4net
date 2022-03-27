@@ -68,8 +68,8 @@ namespace Meebey.SmartIrc4net
         private bool             _MotdReceived;
         private Array            _ReplyCodes              = Enum.GetValues(typeof(ReplyCode));
         private StringCollection _JoinedChannels          = new StringCollection();
-        private Hashtable        _Channels                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private Hashtable        _IrcUsers                = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private Hashtable _Channels = Hashtable.Synchronized(new Hashtable(StringComparer.OrdinalIgnoreCase));
+        private Hashtable _IrcUsers = Hashtable.Synchronized(new Hashtable(StringComparer.OrdinalIgnoreCase));
         private List<ChannelInfo> _ChannelList;
         private Object            _ChannelListSyncRoot = new Object();
         private AutoResetEvent    _ChannelListReceivedEvent;
@@ -2218,11 +2218,29 @@ namespace Meebey.SmartIrc4net
                 Channel channel;
                 if (IsMe(who)) {
                     // we joined the channel
+                    // we joined the channel
+                    // HACK: only create and add the channel to _Channels if it
+                    // doesn't exist yet. This check should not be needed but
+                    // the IRCd could send a duplicate JOIN message and break
+                    // our client state
+                    channel = GetChannel(channelname);
+                    if (channel == null) {
 #if LOG4NET
-                    Logger.ChannelSyncing.Debug("joining channel: "+channelname);
+                        Logger.ChannelSyncing.DebugFormat(
+                            "joining channel: '{0}'", channelname
+                        );
 #endif
-                    channel = CreateChannel(channelname);
-                    _Channels.Add(channelname, channel);
+                        channel = CreateChannel(channelname);
+                    } else {
+#if LOG4NET
+                        Logger.ChannelSyncing.WarnFormat(
+                            "joining already joined channel: '{0}', ignoring...",
+                            channelname
+                        );
+#endif
+                    }
+                    _Channels[channelname] = channel;
+
                     // request channel mode
                     RfcMode(channelname);
                     // request wholist
